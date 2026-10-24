@@ -1,0 +1,17 @@
+schema_version: 1
+storage:
+  # Replace these in your ignored paths.local.yaml. Relative paths resolve
+  # against this YAML file; large resources should live on your institution's disk.
+  data_root: ../data
+  stimuli_root: ../stimuli
+  checkpoint_root: ../checkpoints
+  feature_root: ../feature_cache
+  results_root: ../results
+compute:
+  device: cuda
+  # Empty means no GPU is configured yet, not permission to use CPU.
+  allowed_gpu_ids: []
+  precision: float32
+  ridge_precision: float64
+# Logical model IDs -> local files, relative to checkpoint_root or absolute.
+checkpoints: {}
