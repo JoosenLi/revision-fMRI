@@ -22,5 +22,12 @@ Status as of 2026-10-24. No scientific run is authorized or launched. A proposal
 | D16 | LAION response space/session scaling may differ | No implicit beta re-scaling or space conversion | Preserve voxel ID/affine/space and normalization provenance; inspect local metadata before implementation |
 | D18 | User prefers float32 when adequate; original ridge uses float64 | YAML separates feature precision (float32) and ridge precision (float64) | Float32 ridge needs conditioning/alpha/prediction/RSA/layer-choice parity tests and joint review |
 | D17 | 64 random-task rows plus a random Taskonomy encoder labeled taskonomy | Preserve raw labels and initialization status separately | Reconcile paper trained/random counts and downstream grouping before reclassification |
+| D19 | Executing released C4 on sklearn 1.3.2 reveals `copy_X=True` binds to positional `normalize`, enabling feature L2 normalization | Corrected the initial static audit; reference requires explicit `legacy_l2_normalize`; True matches unmodified source in the pinned compatibility environment | Five synthetic source fixtures plus brute-force LOO tests pass; original authors' dependency version/intent remains unresolved; no silent choice for scientific runs |
+
+2026-10-26 implementation update: D03's centered LOO behavior is now numerically
+verified against unmodified source; D10 remains an explicit caller-supplied
+projection count; D18's float32 ridge option remains unavailable in the numerical
+reference and fails explicitly. D01/D02 and all LAION scientific decisions remain
+unresolved. See `encoding_reference.md` for scope and validation tolerances.
 
 Changes to engineering (configuration, validation, source hashing) are implemented. Scientific changes listed as proposals or unresolved must not be promoted to original-method claims. No new regularization, feature pooling, PCA, pretrained replacement, network fine-tuning or modern default scoring is introduced.

@@ -53,14 +53,140 @@ def evaluate_crsa(features: FeatureSet, responses: ResponseSet) -> float:
 
 @dataclass(frozen=True)
 class EncodingPredictions:
-    """Future ridge adapter result; never infer training prediction semantics."""
+    """Ridge adapter result with explicit prediction semantics and image order."""
     train_loo_centered: NDArray
     test_with_intercept: NDArray
     alpha_per_voxel: NDArray
     provenance: Mapping[str, str]
+    train_ids: tuple[str, ...]
+    test_ids: tuple[str, ...]
 
 
 class EncodingEvaluator(Protocol):
-    """SRP/scaler/ridge adapter remains pending legacy numerical parity tests."""
+    """Common interface for encoding backends."""
     def fit_predict(self, features: FeatureSet, responses: ResponseSet,
                     split: EvaluationSplit, *, alphas: tuple[float, ...]) -> EncodingPredictions: ...
+
+
+@dataclass(frozen=True)
+class ReferenceEncodingEvaluator:
+    """Small-array reference only; no implicit LAION dimension or precision policy.
+
+    legacy_l2_normalize=True reproduces the released call under sklearn 1.3.2;
+    False is a distinct explicit policy, not claimed as the historical run.
+    """
+    n_components: int
+    seed: int
+    legacy_l2_normalize: bool
+    precision: str
+
+    def __post_init__(self):
+        if self.precision != 'float64':
+            raise ValueError('Only float64 ridge is validated; float32 backend is not implemented')
+        if type(self.legacy_l2_normalize) is not bool:
+            raise ValueError('Explicit legacy L2 normalization policy is required')
+        if type(self.n_components) is not int or self.n_components < 1:
+            raise ValueError('Explicit positive projection count is required')
+        if type(self.seed) is not int or not 0 <= self.seed < 2**32:
+            raise ValueError('Explicit unsigned 32-bit seed is required')
+
+    @classmethod
+    def from_config(cls, config, *, n_components: int, seed: int, legacy_l2_normalize: bool):
+        """Honor runtime ridge precision; do not silently override float32 settings."""
+        return cls(n_components, seed, legacy_l2_normalize, config.compute.ridge_precision)
+
+    def fit_predict(self, features: FeatureSet, responses: ResponseSet,
+                    split: EvaluationSplit, *, alphas: tuple[float, ...]) -> EncodingPredictions:
+        import json
+        import scipy
+        import sklearn
+        from sklearn.preprocessing import StandardScaler
+        from .features import project_features
+        from .encoding import fit_ridge_reference
+        from .provenance import array_digest, metadata_digest
+        if features.image_ids != responses.image_ids:
+            raise ValueError('Feature and response image IDs must have identical order')
+        split.validate_coverage(responses.image_ids)
+        indices = {name: i for i, name in enumerate(responses.image_ids)}
+        train = [indices[name] for name in split.train_ids]
+        test = [indices[name] for name in split.test_ids]
+        projected = project_features(features, n_components=self.n_components, seed=self.seed)
+        scaler = StandardScaler()
+        xtrain = scaler.fit_transform(projected.values[train])
+        xtest = scaler.transform(projected.values[test])
+        fit = fit_ridge_reference(xtrain, responses.values[train], alphas=alphas,
+                                  legacy_l2_normalize=self.legacy_l2_normalize)
+        provenance = dict(projected.provenance)
+        provenance.update({
+            'backend': 'float64-svd-reference-v1', 'numpy_version': np.__version__,
+            'scipy_version': scipy.__version__, 'sklearn_version': sklearn.__version__,
+            'ridge_precision': self.precision, 'legacy_l2_normalize': str(self.legacy_l2_normalize),
+            'alphas': json.dumps(list(alphas)), 'split_protocol': split.protocol_id,
+            'split_source_digest': split.source_digest,
+            'split_ids_sha256': metadata_digest({'train': split.train_ids, 'test': split.test_ids}),
+            'train_responses_sha256': array_digest(responses.values[train]),
+            'response_provenance_sha256': metadata_digest(dict(responses.provenance)),
+            'voxel_order_sha256': metadata_digest(responses.voxel_ids),
+            'scaler_sha256': metadata_digest({'mean': array_digest(scaler.mean_), 'scale': array_digest(scaler.scale_)}),
+            'coefficients_sha256': array_digest(fit.coefficients),
+            'intercept_sha256': array_digest(fit.intercept),
+            'training_predictions': 'LOOCV; outer-training response mean NOT restored',
+        })
+        return EncodingPredictions(fit.loo_centered, fit.predict(xtest), fit.alpha_per_voxel,
+                                   provenance, split.train_ids, split.test_ids)
+
+
+@dataclass(frozen=True)
+class LayerEvaluation:
+    """One model/subject/ROI; metric-specific selection precedes test scoring."""
+    selected_layers: Mapping[str, str]
+    training_scores: Mapping[str, Mapping[str, float]]
+    test_scores: Mapping[str, float]
+    predictions: Mapping[str, EncodingPredictions]
+    provenance: Mapping[str, str]
+
+
+def evaluate_layers(layers: tuple[FeatureSet, ...], responses: ResponseSet,
+                    split: EvaluationSplit, encoder: ReferenceEncodingEvaluator, *,
+                    alphas: tuple[float, ...]) -> LayerEvaluation:
+    """Evaluate an explicitly supplied candidate set, never infer hook eligibility.
+
+    Caller invokes separately for each model/subject/ROI. No C7 test-dependent
+    filtering. Only selected cRSA/veRSA layers are scored against test responses.
+    """
+    from .metrics import versa
+    from .provenance import metadata_digest, array_digest
+    if not layers or len({f.layer_id for f in layers}) != len(layers):
+        raise ValueError('Candidate layers must be nonempty and have unique IDs')
+    if len({f.model_id for f in layers}) != 1:
+        raise ValueError('Evaluate one model at a time')
+    for f in layers:
+        if f.image_ids != responses.image_ids or f.representation != 'raw_flattened':
+            raise ValueError('All candidate features must be raw and image-ID aligned')
+    split.validate_coverage(responses.image_ids)
+    index = {name: i for i, name in enumerate(responses.image_ids)}
+    train, test = [index[x] for x in split.train_ids], [index[x] for x in split.test_ids]
+    if min(len(train), len(test)) < 3:
+        raise ValueError('RSA evaluation requires at least three images per partition')
+    training = {'crsa': {}, 'versa': {}}
+    predictions = {}
+    for f in layers:
+        training['crsa'][f.layer_id] = crsa(f.values[train], responses.values[train])
+        pred = encoder.fit_predict(f, responses, split, alphas=alphas)
+        predictions[f.layer_id] = pred
+        training['versa'][f.layer_id] = versa(pred.train_loo_centered, responses.values[train])
+    selected = {metric: select_layer(scores) for metric, scores in training.items()}
+    lookup = {f.layer_id: f for f in layers}
+    test_scores = {
+        'crsa': crsa(lookup[selected['crsa']].values[test], responses.values[test]),
+        'versa': versa(predictions[selected['versa']].test_with_intercept, responses.values[test]),
+    }
+    provenance = {
+        'model_id': layers[0].model_id, 'subject_id': responses.subject_id,
+        'roi_id': responses.roi_id, 'space': responses.space,
+        'candidate_order_sha256': metadata_digest([f.layer_id for f in layers]),
+        'response_values_sha256': array_digest(responses.values),
+        'repeat_counts_sha256': metadata_digest(responses.repeat_counts),
+        'selection': 'max training RSA; first candidate wins ties; no test-dependent filter',
+    }
+    return LayerEvaluation(selected, training, test_scores, predictions, provenance)

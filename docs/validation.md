@@ -34,3 +34,7 @@ repository was supplied, local Git was initialized and connected to
 `https://github.com/JoosenLi/revision-fMRI`. The audit/API foundation is prepared
 on `setup/methodology-audit` for review against an empty initialization commit on
 `main`. Publication success must be verified against remote commit IDs.
+
+## Encoding reference update — 2026-10-26
+
+On `is248155`, 42 tests passed in the project environment with NumPy 1.26.4, SciPy 1.11.4 and sklearn 1.3.2. The earlier 2026-10-24 environment snapshot above describes the foundation-only run. Unmodified DeepNSD RidgeCVMod was executed on five synthetic fixtures; explicit source hash and runtime versions are stored with the fixtures. Small-array SRP/ridge/veRSA and held-out layer evaluation are now implemented. The positional normalization issue is documented as D19. Original historical environment, full-data numerical parity, float32 ridge, GPU execution, data/model/ROI/statistical adapters remain unverified or pending. No real-data/GPU experiments or network training ran. See `encoding_reference.md`.

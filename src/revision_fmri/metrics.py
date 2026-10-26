@@ -26,3 +26,15 @@ def compare_rdms(left: ArrayLike, right: ArrayLike) -> float:
 def crsa(features: ArrayLike, responses: ArrayLike) -> float:
     """Caller must align image order; use evaluation.evaluate_crsa for ID checks."""
     return compare_rdms(correlation_rdm(features), correlation_rdm(responses))
+
+
+def versa(predicted_responses: ArrayLike, observed_responses: ArrayLike) -> float:
+    """RSA of predicted/observed voxel patterns, not mean voxelwise correlation.
+
+    Both arrays must be image × voxel, with identical image and voxel order.
+    For training, callers supply the legacy centered LOOCV prediction matrix.
+    """
+    predicted, observed = np.asarray(predicted_responses), np.asarray(observed_responses)
+    if predicted.shape != observed.shape:
+        raise ValueError('Predicted and observed response axes must match')
+    return compare_rdms(correlation_rdm(predicted), correlation_rdm(observed))

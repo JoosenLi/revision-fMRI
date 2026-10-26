@@ -31,3 +31,44 @@ class FeatureExtractor(Protocol):
     """Backend must reproduce the audited hook/dedup/candidate semantics."""
     def extract(self, model: Any, images: Iterable[Any], *, image_ids: tuple[str, ...],
                 candidate_layers: tuple[str, ...]) -> Iterable[FeatureSet]: ...
+
+
+def jl_dimensions(n_samples: int, *, eps: float) -> int:
+    """Explicit JL policy helper. No implicit choice of LAION sample count."""
+    if type(n_samples) is not int or n_samples < 2 or not np.isfinite(eps) or not 0 < eps < 1:
+        raise ValueError('Require n_samples >= 2 and 0 < eps < 1')
+    from sklearn.random_projection import johnson_lindenstrauss_min_dim
+    return int(johnson_lindenstrauss_min_dim(n_samples, eps=eps))
+
+
+def project_features(features: FeatureSet, *, n_components: int, seed: int) -> FeatureSet:
+    """Legacy sklearn SRP with explicit dimensions, auto density and upsampling.
+
+    Fit on all image features as in C3; randomness depends on width/seed, not
+    responses. This is an encoding transform, never a cRSA input transform.
+    """
+    if features.representation != 'raw_flattened':
+        raise ValueError('SRP requires raw flattened features; do not project twice')
+    if features.values.dtype not in (np.dtype('float32'), np.dtype('float64')):
+        raise ValueError('Raw feature precision must explicitly be float32 or float64')
+    if type(n_components) is not int or n_components < 1:
+        raise ValueError('Projection count must be a positive integer')
+    if type(seed) is not int or not 0 <= seed < 2**32:
+        raise ValueError('SRP seed must be an unsigned 32-bit integer')
+    import sklearn
+    from sklearn.random_projection import SparseRandomProjection
+    from .provenance import array_digest, metadata_digest
+    srp = SparseRandomProjection(n_components=n_components, density='auto', random_state=seed)
+    values = srp.fit_transform(features.values)
+    components = srp.components_.tocsr()
+    provenance = dict(features.provenance)
+    provenance.update({
+        'raw_features_sha256': array_digest(features.values),
+        'image_order_sha256': metadata_digest(features.image_ids),
+        'projection': 'sklearn.SparseRandomProjection', 'sklearn_version': sklearn.__version__,
+        'n_components': str(n_components), 'seed': str(seed), 'density': repr(srp.density_),
+        'projection_sha256': metadata_digest({
+            'shape': components.shape, 'data': array_digest(components.data),
+            'indices': array_digest(components.indices), 'indptr': array_digest(components.indptr)}),
+    })
+    return FeatureSet(features.image_ids, features.model_id, features.layer_id, values, 'srp', provenance)

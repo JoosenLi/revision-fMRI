@@ -2,7 +2,7 @@
 
 Methodological fidelity first. Start with [original_paper.md](docs/original_paper.md), [methodology_audit.md](docs/methodology_audit.md), [deviations.md](docs/deviations.md), [model_manifest.md](docs/model_manifest.md), and [roi_mapping.md](docs/roi_mapping.md). The [implementation and unit-test plan](docs/implementation_plan.md) distinguishes working foundations from future numerical backends.
 
-The shared `revision_fmri` package currently implements local configuration/checkpoint validation, data and feature contracts, raw cRSA and train-only layer selection. Dataset/model/feature/encoding protocols define future adapters. **It does not yet run the complete reproduction.** No vision training/fine-tuning, GPU experiment, large dataset or checkpoint download is part of this stage.
+The shared `revision_fmri` package currently implements local configuration/checkpoint validation, data and feature contracts, raw cRSA and train-only layer selection. A [small-array encoding reference](docs/encoding_reference.md) now implements SRP, explicit-normalization float64 Pearson-LOOCV ridge, veRSA and held-out layer evaluation. Dataset/model/hook/statistical backends remain pending. **It does not yet run the complete reproduction.** No vision training/fine-tuning, GPU experiment, large dataset or checkpoint download is part of this stage.
 
 ## Local setup
 
@@ -12,7 +12,7 @@ source .venv/bin/activate
 cp configs/paths.example.yaml configs/paths.local.yaml
 # Edit the ignored local file to point to your existing resources.
 export REVISION_FMRI_CONFIG="$PWD/configs/paths.local.yaml"
-python -m pip install -e '.[test]'
+python -m pip install -e '.[test,encoding]'
 python -m pytest -q
 ```
 
@@ -45,3 +45,5 @@ python scripts/build_audit_manifest.py --sources .audit_sources --output manifes
 No upstream source is imported at package runtime. DeepNSD is GPL-3.0; any future vendoring/port must retain applicable notices and choose compatible redistribution terms. Source documents/PDFs remain in the local ignored audit cache. The current numerical API is an independently written small formula implementation, not a copied legacy ridge backend.
 
 Shared development rules live in `AGENTS.md`. Local workstation instructions live in ignored `AGENTS.local.md`; agents must read it when local environment details are needed. Scientific changes require review by all three collaborators before merge.
+
+The encoding reference revealed an additional source discrepancy: on the pinned sklearn 1.3.2 environment, the released positional preprocessing call enables L2 normalization. See D19 before choosing a protocol; this is not claimed as the recovered historical environment.
