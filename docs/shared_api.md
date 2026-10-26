@@ -94,6 +94,11 @@ mask or normalization policy.
 provide portable cached evaluation through `ReproductionPipeline.evaluate_cached_model`.
 See [cached evaluation](cached_evaluation.md) for the storage and split contracts.
 
+`load_official_split` returns the same RecordedSplit consumed by cached evaluation.
+`partition_trials` preserves repeats and reports excluded/missing images;
+`validate_holdout_family` validates a declared five-fold family. See
+[official LAION split import](official_laion_splits.md).
+
 `TorchvisionAlexNetLoader`, `LoadedVisionModel` and `ClassificationTransform`
 provide the first optional offline vision compatibility backend. See
 [offline vision](offline_vision.md) for strict configuration, source reuse and

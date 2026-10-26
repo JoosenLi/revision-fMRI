@@ -44,6 +44,14 @@ The public sub-01/ses-01 TSV has 1044 rows but only 87 distinct beta_index value
 
 C6 z-scores across all trials within a session before concatenation/casting to float32. `legacy_deepnsd_session_v1` preserves that operation; a separately named `train_only_session_v1` fits only caller-specified training trials. Both are explicit primitives, not enabled automatically in the LAION reader. Independent evaluation rejects the legacy provenance tag. This documents response preprocessing scope separately from C7 layer filtering; exact historical averaged-beta export provenance remains unresolved.
 
+### D09 — Official split implementation update
+
+D09 implementation update (2026-10-26): original shared-pool assignment files at
+LAION source commit `cf82765ced029de81c3bec7254b8cbd6a65e3686` are hash-locked and
+imported unchanged. No primary split is implicitly selected. Exact upstream ID
+order is preserved. The one-session pilot is incomplete; coverage diagnostics
+do not truncate the official split or establish scientific-run readiness.
+
 ### D22 — Offline AlexNet vision compatibility profile
 
 C9 constructor/transform functions are now reused verbatim. The adapter disables
