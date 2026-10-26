@@ -18,7 +18,7 @@ from sklearn.random_projection import SparseRandomProjection
 from sklearn.linear_model._ridge import _preprocess_data
 
 SOURCE_SHA256 = 'ea80dc539534f5f7370a796c3b2d91fbc73b5e0e4c94a78355616e4db7e62659'
-ALPHAS = (.1, 1., 10., 100., 1000., 10000., 100000.)
+ALPHAS = tuple(np.logspace(-1, 5, 7).tolist())
 
 
 def rsa(a, b):
@@ -75,7 +75,8 @@ def generate(source, output):
                    source_url='https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/ridge_gcv_mod.py',
                    environment=dict(numpy=np.__version__, scipy=scipy.__version__, sklearn=sklearn.__version__),
                    preprocess_signature=str(inspect.signature(_preprocess_data)),
-                   historical_environment_claim=False, cases=cases)
+                   historical_environment_claim=False,
+                   alpha_specification='np.logspace(-1, 5, 7).tolist() from main_analysis.py', cases=cases)
     output.write_text(json.dumps(payload, indent=2, allow_nan=False)+'\n')
 
 

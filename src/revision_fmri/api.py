@@ -1,0 +1,137 @@
+"""Stable collaborator-facing API v1; original methods stay behind this boundary."""
+from dataclasses import asdict, dataclass
+import json
+from pathlib import Path
+import re
+from typing import Mapping, Sequence
+
+from .config import LocalConfig, load_config
+from .data import ResponseSet
+from .features import FeatureSet
+from .evaluation import (DeepNSDEncodingEvaluator, EvaluationSplit,
+                         RELEASED_CODE_ALPHAS, evaluate_layers)
+from .provenance import metadata_digest
+
+API_VERSION = '1'
+
+
+@dataclass(frozen=True)
+class DeepNSDProtocol:
+    """Named source-backed protocol; callers must justify the projection dimension.
+
+    Original algorithm settings (alpha grid, seed, prediction semantics) are not
+    tuning knobs. This name does not claim that LAION inputs equal original NSD.
+    """
+    protocol_id: str
+    n_components: int
+    projection_policy: str
+
+    def __post_init__(self):
+        if not self.protocol_id or not isinstance(self.protocol_id, str):
+            raise ValueError('A nonempty protocol ID is required')
+        if type(self.n_components) is not int or self.n_components < 1:
+            raise ValueError('Explicit positive projection count is required')
+        if not self.projection_policy or not isinstance(self.projection_policy, str):
+            raise ValueError('Describe the projection policy; no implicit LAION default')
+
+    def to_dict(self) -> dict:
+        return {**asdict(self), 'backend': 'deepnsd-vendored-sklearn132-v1',
+                'alphas': list(RELEASED_CODE_ALPHAS), 'srp_seed': 0,
+                'ridge_precision': 'float64',
+                'selection': 'training-only; no C7 test-dependent filter',
+                'training_prediction_semantics': 'centered LOOCV'}
+
+
+@dataclass(frozen=True)
+class MetricResult:
+    selected_layer: str
+    training_score: float
+    test_score: float
+
+
+@dataclass(frozen=True)
+class EvaluationReport:
+    """Portable JSON summary for one model × subject × ROI, without local paths.
+
+    Predictions are deliberately excluded: large arrays need a separate future
+    cache API. Per-voxel chosen alphas retain voxel ID order for reproducibility.
+    """
+    model_id: str
+    subject_id: str
+    roi_id: str
+    space: str
+    protocol: Mapping[str, object]
+    train_image_ids: tuple[str, ...]
+    test_image_ids: tuple[str, ...]
+    voxel_ids: tuple[str, ...]
+    response_provenance: Mapping[str, str]
+    metrics: Mapping[str, MetricResult]
+    layer_training_scores: Mapping[str, Mapping[str, float]]
+    alpha_per_layer: Mapping[str, tuple[float, ...]]
+    encoding_provenance: Mapping[str, Mapping[str, str]]
+    evaluation_provenance: Mapping[str, str]
+
+    def to_dict(self) -> dict:
+        payload = {'api_version': API_VERSION, **asdict(self)}
+        # Enforce JSON serialization and finite numbers at the API boundary.
+        return json.loads(json.dumps(payload, allow_nan=False))
+
+    @property
+    def content_sha256(self) -> str:
+        return metadata_digest(self.to_dict())
+
+
+class ReproductionPipeline:
+    """Single public orchestrator. Adapters supply ID-aligned arrays, not algorithms.
+
+    Construction never initializes models/devices or accesses data files.
+    Evaluation currently runs the small-array numerical backend on supplied
+    features, not vision inference or a production-scale fMRI experiment.
+    """
+    def __init__(self, config: LocalConfig, protocol: DeepNSDProtocol):
+        self.config = config
+        self.protocol = protocol
+        self._encoder = DeepNSDEncodingEvaluator.from_config(config, n_components=protocol.n_components)
+
+    @classmethod
+    def from_config(cls, path: str | Path | None = None, *, protocol: DeepNSDProtocol):
+        """Use an explicit local YAML or REVISION_FMRI_CONFIG."""
+        return cls(load_config(path), protocol)
+
+    def evaluate_model(self, *, features: Sequence[FeatureSet], responses: ResponseSet,
+                       split: EvaluationSplit) -> EvaluationReport:
+        """One model/subject/ROI per call; candidate order breaks training-score ties."""
+        layers = tuple(features)
+        result = evaluate_layers(layers, responses, split, self._encoder, alphas=RELEASED_CODE_ALPHAS)
+        metrics = {metric: MetricResult(layer, result.training_scores[metric][layer], result.test_scores[metric])
+                   for metric, layer in result.selected_layers.items()}
+        return EvaluationReport(
+            layers[0].model_id, responses.subject_id, responses.roi_id, responses.space,
+            self.protocol.to_dict(), split.train_ids, split.test_ids, responses.voxel_ids,
+            dict(responses.provenance),
+            metrics, result.training_scores,
+            {layer: tuple(float(a) for a in pred.alpha_per_voxel) for layer, pred in result.predictions.items()},
+            {layer: dict(pred.provenance) for layer, pred in result.predictions.items()},
+            dict(result.provenance),
+        )
+
+    def save_report(self, report: EvaluationReport, *, run_id: str) -> Path:
+        """Write a new summary under configured results_root; never overwrite.
+
+        Run IDs are filenames, not paths. Large predictions/features are not saved
+        by this API. Existing artifacts and institutional source data are untouched.
+        """
+        if not isinstance(run_id, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]{0,127}', run_id):
+            raise ValueError('run_id must be 1–128 letters, digits, hyphens or underscores')
+        payload = report.to_dict()
+        if payload['protocol'] != self.protocol.to_dict():
+            raise ValueError('Report protocol differs from this pipeline')
+        document = json.dumps({'content_sha256': report.content_sha256, 'report': payload},
+                              indent=2, allow_nan=False)+'\n'
+        root = self.config.storage['results_root']
+        root.mkdir(parents=True, exist_ok=True)
+        path = root / f'{run_id}.json'
+        # Exclusive creation also prevents writing through an existing symlink.
+        with path.open('x') as stream:
+            stream.write(document)
+        return path
