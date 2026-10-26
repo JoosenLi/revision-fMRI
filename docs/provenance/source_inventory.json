@@ -1,0 +1,826 @@
+{
+  "audit_date": "2026-10-24",
+  "deepnsd_commit": "36f6a34727dccb5eec8fa49364b210a049a388d7",
+  "release_comparison_commit": "5efc1921078032b255532c3d30b527633ecd8b9f",
+  "historical_environment_verified": false,
+  "method_file_comparisons": [
+    {
+      "path": "source_code/pressures/brain_data/nsd_parser.py",
+      "byte_identical": true
+    },
+    {
+      "path": "source_code/pressures/main_analysis.py",
+      "byte_identical": true
+    },
+    {
+      "path": "source_code/pressures/model_opts/feature_extraction.py",
+      "byte_identical": true
+    },
+    {
+      "path": "source_code/pressures/model_opts/feature_reduction.py",
+      "byte_identical": true
+    },
+    {
+      "path": "source_code/pressures/model_opts/model_code/_options.py",
+      "byte_identical": true
+    },
+    {
+      "path": "source_code/pressures/model_opts/model_options.py",
+      "byte_identical": true
+    },
+    {
+      "path": "source_code/pressures/ridge_gcv_mod.py",
+      "byte_identical": true
+    },
+    {
+      "path": "source_code/pressures/parse_results.R",
+      "byte_identical": true
+    }
+  ],
+  "sources": [
+    {
+      "cache_relative_path": "CLIP_revision.json",
+      "sha256": "db995109e518619709dae6204280230fa307fad4f666a12731cdb5e1b294bbfa",
+      "bytes": 4977,
+      "source_url": null,
+      "kind": "derived_text_or_api_metadata"
+    },
+    {
+      "cache_relative_path": "DeepNSD/README.md",
+      "sha256": "cbf71d41da9cecfb9218e4c0707e59f2a8f444a96d3e5346c9ebab2382dcab70",
+      "bytes": 3331,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/README.md",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/benchmark/__init__.py",
+      "sha256": "8777b5ede6c8a6f98cd89b8a3b6567b29876497f8e6aaa71f323754da95cc5a6",
+      "bytes": 46,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/benchmark/__init__.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/benchmark/classes.py",
+      "sha256": "8901fb5844865ee2593bfcc33cdec485593ab077b927849b2e739c3789506b82",
+      "bytes": 4120,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/benchmark/classes.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/benchmark/download.py",
+      "sha256": "92f3c677b889191af537aa527ae545d2a4786b9fa313c92b2c78ee86f206d625",
+      "bytes": 207,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/benchmark/download.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/neural_data/__init__.py",
+      "sha256": "a7609a9bbe8942eafc8b1f09dc9c4013767c7dd14cf1f7a3b91967ed344df42d",
+      "bytes": 25,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/neural_data/__init__.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/neural_data/benchmarks.py",
+      "sha256": "0b7d5619ae6ab3af3001ac75604aa06d9fc90709e2c9e79bfcabbe6956e061d1",
+      "bytes": 4362,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/neural_data/benchmarks.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/README.md",
+      "sha256": "d6fdf386ed676aa84166f264a4ea633da214aab5993588eeef8788f5ec94c2ae",
+      "bytes": 660,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/README.md",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/all_results.R",
+      "sha256": "68c133899b396af703a969704c4f835b67817501f33d727b7531845d86e442df",
+      "bytes": 82908,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/all_results.R",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/environment/R-Packages.csv",
+      "sha256": "7f41dd78a006b16d02fa0bc98b73cf0cbadb52e185b3404fe010b1fc6df93d63",
+      "bytes": 817,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/environment/R-Packages.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/environment/README.md",
+      "sha256": "05a4d54083f62453e32dc48afbbe31597431f9f5f94860e063fcfd677284a178",
+      "bytes": 337,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/environment/README.md",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/extra_results.R",
+      "sha256": "ebffb7bf2aff74b7c6d47d29feef4dbdee6a96d539ad736376244c73344cebe6",
+      "bytes": 24242,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/extra_results.R",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/figure_data/Figure1A.csv",
+      "sha256": "ba9623a029706d63b303dfe8a29569b5b3a7fe6d1795da0cb44556b60cb73106",
+      "bytes": 1262848,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/figure_data/Figure1A.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/figure_data/Figure1C.csv",
+      "sha256": "9620f1a13bd729b48560f2001c2943334c0dfd396d032acbfd7e594f984951c9",
+      "bytes": 233726,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/figure_data/Figure1C.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/figure_data/Figure2.csv",
+      "sha256": "661f029a353237f92c39d4314d088bfa1d67bcb3fb3e93f09d67d3e5f6af70ec",
+      "bytes": 31635,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/figure_data/Figure2.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/figure_data/Figure3.csv",
+      "sha256": "40966b33b09ce5e2680800a68ee9045a39ca14c9b24a613225fde32483055366",
+      "bytes": 31807,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/figure_data/Figure3.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/figure_data/Figure4A.csv",
+      "sha256": "7ba41759429de71c73f547948ee287522ffbeb5e4134630dfd2c0d59696c9105",
+      "bytes": 18182,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/figure_data/Figure4A.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/figure_data/Figure4B.csv",
+      "sha256": "c00fa0722115c83dae615218e015511baed1a8226d6f734359c3ebb7bb43f13f",
+      "bytes": 2974,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/figure_data/Figure4B.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/figure_data/Figure5A.csv",
+      "sha256": "e29bd83dd35f2fa1d691067f55456e2d35da2d7b11b17d78d461debb1ff64ee8",
+      "bytes": 38795,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/figure_data/Figure5A.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/figure_data/Figure5B.csv",
+      "sha256": "1dc2ef44f51e22cfe6a3c598275f69209fa16b3902ff6bc170ad4d42eb378ff7",
+      "bytes": 37276,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/figure_data/Figure5B.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/figure_data/Figure5C.csv",
+      "sha256": "2f7073f8a4ecbf5f728d74e31c268813c5c4f3d6f5250fa19e893ecf6a7440d6",
+      "bytes": 12291,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/figure_data/Figure5C.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/figure_data/Figure6A.csv",
+      "sha256": "91558fd7327df6546e4f92cbc91c2e9975f24d4f90be3fc5c9181b42e697b436",
+      "bytes": 1363976,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/figure_data/Figure6A.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/figure_data/Figure6B.csv",
+      "sha256": "dd3a32c41e73f213b36e43c544b627118c984ef70e3e567419cae94af3b49f9c",
+      "bytes": 101341,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/figure_data/Figure6B.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/figure_gen.R",
+      "sha256": "bccff6d1299fed407f803bc6a6c9d657519916f1bc3b3b8397aae4a04027659d",
+      "bytes": 35675,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/figure_gen.R",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/source_data/activation_pcspace.csv",
+      "sha256": "9620f1a13bd729b48560f2001c2943334c0dfd396d032acbfd7e594f984951c9",
+      "bytes": 233726,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/source_data/activation_pcspace.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/source_data/model_statistics/dimensionality.csv",
+      "sha256": "54e756b55c1532aa5a13fce8f6cb28c99f4ec22c5135ce29d1f6723b2b91f5c4",
+      "bytes": 28323,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/source_data/model_statistics/dimensionality.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/source_data/model_statistics/imagenet1k.csv",
+      "sha256": "ef195ea7b2a80a98274cce36b42d26a98bfbd1fbc596956f23f21e5a17423fcd",
+      "bytes": 3878,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/source_data/model_statistics/imagenet1k.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/source_data/model_statistics/parameter_count.csv",
+      "sha256": "7b06ecd6cc895c1957677f0a476b0e1a38fc83709650d58fd5bd7f9ca8975541",
+      "bytes": 8070,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/source_data/model_statistics/parameter_count.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/source_data/noise_ceilings.csv",
+      "sha256": "57a28865e1ad3564e83a534398537aeadbe516aa24f14964e35df8974725b42c",
+      "bytes": 358,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/source_data/noise_ceilings.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/source_data/results_summary.csv",
+      "sha256": "968d57ae82e756130f567631b19bced90bbadf670fd9ce2ea6f82563ac201c64",
+      "bytes": 183750,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/source_data/results_summary.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/source_data/supplementary/dimensionality_check.csv",
+      "sha256": "c9e2714e173b623405e5c75c6afb4fc38e57f50baf68dff5e06965a0df54465c",
+      "bytes": 1522,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/source_data/supplementary/dimensionality_check.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/source_data/voxel_metadata_EVC.csv",
+      "sha256": "b4075b5e83c4d011ff31169ed3ed7ab7f4f34a79b08b99e859028cd571230ee9",
+      "bytes": 962593,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/source_data/voxel_metadata_EVC.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/publication/source_data/voxel_metadata_OTC.csv",
+      "sha256": "153feed4d204e6b6d08d72db7afe96a269224e02b062303714b49597b5bfcca6",
+      "bytes": 2100283,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/publication/source_data/voxel_metadata_OTC.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/README.md",
+      "sha256": "ca084bce6c8c5d83b9c48424749d1759bbfe8259298b9fb43e70cfafb4e34d1c",
+      "bytes": 838,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/README.md",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/__init__.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/__init__.py",
+      "sha256": "1ef007d370b5852d41b7cfeb8a5bcbe747b00b08f0827b7ee40f672335c1eadc",
+      "bytes": 76,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/__init__.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/aux_scripts/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/aux_scripts/__init__.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/aux_scripts/dimensionality.py",
+      "sha256": "44770d3a1ab10ce79c4284f52aa97a8bfa32747d984b2eef09e96ae40072803f",
+      "bytes": 3811,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/aux_scripts/dimensionality.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/aux_scripts/intermodel_rsa.py",
+      "sha256": "1dd7c9c9b554511b920128ff6457d49dc0927bea4ea786aa3461e89ef93844a9",
+      "bytes": 4722,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/aux_scripts/intermodel_rsa.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/aux_scripts/manifold_stats.py",
+      "sha256": "822c63e84afd6712a560a9a63fac1b46033ea69c24140b2836e7eb8ee67bcb2c",
+      "bytes": 8244,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/aux_scripts/manifold_stats.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/aux_scripts/model_metas.py",
+      "sha256": "b52bdf53e17797502f66d20fc8aa746510266f2c0fc705743a20538de7d4c646",
+      "bytes": 4530,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/aux_scripts/model_metas.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/aux_scripts/models_to_run.py",
+      "sha256": "a3062fc6615378fbe858f74904d986935bbce9f1eeda9a711261175e946b8068",
+      "bytes": 5460,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/aux_scripts/models_to_run.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/aux_scripts/param_count.py",
+      "sha256": "01a020b9e9e7a069ab770e40f8e9fbeec7eb666630763285ed581aee9dcc3c18",
+      "bytes": 2958,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/aux_scripts/param_count.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/aux_scripts/pycortex_setup.py",
+      "sha256": "c7097618cac9838a627742ba32a839c74449a8c6e6b36a24d9c9e8b94d5b7a18",
+      "bytes": 10378,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/aux_scripts/pycortex_setup.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/brain_data/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/brain_data/__init__.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/brain_data/benchmark.py",
+      "sha256": "11252389e72b451a1c07999528bf21eb9a451e98e361535c3143d54cac3eb2e3",
+      "bytes": 5754,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/brain_data/benchmark.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/brain_data/ceilings/shared1000_OTC-only.csv",
+      "sha256": "57a28865e1ad3564e83a534398537aeadbe516aa24f14964e35df8974725b42c",
+      "bytes": 358,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/brain_data/ceilings/shared1000_OTC-only.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/brain_data/image_sets/shared1000.csv",
+      "sha256": "b32929c60167ff219b07afd4140377d56029d5d7837b2fa9fdd2a920d8f2b51c",
+      "bytes": 549570,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/brain_data/image_sets/shared1000.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/brain_data/nsd_parser.py",
+      "sha256": "deb1bc0dc70d686236d83819840df653ac476373389ceaf6e695543a22ad5522",
+      "bytes": 23087,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/brain_data/nsd_parser.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/brain_data/voxel_sets/shared1000_EVC-only/voxel_metadata.csv",
+      "sha256": "b4075b5e83c4d011ff31169ed3ed7ab7f4f34a79b08b99e859028cd571230ee9",
+      "bytes": 962593,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/brain_data/voxel_sets/shared1000_EVC-only/voxel_metadata.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/brain_data/voxel_sets/shared1000_OTC-only/voxel_metadata.csv",
+      "sha256": "153feed4d204e6b6d08d72db7afe96a269224e02b062303714b49597b5bfcca6",
+      "bytes": 2100283,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/brain_data/voxel_sets/shared1000_OTC-only/voxel_metadata.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/main_analysis.py",
+      "sha256": "6a9b3d676bfc9348c6d6efc7f9fbbc3236486df31b227b41208823d15120d2e4",
+      "bytes": 12295,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/main_analysis.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_contrasts.csv",
+      "sha256": "aa27fe9ab9a74422d2dcdc279e70b384109f523f05b563335260736444f13d4b",
+      "bytes": 60493,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_contrasts.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/__init__.py",
+      "sha256": "eaf215d972c3116fdbdabe97e25d82075a92cf70457a24b6b81ff863ea03b538",
+      "bytes": 88,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/__init__.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/feature_extraction.py",
+      "sha256": "72c358474f6264ebbbe97bc81eac262f95224a1c4da82ab0d79d96c882f4d0c5",
+      "bytes": 19084,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/feature_extraction.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/feature_reduction.py",
+      "sha256": "4ed85a715fcc8bdfa73496270addbf2705d6eb97a03906661b71bbc0f87e21bd",
+      "bytes": 16303,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/feature_reduction.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/feature_tools.py",
+      "sha256": "5b268c4ece13bc7c2fe471a55e667ed61e8311ac9c74364f037b3c8aad7569dd",
+      "bytes": 66,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/feature_tools.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/mapping_methods.py",
+      "sha256": "e659cb187173cea246a93e40cd4b55c4af57e1f4964c2c27d6496f87784d88e2",
+      "bytes": 8745,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/mapping_methods.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_code/__init__.py",
+      "sha256": "5eefd4cf311ab3da6b22a9228dec11766fd717b56957539d658b232e52b22b13",
+      "bytes": 23,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_code/__init__.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_code/_options.py",
+      "sha256": "340723ee5a2e68ba1369b3df5679b9e2fb309d4913a3d75c611a2bd2e3916b6c",
+      "bytes": 17915,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_code/_options.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_code/bit_experts.py",
+      "sha256": "533ac10ef9d897aa476941a47545a3ace41e20f695eb18a8555ed8867f1290d0",
+      "bytes": 7040,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_code/bit_experts.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_code/ipcl_codebase/__init__.py",
+      "sha256": "af893b07796f943e3345fef4a5cb8c3df208a1e032508c0388dd0f82a98d5ac0",
+      "bytes": 12345,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_code/ipcl_codebase/__init__.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_code/ipcl_codebase/alexnet_gn.py",
+      "sha256": "d07e2db1ce58c9972177dd5b9139ada3ac504a1c0a1e6c9137d83bc4b9262504",
+      "bytes": 3435,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_code/ipcl_codebase/alexnet_gn.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_code/ipcl_codebase/resnet.py",
+      "sha256": "9661404d945592d99bf1a4c7d193d5b2e5bdd22406d2205a333cf82764083960",
+      "bytes": 7030,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_code/ipcl_codebase/resnet.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_code/slip_codebase/README.md",
+      "sha256": "e11217ac343ff5d99db4eb31cf877344c4a557be71a216d23f8ab8f299e3f7d8",
+      "bytes": 20313,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_code/slip_codebase/README.md",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_code/slip_codebase/losses.py",
+      "sha256": "636c0e550bbc5d9a440ff37dba0d9abac5f6c2dcd78a0ce3dbf264a123c84a04",
+      "bytes": 4908,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_code/slip_codebase/losses.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_code/slip_codebase/models.py",
+      "sha256": "160fd29262cde52dbc4410d6fbbe73178969309006f1f6cc9a37d3ae7520158d",
+      "bytes": 11580,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_code/slip_codebase/models.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_code/slip_codebase/tokenizer.py",
+      "sha256": "32c5037ec1abb0e0faa5b71a4c5a5b08f3bc6b129e6048a13376842073020054",
+      "bytes": 5499,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_code/slip_codebase/tokenizer.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_code/slip_codebase/utils.py",
+      "sha256": "3c22f48a61261123eb2a55fd7505b6c4671c8fda4209b7fceda4fd826cf58b85",
+      "bytes": 6325,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_code/slip_codebase/utils.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_code/vicreg_repo/resnet.py",
+      "sha256": "2c2ad34035fb1cb49eaa5514f83bfafcb883677375a71a808f9df507eb781e30",
+      "bytes": 9500,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_code/vicreg_repo/resnet.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_meta/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_meta/__init__.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_meta/model_accuracy.csv",
+      "sha256": "4e20a9fc2109bc682766845f8f9e9ea7d48b35265da2a0f0faf865dcf760f9d9",
+      "bytes": 19616,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_meta/model_accuracy.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_meta/model_metadata.ipynb",
+      "sha256": "365972e7040c580e7b33bb1ffe2867efe9127327ed4d31edd4c1d6942ad43fc5",
+      "bytes": 6254,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_meta/model_metadata.ipynb",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_meta/model_metadata.py",
+      "sha256": "029332005d34acadc17303a5fdb07f466d8d6059bd5f414ae5cfa5b7e0f7bfe5",
+      "bytes": 3819,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_meta/model_metadata.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_meta/model_stats/timm_imagenet_accuracies.csv",
+      "sha256": "b213b2d9a547f1fb9c6246f754b5274a337db5d2ac000bf1c4d9a65e1a355b70",
+      "bytes": 18230,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_meta/model_stats/timm_imagenet_accuracies.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_meta/model_stats/torchvision_imagenet_accuracies.csv",
+      "sha256": "7a517af01fda4cec84f42fc9c383996e093604ffe84999bf31ff36a6efda42a0",
+      "bytes": 1703,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_meta/model_stats/torchvision_imagenet_accuracies.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_options.py",
+      "sha256": "55d603877e1755e0153dea1a2557a98eac5780bcbd7afff337284a0a5d72979c",
+      "bytes": 23848,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_options.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_opts_utils.py",
+      "sha256": "c0bfd2ba21a216c53171761266676aebcc4c133af1807d6dbb36e502eba82787",
+      "bytes": 3378,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_opts_utils.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_typology.csv",
+      "sha256": "dabec842c11f37a3d701a7936a0d2ea224327e8882e2b1754a29af494a59e4d6",
+      "bytes": 106685,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_typology.csv",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/model_opts/model_typology.ipynb",
+      "sha256": "479f1fe47a9f6cc9fe089069e3594dc0835b956d0b3669308d9c28d3f42f76d2",
+      "bytes": 142413,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/model_opts/model_typology.ipynb",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/notebooks/cortex_visual.ipynb",
+      "sha256": "083f295a579962d39b147b866dd37ed30fd463b8e4f7dfb9f0d806c84d69b7a4",
+      "bytes": 2278074,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/notebooks/cortex_visual.ipynb",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/notebooks/dimensionality.ipynb",
+      "sha256": "a0376fbccae4f0660287162c354abc055a5da6c88e2c87d662441380df80a209",
+      "bytes": 74615,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/notebooks/dimensionality.ipynb",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/notebooks/intermodel_rsa.ipynb",
+      "sha256": "5f58df5967f42ec7cc32d49c984bc731ccac3ba7eb9784e0c2eea78dc463f985",
+      "bytes": 31985,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/notebooks/intermodel_rsa.ipynb",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/notebooks/model_contrast.ipynb",
+      "sha256": "dddde3f5d835d089b7b4122dccd9ac1401bb37c0bf41b96c629675a98632eccf",
+      "bytes": 12361,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/notebooks/model_contrast.ipynb",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/notebooks/parula_cmap.py",
+      "sha256": "c61e301502581b7d575184c883dcf93b74dd2558bfe2b0233f22655fead08368",
+      "bytes": 6717,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/notebooks/parula_cmap.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/notebooks/pca_sketch.ipynb",
+      "sha256": "73a4598e413cbd9b0fc7152ecdc31c996c99e3100749f279a30764afc65deec3",
+      "bytes": 1592549,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/notebooks/pca_sketch.ipynb",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/parse_results.R",
+      "sha256": "6a7447a99f1272424cb8f967868f2f2ebeb3d95cafa26826a7b2f177010bba41",
+      "bytes": 8274,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/parse_results.R",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD/source_code/pressures/ridge_gcv_mod.py",
+      "sha256": "ea80dc539534f5f7370a796c3b2d91fbc73b5e0e4c94a78355616e4db7e62659",
+      "bytes": 8901,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/36f6a34727dccb5eec8fa49364b210a049a388d7/source_code/pressures/ridge_gcv_mod.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD-2024/source_code/pressures/brain_data/nsd_parser.py",
+      "sha256": "deb1bc0dc70d686236d83819840df653ac476373389ceaf6e695543a22ad5522",
+      "bytes": 23087,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/5efc1921078032b255532c3d30b527633ecd8b9f/source_code/pressures/brain_data/nsd_parser.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD-2024/source_code/pressures/main_analysis.py",
+      "sha256": "6a9b3d676bfc9348c6d6efc7f9fbbc3236486df31b227b41208823d15120d2e4",
+      "bytes": 12295,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/5efc1921078032b255532c3d30b527633ecd8b9f/source_code/pressures/main_analysis.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD-2024/source_code/pressures/model_opts/feature_extraction.py",
+      "sha256": "72c358474f6264ebbbe97bc81eac262f95224a1c4da82ab0d79d96c882f4d0c5",
+      "bytes": 19084,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/5efc1921078032b255532c3d30b527633ecd8b9f/source_code/pressures/model_opts/feature_extraction.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD-2024/source_code/pressures/model_opts/feature_reduction.py",
+      "sha256": "4ed85a715fcc8bdfa73496270addbf2705d6eb97a03906661b71bbc0f87e21bd",
+      "bytes": 16303,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/5efc1921078032b255532c3d30b527633ecd8b9f/source_code/pressures/model_opts/feature_reduction.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD-2024/source_code/pressures/model_opts/model_code/_options.py",
+      "sha256": "340723ee5a2e68ba1369b3df5679b9e2fb309d4913a3d75c611a2bd2e3916b6c",
+      "bytes": 17915,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/5efc1921078032b255532c3d30b527633ecd8b9f/source_code/pressures/model_opts/model_code/_options.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD-2024/source_code/pressures/model_opts/model_options.py",
+      "sha256": "55d603877e1755e0153dea1a2557a98eac5780bcbd7afff337284a0a5d72979c",
+      "bytes": 23848,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/5efc1921078032b255532c3d30b527633ecd8b9f/source_code/pressures/model_opts/model_options.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD-2024/source_code/pressures/parse_results.R",
+      "sha256": "6a7447a99f1272424cb8f967868f2f2ebeb3d95cafa26826a7b2f177010bba41",
+      "bytes": 8274,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/5efc1921078032b255532c3d30b527633ecd8b9f/source_code/pressures/parse_results.R",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "DeepNSD-2024/source_code/pressures/ridge_gcv_mod.py",
+      "sha256": "ea80dc539534f5f7370a796c3b2d91fbc73b5e0e4c94a78355616e4db7e62659",
+      "bytes": 8901,
+      "source_url": "https://github.com/ColinConwell/DeepNSD/blob/5efc1921078032b255532c3d30b527633ecd8b9f/source_code/pressures/ridge_gcv_mod.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "clip_loader.py",
+      "sha256": "9540f200fbf8145479fa655382a56dab048d238cc698b9cbd8df3b6d86d3f1b6",
+      "bytes": 9644,
+      "source_url": "https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/clip.py",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "deepnsd_commit.json",
+      "sha256": "51b4240eff4110b4101494670387515c9edbfa5c7bfd36918e654a06637a5f42",
+      "bytes": 13790,
+      "source_url": null,
+      "kind": "derived_text_or_api_metadata"
+    },
+    {
+      "cache_relative_path": "deepnsd_history.json",
+      "sha256": "8ba30bb282356c957159e31a91e0675f921e6525e66528d29af8bb609ad9b40b",
+      "bytes": 125998,
+      "source_url": null,
+      "kind": "derived_text_or_api_metadata"
+    },
+    {
+      "cache_relative_path": "laion_betas.html",
+      "sha256": "d91099a5a25c4509ce6bd4a0c9936ecaf40b66b6f5e67e798b68b5ebf8141fe7",
+      "bytes": 48838,
+      "source_url": "https://laion-fmri.hebartlab.com/glmsingle_betas.html",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "laion_betas.txt",
+      "sha256": "321b32a184e435e7c988112351fdb317fdcae3dea4e54dc1d34d5c825ea432bf",
+      "bytes": 14364,
+      "source_url": null,
+      "kind": "derived_text_or_api_metadata"
+    },
+    {
+      "cache_relative_path": "laion_rois.html",
+      "sha256": "b8a3a40828389fa41b80ce9b853eb4108417d35b86f732d23c54c46f9cf4932c",
+      "bytes": 45532,
+      "source_url": "https://laion-fmri.hebartlab.com/rois.html",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "laion_rois.txt",
+      "sha256": "8dda219712868ba6de69986ab360c228806c3c6e24748240c36f9ab32fead775",
+      "bytes": 12069,
+      "source_url": null,
+      "kind": "derived_text_or_api_metadata"
+    },
+    {
+      "cache_relative_path": "laion_splits.html",
+      "sha256": "cc3924130fc6874ec5bccff8667c63d36c38f0e74b3d78ac80f4bcaa27a58408",
+      "bytes": 64446,
+      "source_url": "https://laion-fmri.hebartlab.com/train_test_splits.html",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "laion_splits.txt",
+      "sha256": "a79464914b207198ffc5b590a30a8cdbc5e27d507c869f0b7a8280aed71a4616",
+      "bytes": 13022,
+      "source_url": null,
+      "kind": "derived_text_or_api_metadata"
+    },
+    {
+      "cache_relative_path": "paper.txt",
+      "sha256": "367a2926a3690b2c26fabe104c285632d174b0ade31e18bbb12ee214f0a53c96",
+      "bytes": 129623,
+      "source_url": null,
+      "kind": "derived_text_or_api_metadata"
+    },
+    {
+      "cache_relative_path": "paper_pmc.html",
+      "sha256": "10d7ec246ae4299a8df97270602182960b68f7de69bec164a96849b8b1e9e8b3",
+      "bytes": 286496,
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11526138/",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "supplement.pdf",
+      "sha256": "14b4fc05667c27751f3d5341a9d83c6fe24174d33cb48ed553b6f66f936fcf0d",
+      "bytes": 2289827,
+      "source_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-024-53147-y/MediaObjects/41467_2024_53147_MOESM1_ESM.pdf",
+      "kind": "source"
+    },
+    {
+      "cache_relative_path": "supplement.txt",
+      "sha256": "5f668182290f1985d09d82fb1745e6d5b33154fc6ad23857390152f1a446a656",
+      "bytes": 40615,
+      "source_url": null,
+      "kind": "derived_text_or_api_metadata"
+    },
+    {
+      "cache_relative_path": "tree.json",
+      "sha256": "1832235d8dbab94c140e2b9083d56ee6ae7cf6c6541d29ae85ab782c41019553",
+      "bytes": 40225,
+      "source_url": null,
+      "kind": "derived_text_or_api_metadata"
+    },
+    {
+      "cache_relative_path": "visual-prior_revision.json",
+      "sha256": "b8e3cc47bde7079189cae3d24b4c552caad1cfee4e3170de0a01a99de925e4eb",
+      "bytes": 1725,
+      "source_url": null,
+      "kind": "derived_text_or_api_metadata"
+    },
+    {
+      "cache_relative_path": "visualpriors_taskonomy.py",
+      "sha256": "ced951d43ca40eb60db40d2b13509a97149305f7d22ad7c2c144fa615b307817",
+      "bytes": 15992,
+      "source_url": "https://github.com/alexsax/visual-prior/blob/6abde8bff9aab5422c9657ec57a2e1137ca4fa01/visualpriors/taskonomy_network.py",
+      "kind": "source"
+    }
+  ]
+}
