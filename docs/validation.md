@@ -38,3 +38,22 @@ on `setup/methodology-audit` for review against an empty initialization commit o
 ## Encoding reference update — 2026-10-26
 
 On `is248155`, 42 tests passed in the project environment with NumPy 1.26.4, SciPy 1.11.4 and sklearn 1.3.2. The earlier 2026-10-24 environment snapshot above describes the foundation-only run. Unmodified DeepNSD RidgeCVMod was executed on five synthetic fixtures; explicit source hash and runtime versions are stored with the fixtures. Small-array SRP/ridge/veRSA and held-out layer evaluation are now implemented. The positional normalization issue is documented as D19. Original historical environment, full-data numerical parity, float32 ridge, GPU execution, data/model/ROI/statistical adapters remain unverified or pending. No real-data/GPU experiments or network training ran. See `encoding_reference.md`.
+
+## Source-reuse update — 2026-10-26
+
+53 tests passed after routing the canonical backend through vendored DeepNSD ridge, SRP and RSA code. Added tests verify original source bytes, bundled license resources, actual invocation of upstream RidgeCVMod, compatibility-version rejection, canonical settings and original even/odd splitting. Scientific experiment restrictions remain unchanged.
+
+## Shared API update — 2026-10-26
+
+61 tests passed on `is248155`, including public pipeline evaluation, equivalent
+reports across different local roots, JSON/digest roundtrip, overwrite and path
+traversal rejection, protocol mismatch, ID alignment and precision enforcement.
+The facade exposes API version 1 and preserves the underlying source backend;
+data/model/hook/statistics adapters remain contracts, not completed backends.
+
+The wheel built with the host packaging tools and passed source-hash checks and
+the synthetic public-API example when imported directly from the wheel outside
+the checkout, using the project's pinned numerical environment. `pip check`
+passed. A first build attempt with `.venv --no-build-isolation` failed because
+that environment lacks `wheel` and a sufficiently recent setuptools; it was
+not used for packaging. This does not affect the numerical runtime checks.

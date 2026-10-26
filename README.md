@@ -2,7 +2,7 @@
 
 Methodological fidelity first. Start with [original_paper.md](docs/original_paper.md), [methodology_audit.md](docs/methodology_audit.md), [deviations.md](docs/deviations.md), [model_manifest.md](docs/model_manifest.md), and [roi_mapping.md](docs/roi_mapping.md). The [implementation and unit-test plan](docs/implementation_plan.md) distinguishes working foundations from future numerical backends.
 
-The shared `revision_fmri` package currently implements local configuration/checkpoint validation, data and feature contracts, raw cRSA and train-only layer selection. A [small-array encoding reference](docs/encoding_reference.md) now implements SRP, explicit-normalization float64 Pearson-LOOCV ridge, veRSA and held-out layer evaluation. Dataset/model/hook/statistical backends remain pending. **It does not yet run the complete reproduction.** No vision training/fine-tuning, GPU experiment, large dataset or checkpoint download is part of this stage.
+The shared `revision_fmri` package exposes a [standard API](docs/shared_api.md) for configuration, ID-aligned data/features, evaluation and portable results. `ReproductionPipeline` encapsulates original DeepNSD SRP, float64 Pearson-LOOCV ridge and RSA source, with documented train-only layer selection. Dataset/model/hook/statistical backends remain pending. **It does not yet run the complete reproduction.** No vision training/fine-tuning, GPU experiment, large dataset or checkpoint download is part of this stage.
 
 ## Local setup
 
@@ -21,14 +21,17 @@ Features default to float32; fidelity-reference ridge defaults to float64.
 No paths are inferred from the source author's machine. Do not commit local YAML files, datasets, checkpoints or feature caches.
 
 ```python
-from revision_fmri.config import load_config
-from revision_fmri.evaluation import evaluate_crsa, select_layer
+from revision_fmri import DeepNSDProtocol, ReproductionPipeline
 
-settings = load_config()
-# Dataset/feature adapters must supply ID-aligned ResponseSet/FeatureSet objects.
-# score = evaluate_crsa(raw_features, responses)
-# selected = select_layer(training_scores_for_one_subject_roi_metric)
+# Supply a reviewed projection count/policy and ID-aligned input objects.
+pipeline = ReproductionPipeline.from_config(protocol=DeepNSDProtocol(
+    "team-reviewed-laion-v1", projection_count, projection_policy))
+report = pipeline.evaluate_model(features=candidate_features,
+                                 responses=responses, split=split)
+pipeline.save_report(report, run_id="subject01-model01-otc-v1")
 ```
+
+For a runnable small-array demonstration, see `examples/evaluate_synthetic.py`.
 
 The 224-model inventory is `manifests/models.json`. None is yet approved for feature extraction; missing checkpoint/library/transform provenance must be resolved first. Reference results remain metadata, never optimization targets.
 
@@ -42,7 +45,7 @@ Audit source revision and per-file digests are in `docs/provenance/source_invent
 python scripts/build_audit_manifest.py --sources .audit_sources --output manifests/models.json
 ```
 
-No upstream source is imported at package runtime. DeepNSD is GPL-3.0; any future vendoring/port must retain applicable notices and choose compatible redistribution terms. Source documents/PDFs remain in the local ignored audit cache. The current numerical API is an independently written small formula implementation, not a copied legacy ridge backend.
+The canonical backend now directly executes pinned DeepNSD source. `ridge_gcv_mod.py` is byte-identical; RSA/SRP function bodies are exact excerpts with minimal imports. See [upstream reuse](docs/upstream_reuse.md) for provenance, adaptation boundaries and usage. Original GPL-3.0 and scikit-learn BSD notices are bundled; the combined project is distributed under the root [LICENSE](LICENSE). Source PDFs remain in the ignored audit cache. The independent SVD backend is retained only for numerical cross-checks.
 
 Shared development rules live in `AGENTS.md`. Local workstation instructions live in ignored `AGENTS.local.md`; agents must read it when local environment details are needed. Scientific changes require review by all three collaborators before merge.
 

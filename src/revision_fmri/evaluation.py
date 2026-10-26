@@ -8,7 +8,7 @@ from .features import FeatureSet
 from .metrics import crsa
 
 # Released C1 default, NOT a resolution of the conflicting paper range.
-RELEASED_CODE_ALPHAS = (0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0)
+RELEASED_CODE_ALPHAS = tuple(np.logspace(-1, 5, 7).tolist())
 
 
 @dataclass(frozen=True)
@@ -69,12 +69,8 @@ class EncodingEvaluator(Protocol):
 
 
 @dataclass(frozen=True)
-class ReferenceEncodingEvaluator:
-    """Small-array reference only; no implicit LAION dimension or precision policy.
-
-    legacy_l2_normalize=True reproduces the released call under sklearn 1.3.2;
-    False is a distinct explicit policy, not claimed as the historical run.
-    """
+class _EncodingPipeline:
+    """Shared validated orchestration; algorithms are supplied by explicit backends."""
     n_components: int
     seed: int
     legacy_l2_normalize: bool
@@ -95,6 +91,12 @@ class ReferenceEncodingEvaluator:
         """Honor runtime ridge precision; do not silently override float32 settings."""
         return cls(n_components, seed, legacy_l2_normalize, config.compute.ridge_precision)
 
+    def _fit_ridge(self, x, y, alphas):
+        raise NotImplementedError('An explicit encoding backend is required')
+
+    def _backend_metadata(self):
+        raise NotImplementedError('An explicit encoding backend is required')
+
     def fit_predict(self, features: FeatureSet, responses: ResponseSet,
                     split: EvaluationSplit, *, alphas: tuple[float, ...]) -> EncodingPredictions:
         import json
@@ -102,10 +104,10 @@ class ReferenceEncodingEvaluator:
         import sklearn
         from sklearn.preprocessing import StandardScaler
         from .features import project_features
-        from .encoding import fit_ridge_reference
         from .provenance import array_digest, metadata_digest
         if features.image_ids != responses.image_ids:
             raise ValueError('Feature and response image IDs must have identical order')
+        backend_metadata = self._backend_metadata()
         split.validate_coverage(responses.image_ids)
         indices = {name: i for i, name in enumerate(responses.image_ids)}
         train = [indices[name] for name in split.train_ids]
@@ -114,11 +116,10 @@ class ReferenceEncodingEvaluator:
         scaler = StandardScaler()
         xtrain = scaler.fit_transform(projected.values[train])
         xtest = scaler.transform(projected.values[test])
-        fit = fit_ridge_reference(xtrain, responses.values[train], alphas=alphas,
-                                  legacy_l2_normalize=self.legacy_l2_normalize)
+        fit = self._fit_ridge(xtrain, responses.values[train], alphas)
         provenance = dict(projected.provenance)
         provenance.update({
-            'backend': 'float64-svd-reference-v1', 'numpy_version': np.__version__,
+            **backend_metadata, 'numpy_version': np.__version__,
             'scipy_version': scipy.__version__, 'sklearn_version': sklearn.__version__,
             'ridge_precision': self.precision, 'legacy_l2_normalize': str(self.legacy_l2_normalize),
             'alphas': json.dumps(list(alphas)), 'split_protocol': split.protocol_id,
@@ -137,6 +138,57 @@ class ReferenceEncodingEvaluator:
 
 
 @dataclass(frozen=True)
+class ReferenceEncodingEvaluator(_EncodingPipeline):
+    """Independent SVD test oracle; not the canonical research entry point."""
+
+    def _fit_ridge(self, x, y, alphas):
+        from .encoding import fit_ridge_reference
+        return fit_ridge_reference(x, y, alphas=alphas, legacy_l2_normalize=self.legacy_l2_normalize)
+
+    def _backend_metadata(self):
+        return {'backend': 'float64-svd-reference-v1'}
+
+
+@dataclass(frozen=True)
+class DeepNSDEncodingEvaluator(_EncodingPipeline):
+    """Canonical source-backed backend. SVD backend is retained as a test oracle.
+
+    Public configuration cannot disable the behavior of the original ridge file.
+    The inherited flag is fixed to True and rejected otherwise, never rewritten.
+    """
+
+    def __post_init__(self):
+        super().__post_init__()
+        if not self.legacy_l2_normalize:
+            raise ValueError('DeepNSD source backend preserves original normalization; cannot disable it')
+        if self.seed != 0:
+            raise ValueError('Released DeepNSD profile requires SRP seed=0')
+
+    @classmethod
+    def from_config(cls, config, *, n_components: int):
+        return cls(n_components=n_components, seed=0, legacy_l2_normalize=True,
+                   precision=config.compute.ridge_precision)
+
+    def _backend_metadata(self):
+        from .deepnsd import require_compatible_environment
+        return require_compatible_environment()
+
+    def _fit_ridge(self, x, y, alphas):
+        from .deepnsd import fit_ridge_deepnsd
+        if tuple(alphas) != RELEASED_CODE_ALPHAS:
+            raise ValueError('Released-code backend requires RELEASED_CODE_ALPHAS; alternative grids need a separate protocol')
+        return fit_ridge_deepnsd(x, y, alphas=alphas)
+
+
+def deepnsd_shared1000_split(image_ids: tuple[str, ...], *, source_digest: str) -> EvaluationSplit:
+    """C1 even/odd image order, strictly for an explicitly ordered shared1000 set."""
+    unique_ids(image_ids, 'Shared1000 image IDs')
+    if len(image_ids) != 1000:
+        raise ValueError('Original shared1000 split requires exactly 1000 image IDs')
+    return EvaluationSplit(image_ids[::2], image_ids[1::2], 'deepnsd-shared1000-even-odd-v1', source_digest)
+
+
+@dataclass(frozen=True)
 class LayerEvaluation:
     """One model/subject/ROI; metric-specific selection precedes test scoring."""
     selected_layers: Mapping[str, str]
@@ -147,7 +199,7 @@ class LayerEvaluation:
 
 
 def evaluate_layers(layers: tuple[FeatureSet, ...], responses: ResponseSet,
-                    split: EvaluationSplit, encoder: ReferenceEncodingEvaluator, *,
+                    split: EvaluationSplit, encoder: EncodingEvaluator, *,
                     alphas: tuple[float, ...]) -> LayerEvaluation:
     """Evaluate an explicitly supplied candidate set, never infer hook eligibility.
 

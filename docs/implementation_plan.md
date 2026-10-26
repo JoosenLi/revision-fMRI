@@ -33,3 +33,7 @@ YAML configuration portability/environment override, CUDA policy, per-stage floa
 ## Precision validation before experiments
 
 Feature inference/cache precision defaults to float32. Original RidgeCVMod converts to float64, so float64 is the fidelity reference for encoding. A float32 ridge alternative must be explicitly configured and tested on both well-conditioned and nearly collinear synthetic features, large alpha ranges, nonzero response means and near-tied alpha/layer scores. Compare selected alpha per voxel, centered LOO predictions, intercept-restored predictions, cRSA/veRSA and final layer choices. Choose numerical tolerances before viewing scientific results. Report mismatches; do not silently switch methods. No GPU memory-saving benefit establishes numerical equivalence. A float64 reference that fits existing float32 feature caches does not require storing all original features in float64.
+
+## Source-reuse implementation update
+
+The canonical encoding path is now `DeepNSDEncodingEvaluator`: original RidgeCVMod file plus verbatim RSA/SRP functions, pinned compatibility environment and packaged license/provenance. The SVD implementation is retained as a test oracle. 53 tests pass; original-code calls, hashes, settings and environment failure paths are covered. See [upstream_reuse.md](upstream_reuse.md). Data/model/hook/statistics adapters remain pending; D01/D02/D19 are documented, not silently reconciled.

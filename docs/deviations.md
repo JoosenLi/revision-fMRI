@@ -31,3 +31,5 @@ reference and fails explicitly. D01/D02 and all LAION scientific decisions remai
 unresolved. See `encoding_reference.md` for scope and validation tolerances.
 
 Changes to engineering (configuration, validation, source hashing) are implemented. Scientific changes listed as proposals or unresolved must not be promoted to original-method claims. No new regularization, feature pooling, PCA, pretrained replacement, network fine-tuning or modern default scoring is introduced.
+
+Source-reuse update (2026-10-26): the canonical backend directly uses upstream code and selects the released C1 alpha grid (D01) and observed original preprocessing (D19), without patching the vendor file. These are explicitly source-backed choices in the compatibility environment, not claims about the original execution environment. D02 remains an explicit difference in the independent evaluation path. See `upstream_reuse.md`.

@@ -27,6 +27,11 @@ data or overwrite shared caches without explicit authorization.
 
 ## Shared APIs
 
+Use the public `ReproductionPipeline` facade and contracts exported by
+`revision_fmri` for collaborator-facing analyses; see `docs/shared_api.md`.
+Keep original numerical code behind this boundary. Do not import `_vendor`
+directly from analysis scripts. Protocol changes still require scientific review.
+
 Use and extend the single shared package:
 
 - `revision_fmri.data`: image/voxel IDs, responses, repeat and ROI provenance.
@@ -49,6 +54,10 @@ do not present them as validated numerical backends.
   The released test-dependent layer filter is a documented discrepancy; reproducing
   it requires a separately named legacy protocol, never silent inclusion.
 - Never silently substitute modern defaults for historical methods or hyperparameters.
+- Prefer pinned, attributed upstream DeepNSD code for original methods. Keep
+  configuration, ID checks and dataset adaptation outside vendored algorithms.
+  The canonical encoding backend is `DeepNSDEncodingEvaluator`; the independent
+  SVD implementation is a test oracle, not the primary research backend.
 - Keep feature inference/storage float32 by default. The original ridge path uses
   float64; use float64 for the fidelity reference. A float32 ridge path requires
   explicit configuration, documented deviation and numerical parity evidence

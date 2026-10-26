@@ -1,5 +1,11 @@
 # SRP, ridge and held-out evaluation reference
 
+**Updated implementation policy:** use `DeepNSDEncodingEvaluator` for the
+source-backed research path. It runs the original ridge file and original
+RSA/SRP functions; see [upstream_reuse.md](upstream_reuse.md). The independent
+SVD evaluator described below is retained as a test oracle only. It does not
+determine the canonical method or provide a silent fallback.
+
 Implemented on 2026-10-26 on `is248155`, using only small synthetic arrays. This
 implements the numerical portion of T5/T6; it is not a dataset/model-extraction
 pipeline or an approved scientific protocol. No network weights, fMRI data or GPU

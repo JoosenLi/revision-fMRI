@@ -37,8 +37,8 @@ def jl_dimensions(n_samples: int, *, eps: float) -> int:
     """Explicit JL policy helper. No implicit choice of LAION sample count."""
     if type(n_samples) is not int or n_samples < 2 or not np.isfinite(eps) or not 0 < eps < 1:
         raise ValueError('Require n_samples >= 2 and 0 < eps < 1')
-    from sklearn.random_projection import johnson_lindenstrauss_min_dim
-    return int(johnson_lindenstrauss_min_dim(n_samples, eps=eps))
+    from ._vendor.deepnsd.reduction import compute_jl_lemma
+    return int(compute_jl_lemma(n_samples, eps=eps))
 
 
 def project_features(features: FeatureSet, *, n_components: int, seed: int) -> FeatureSet:
@@ -57,9 +57,14 @@ def project_features(features: FeatureSet, *, n_components: int, seed: int) -> F
         raise ValueError('SRP seed must be an unsigned 32-bit integer')
     import sklearn
     from sklearn.random_projection import SparseRandomProjection
+    from ._vendor.deepnsd.reduction import get_feature_map_srps
     from .provenance import array_digest, metadata_digest
     srp = SparseRandomProjection(n_components=n_components, density='auto', random_state=seed)
-    values = srp.fit_transform(features.values)
+    values = get_feature_map_srps(features.values, n_projections=n_components,
+                                  upsampling=True, eps=0.1, seed=seed, save_outputs=False)
+    # Original API returns only projected values. Reconstruct its seed-identical
+    # matrix for provenance, without a second feature transformation.
+    srp.fit(features.values)
     components = srp.components_.tocsr()
     provenance = dict(features.provenance)
     provenance.update({

@@ -144,7 +144,7 @@ def test_train_only_selection_and_tie_order():
         select_layer({'layer': np.nan})
     with pytest.raises(TypeError):
         select_layer({'layer': .4}, test_scores={'layer': .99})
-    assert RELEASED_CODE_ALPHAS == (0.1, 1, 10, 100, 1000, 10000, 100000)
+    np.testing.assert_array_equal(RELEASED_CODE_ALPHAS, np.logspace(-1, 5, 7))
 
 
 def test_publication_inventory():

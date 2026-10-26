@@ -1,0 +1,2 @@
+# Preserve exact upstream source bytes, including original whitespace.
+src/revision_fmri/_vendor/deepnsd/*.py -whitespace

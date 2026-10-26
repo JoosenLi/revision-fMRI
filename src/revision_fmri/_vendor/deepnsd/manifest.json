@@ -1,0 +1,77 @@
+{
+  "repository": "https://github.com/ColinConwell/DeepNSD",
+  "commit": "36f6a34727dccb5eec8fa49364b210a049a388d7",
+  "files": {
+    "ridge_gcv_mod.py": {
+      "source_path": "source_code/pressures/ridge_gcv_mod.py",
+      "source_sha256": "ea80dc539534f5f7370a796c3b2d91fbc73b5e0e4c94a78355616e4db7e62659",
+      "adaptation": "none",
+      "vendored_sha256": "ea80dc539534f5f7370a796c3b2d91fbc73b5e0e4c94a78355616e4db7e62659"
+    },
+    "rsa.py": {
+      "source_path": "source_code/pressures/model_opts/mapping_methods.py",
+      "source_sha256": "e659cb187173cea246a93e40cd4b55c4af57e1f4964c2c27d6496f87784d88e2",
+      "adaptation": "exact function excerpts; minimal module imports",
+      "functions": {
+        "compare_rdms": {
+          "source_lines": [
+            113,
+            125
+          ],
+          "sha256": "dadc8210149bf90f243283adf3487041230688f5384e3b4d2d745bf29431e150"
+        }
+      },
+      "vendored_sha256": "142138862e87684398c8f5f74b2e4191223c3042242e072e81a8f4e24b0517a6"
+    },
+    "reduction.py": {
+      "source_path": "source_code/pressures/model_opts/feature_reduction.py",
+      "source_sha256": "4ed85a715fcc8bdfa73496270addbf2705d6eb97a03906661b71bbc0f87e21bd",
+      "adaptation": "exact function excerpts; minimal module imports",
+      "functions": {
+        "get_feature_map_filepaths": {
+          "source_lines": [
+            22,
+            24
+          ],
+          "sha256": "b4da33e7f8af566ea4913749737d39eb1ac567b8744c66a01cf6af5e547372c3"
+        },
+        "recursive_delete_if_empty": {
+          "source_lines": [
+            27,
+            38
+          ],
+          "sha256": "64ac28be7d3b5ab052cc1dd1790725f367f2fbf388e09ff7980a9d99e90f8827"
+        },
+        "delete_saved_output": {
+          "source_lines": [
+            40,
+            45
+          ],
+          "sha256": "6f03f267661ce8f2fc4e8af532a6d73ef56c5fb2ed3afd76ae7eb55904d40e35"
+        },
+        "compute_jl_lemma": {
+          "source_lines": [
+            65,
+            67
+          ],
+          "sha256": "1c7f772dbb5296a7ef18860cc70222ee6a93d632737e3c7543ce5f20574563bb"
+        },
+        "get_feature_map_srps": {
+          "source_lines": [
+            69,
+            128
+          ],
+          "sha256": "4a3f6068dac1712ef87f9a8b01260b4b1b0e4fb361ce002c540cd2cf127a0090"
+        }
+      },
+      "vendored_sha256": "f4ca18156e8c20644676f6e3d5531dc403e697f3fde1a04e338a718770a8eea7"
+    },
+    "LICENSE": {
+      "source_path": "LICENSE",
+      "source_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "adaptation": "none",
+      "vendored_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    }
+  },
+  "sklearn_license_sha256": "d81e7339cfef557debf6d8214e4a31acd01b3144d2b39e42513c3c7e5c29e5c2"
+}
