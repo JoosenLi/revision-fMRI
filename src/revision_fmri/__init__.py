@@ -12,11 +12,14 @@ from .response import NormalizedSession, normalize_session
 from .cache import FeatureIdentity, FeatureStore, CachedModel
 from .splits import RecordedSplit, load_split
 from .primary import load_primary_laion_split
+from .repeats import (TrialPresentation, TrialSession, aggregate_matched3, MATCHED3_POLICY,
+                      validate_matched3_responses, write_trial_selection_manifest)
 from .official_splits import (load_official_split, official_split_inventory,
                              TrialPartition, partition_trials, validate_holdout_family)
 
 __version__ = "0.1.0"
-__all__ = ["API_VERSION", "DeepNSDProtocol", "EvaluationReport", "MetricResult",
+__all__ = ["TrialPresentation", "TrialSession", "aggregate_matched3", "MATCHED3_POLICY",
+           "validate_matched3_responses", "write_trial_selection_manifest","API_VERSION", "DeepNSDProtocol", "EvaluationReport", "MetricResult",
            "ReproductionPipeline", "DatasetAdapter", "ResponseSet", "FeatureExtractor",
            "FeatureSet", "EvaluationSplit", "ModelLoader", "ModelSpec",
            "ClassificationTransform", "LoadedVisionModel", "TorchvisionAlexNetLoader",

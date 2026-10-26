@@ -125,3 +125,33 @@ def test_run_local_indices_need_explicit_order(local_data):
     path.write_text(json.dumps(m))
     with pytest.raises(ValueError, match='run_order'):
         adapter(local_data).trials()
+
+
+def test_matched3_nifti_reader_normalizes_sessions_before_selection(local_data):
+    from revision_fmri import MATCHED3_POLICY, validate_matched3_responses
+    cfg, path, manifest = local_data
+    cfg = replace(cfg, storage={**cfg.storage, 'results_root': path.parent/'results'})
+    manifest.update(aggregation=MATCHED3_POLICY, normalization='train_only_session_v1')
+    manifest['sessions'].reverse()  # Must not determine acquisition order.
+    for entry in manifest['sessions']:
+        s=entry['session_id']
+        (path.parent/entry['trials']).write_text(
+            f'session\trun\tbeta_index\tlabel\tonset\tvalid\n{s}\t1\t2\ta.jpg\t8\t1\n'
+            f'{s}\t1\t0\ta.jpg\t0\t1\n{s}\t1\t1\tb.jpg\t4\t1\n')
+    path.write_text(json.dumps(manifest))
+    obj=LaionNiftiAdapter(cfg,manifest='manifest.json')
+    with pytest.raises(ValueError,match='responses_matched3'):
+        obj.responses('sub-01','synthetic',('a.jpg',))
+    kwargs=dict(repeat_policy=MATCHED3_POLICY,normalization_policy='train_only_session_v1',
+                training_image_ids=('a.jpg',),validity_policy='tsv_valid_column_v1')
+    out=obj.responses_matched3('sub-01','synthetic',('a.jpg',),**kwargs)
+    np.testing.assert_allclose(out.values,[[-1/3,-1/3]])
+    selection=validate_matched3_responses(out)
+    assert [t['trial_id'] for t in selection['images'][0]['selected_trials']] == [
+        'sub-01/01/1/volume-0','sub-01/01/1/volume-2','sub-01/02/1/volume-0']
+    assert (cfg.storage['results_root']/out.provenance['trial_selection_file']).exists()
+    with pytest.raises(ValueError,match='Fewer than 3'):
+        obj.responses_matched3('sub-01','synthetic',('a.jpg','b.jpg'),**kwargs)
+    p=path.parent/'01.tsv';p.write_text(p.read_text().replace('\tonset\t','\tmissing_onset\t'))
+    with pytest.raises(ValueError,match='onset'):
+        obj.responses_matched3('sub-01','synthetic',('a.jpg',),**kwargs)

@@ -41,35 +41,56 @@ same-cluster siblings in the list, not a general visual near-duplicate guarantee
 These are scheduled-repeat labels, not proof that local responses contain every
 scheduled trial.
 
-## API and repeat-policy boundary
+## Decided repeat and projection policies
+
+Owner decisions (2026-10-26, PR #9 D10/F7 and PR #10 D08/F9) now specify:
+
+- **Repeats:** `matched3_first_chronological_v1`, first three valid presentations
+  per image ordered by session acquisition rank, run rank, then onset. No RNG.
+  The repeat-policy argument remains mandatory with no default, but primary
+  entry points reject other policy names. All-repeat averaging is deferred.
+- **SRP:** `jl_recomputed_eps0.1`, using the original C3 JL formula on the **full
+  split universe** before splitting: 1121 -> **6018**, 1000 -> **5920**.
+  Epsilon 0.1, random_state 0, density auto and original upsampling are preserved.
+  A primary run cannot silently use 5920, an arbitrary count or another policy.
 
 ```python
 split = load_primary_laion_split(
-    config, dataset_release=reviewed_release, repeat_policy=reviewed_repeat_policy)
+    config, dataset_release=reviewed_release,
+    repeat_policy="matched3_first_chronological_v1")
+pipeline = ReproductionPipeline(config, DeepNSDProtocol.jl_recomputed(split.split))
+responses = adapter.responses_matched3(
+    subject_id, roi_id, canonical_image_ids,
+    repeat_policy="matched3_first_chronological_v1",
+    normalization_policy=reviewed_normalization_policy,
+    training_image_ids=normalization_training_ids,
+    validity_policy=reviewed_validity_policy)
 report = pipeline.evaluate_primary_laion_model(
-    features=features, responses=responses,
-    dataset_release=reviewed_release, repeat_policy=reviewed_repeat_policy)
+    features=features, responses=responses, dataset_release=reviewed_release,
+    repeat_policy="matched3_first_chronological_v1")
 ```
 
-Both repeat-policy arguments are mandatory and have **no default**. The policy
-is a nonempty caller-supplied aggregation identifier, not a new automatic
-aggregation algorithm. The evaluation facade requires it to match
-`responses.provenance['aggregation']` and requires the response dataset release
-to match. It preserves the response repeat-count hash in the report. The split
-provenance digest also records the declared policy so incompatible preparations
-are not described as the same run specification.
+`canonical_image_ids` must match the feature row order and cover the complete
+primary pool. For `train_only_session_v1`, `normalization_training_ids` must be
+exactly `split.split.train_ids`. Normalization scope is still explicit: this
+change does not silently choose the legacy all-session policy or change the
+independent evaluator's rejection of legacy all-session normalization (D21).
 
-Choosing all available repeats versus a matched-three policy remains open (D08).
-The existing data reader implements only explicitly requested
-`mean_all_listed_trials_v1`; that name means all occurrences in the listed
-sessions, not verified complete 12/4 acquisition coverage. Matched-three trial
-selection/aggregation is not implemented here. A matching policy label does not
-prove that external averaging was correct: the eventual trial-selection manifest,
-actual counts, completeness and any sampling seed must be audited separately.
-This PR neither selects trials nor silently assigns a repeat policy.
+The shared [matched-three API](matched3_responses.md) normalizes valid session
+rows **before** selecting/averaging the three responses. Fewer than three valid
+presentations for any requested image fails; missing images never shrink the
+1121 pool. The reader persists a content-addressed trial-selection JSON under
+configured results storage, including eligible/selected trial IDs, per-image
+session spans, normalization hashes and response binding. The primary evaluator
+checks policy, exact repeat counts, manifest integrity and normalization fit-ID
+provenance, persists/verifies the artifact, and includes its hash plus the
+projection specification (N, epsilon, dimensions, seed, density, upsampling) in
+the report. Selected trials may cluster in early sessions, unlike NSD's spread
+repetitions; this is a documented LAION adaptation, not a hidden equivalence.
 
-SRP dimensions (D10) remain explicit through `DeepNSDProtocol(n_components=...,
-projection_policy=...)`; no default 5920 or recomputed budget is chosen for 1121.
+Both owner decisions are implemented; formal sign-off from the other two
+collaborators remains required. The NSD image bridge and all-repeat averaging
+are generalization-award backlog items, after faithful reproduction.
 
 ## Held-out evaluation and limits
 
@@ -83,11 +104,13 @@ The generic cached API and `RecordedSplit` remain available; the new primary
 facade evaluates already prepared feature arrays and adds explicit repeat-policy
 validation/provenance. A dedicated primary cached convenience facade is not added.
 Using lower-level generic evaluators does not apply these additional primary
-policy checks automatically.
+policy checks automatically. Primary-policy claims must use the primary facade.
 
 Tests cover 561/560 order, OOD exclusion, missing/reordered/source-mutated pools,
 mandatory repeat policy, unchanged NSD1000 behavior and primary facade delegation.
 Perturbing only test-half responses leaves training scores and selected layers
-unchanged while changing reported test scores. Numerical tests use synthetic
-responses/features and an explicitly small test-only SRP budget. No scientific
+unchanged while changing reported test scores. Selector tests use synthetic
+responses/features and a deterministic test encoder; they do not execute a
+6018-column ridge job. Separate tests verify the exact 5920/6018 JL results, and
+existing source-parity fixtures cover SRP/ridge numerics. No scientific
 result, GPU run or complete real-data evaluation is claimed.

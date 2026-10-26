@@ -21,14 +21,14 @@ of the authors' historical run configuration.
 | Dataset / stimulus pool | P/C: NSD shared1000 analysis | A: primary pool is 1121 non-OOD LAION shared images; OOD excluded | Different image distribution, participants and acquisition; do not describe this as identical-data replication. Record subject/session/release hashes. |
 | Primary split (D09, C1) | C: CSV-order even positions train, odd positions test; 500/500 | A: preserve alternation on the pinned published LAION list; 561/560, protocol `laion_splithalf_even_odd_v1` | Order is adapted from NSD CSV to official LAION list. Not a random split or exact equal halves. Owner decision recorded; all-collaborator review remains required. |
 | Secondary splits (D09) | C: official LAION tau/cluster/random/OOD are different protocols | A: retained as explicitly secondary adaptation/extension analyses | Do not combine these scores with primary split-half results or present them as the original replication split. Fold aggregation remains unresolved. |
-| Repeated responses (D08) | P/C: original NSD shared images have 3 repetitions | A/U: 881 LAION shared images are labeled 12-repeat and 240 are 4-repeat; repeat policy is required with no default | All-repeat averaging changes SNR heterogeneity; matched-three needs an explicit trial-selection rule/seed. Neither is chosen by the primary split. Current reader supports only all listed occurrences, not matched-three selection. |
+| Repeated responses (D08/F9) | P/C: original NSD shared images have 3 repetitions | A: owner decided matched-3 on 2026-10-26; implement `matched3_first_chronological_v1` after explicit session normalization, with no RNG | First three valid acquisition-ordered trials may cluster in early sessions unlike NSD. Save eligible/selected trials and session spans; fail below three. Other collaborator sign-offs pending. All-repeat analysis deferred to generalization-award backlog. |
 | Response normalization (D16/D21, C6) | C: released session z-scoring can use all trials; exact exported-beta history U | A: explicit normalization primitives; independent evaluator rejects legacy all-session provenance | Report normalization scope. Train-only alternative differs from released session preprocessing; do not claim historical export equivalence. |
 | ROI and reliability (D05/D07/D11) | P/C: OTC region definitions; paper strict thresholds vs inclusive parser, generic EVC inclusion discrepancy | A/U: explicit ROI primitives exist; LAION anatomical mapping/reliability policy still requires review | LAION NC percentages are not NCSNR. No silent threshold conversion or complete OTC-equivalence claim. |
 | Checkpoints and dependencies (D06) | C: many mutable loader defaults; historical bytes and versions U | A: local SHA-verified offline loader, currently AlexNet compatibility profile only | Matching a caller SHA does not verify the paper checkpoint. Historical weights/environment still unresolved; no weights downloaded by this implementation. |
 | Image preprocessing (C9/D04/D22) | C: torchvision direct square 224 resize + ImageNet normalization; C2 explicitly converts RGB | C/A: exact source transform reused under pinned modern compatibility versions; shared reader must convert RGB explicitly | Historical interpolation/library behavior U; do not substitute modern weight-enum resize/crop. Other families and random-model normalization differences remain unresolved. |
 | Hook and candidate procedure (C2/D15) | C: execution-order hooks, non-inplace ReLU, random probe/hash dedup, later half of deduplicated list, full-dataset second dedup | U: PR #9 contains single-batch source reuse under review; full candidate procedure not yet implemented on this branch | Published layer metadata can count pre-dedup outputs. No scientific candidate list is approved until probe/dedup/later-half fidelity is validated. |
 | cRSA (C5) | P/C: Pearson correlation of upper-triangle correlation-distance RDMs on raw features | C: original routine reused behind validated common API | No SRP, rank correlation or crossnobis substitution for cRSA. Nonfinite/degenerate inputs now fail explicitly (D13). |
-| SRP and veRSA (C3/D10) | C: sparse random projection, seed 0, original 5920 dimensions for 1000 images; train-fitted scaling | C/A/U: original source reused; LAION projection count and rationale remain mandatory caller choices | Fixed original budget vs n=1121 JL budget remains open. Never describe an implicit dimension choice as original-method fidelity. |
+| SRP and veRSA (C3/D10/F7) | C: sparse random projection before split; original JL formula eps=0.1, seed=0, auto density, upsampling; 1000 -> 5920 | C/A: owner decided full-pool recomputation on 2026-10-26; primary `jl_recomputed_eps0.1` fixes 1121 -> 6018 | Primary evaluator enforces this policy and records N/epsilon/dimensions/seed. It adapts sample count while retaining the original formula. Other collaborator sign-offs pending. |
 | Ridge alpha grid (D01/C1/C4) | P: range extends to 10^7; released C1 default is seven log-spaced values 10^-1 through 10^5 | C: released-code grid is canonical backend behavior | Paper/code discrepancy remains unresolved. Historical run configuration needed; alternatives must have separate protocol IDs. |
 | Ridge scoring / predictions (D03/D19) | C: per-voxel Pearson LOOCV alpha choice, centered training LOOCV predictions; test intercept restored; L2 normalization observed in compatibility environment | C: vendored original backend preserves these semantics | Do not replace with modern RidgeCV MSE defaults, in-sample predictions or restored training offsets. Compatibility parity is not historical-environment proof. |
 | Layer selection (D02/C7) | C: maximize training RSA, but released R filter can first use test-minus-train scores; historical effect U | A: primary evaluation uses training-half scores only; selected test-half score reported; C7 filter excluded | Intentional deviation from released test-dependent filtering to maintain independent evaluation. Must be disclosed, not described as exact reproduction of every released analysis step. |
@@ -49,15 +49,30 @@ Verified label composition: 641 LAION-cluster (12 reps), 240 THINGS+ (12 reps),
 140 NSD special1000 (4 reps), 100 NSD special100 (4 reps). There are 641 distinct
 LAION cluster identifiers, so no same-cluster siblings in this list; this is not
 a complete image-level near-duplicate analysis. Labels describe scheduled repeats,
-not verified local trial completeness. The 240 NSD images are a possible bridge
-analysis only: exact overlap with original NSD shared1000 still needs ID mapping.
+not verified local trial completeness. The 240 NSD-image bridge is **deferred until after faithful reproduction**, as
+a candidate for the **generalization-award stage**. Exact overlap with original
+NSD shared1000 still needs ID mapping; no bridge analysis has been run.
 
 ## Decision and validation history
 
 - 2026-10-26: owner explicitly chooses original-style even/odd split-half as
   primary; official LAION splits become secondary (PR #9 F4 update). F4a–F4d
   implemented in the follow-up branch from main. Other collaborator sign-offs
-  remain pending; repetition and SRP-budget decisions remain open.
+  remain pending. At initial F4 implementation repetition and SRP budget were
+  open; subsequent owner decisions below supersede that status.
+- 2026-10-26, owner D10/F7: recompute original JL formula on full split N=1121,
+  eps=0.1 -> 6018; seed 0/auto density/upsampling preserved. Implemented/enforced;
+  remaining collaborators must sign off before merge.
+- 2026-10-26, owner D08/F9 and explicit owner instruction: primary uses
+  `matched3_first_chronological_v1`. Normalize valid session rows, then average
+  earliest three valid presentations, with session-span/selection manifests.
+  This deterministic LAION rule is an adaptation; no original NSD trial identities
+  or temporal spread are reproduced. Float32 normalized responses are accumulated
+  in float64, matching the existing reader's mean-accumulation policy. Invalid
+  trials require explicit metadata; nonfinite valid betas fail. Other sign-offs
+  remain pending. Normalization scope (D21) remains an explicit separate choice.
+- 2026-10-26, owner F8/F9d: NSD bridge and all-repeat averaging (12/4) are deferred
+  until after faithful reproduction, as generalization-award backlog items.
 - Canonical source file independently fetched and matched against local pinned
   metadata. Runtime source/order checks yield 561/560. No beta or image download
   was needed for this change.

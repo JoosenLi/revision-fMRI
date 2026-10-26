@@ -38,6 +38,13 @@ class DeepNSDProtocol:
         if not self.projection_policy or not isinstance(self.projection_policy, str):
             raise ValueError('Describe the projection policy; no implicit LAION default')
 
+    @classmethod
+    def jl_recomputed(cls, split: EvaluationSplit):
+        """Original JL formula over full split universe; primary policy factory."""
+        from .primary import primary_projection_spec
+        spec = primary_projection_spec(split)
+        return cls(split.protocol_id, spec['n_components'], spec['policy'])
+
     def to_dict(self) -> dict:
         return {**asdict(self), 'backend': 'deepnsd-vendored-sklearn132-v1',
                 'alphas': list(RELEASED_CODE_ALPHAS), 'srp_seed': 0,
@@ -125,8 +132,8 @@ class ReproductionPipeline:
         """Primary 561/560 split; reuse training-only selection, never aggregate trials.
 
         repeat_policy must match the prepared responses' aggregation provenance.
-        This records a caller decision, not approval/implementation of that policy.
-        Projection dimensions remain explicit in this pipeline's DeepNSDProtocol.
+        Primary matched-three and full-pool JL policies are enforced; neither is
+        inferred from caller labels alone.
         """
         from .primary import load_primary_laion_split, CANONICAL_ORDER_SHA256, SOURCE_SHA256
         split = load_primary_laion_split(self.config, dataset_release=dataset_release,
@@ -135,14 +142,28 @@ class ReproductionPipeline:
             raise ValueError('Response dataset_release differs from primary protocol')
         if responses.provenance.get('aggregation') != repeat_policy:
             raise ValueError('Response aggregation must match explicit repeat_policy')
+        from .primary import primary_projection_spec
+        from .repeats import validate_matched3_responses, write_trial_selection_manifest
+        spec = primary_projection_spec(split.split)
+        if self.protocol != DeepNSDProtocol.jl_recomputed(split.split):
+            raise ValueError('Primary projection requires jl_recomputed_eps0.1 on the full split (6018 for 1121)')
+        manifest = validate_matched3_responses(responses)
+        if (manifest['normalization'] == 'train_only_session_v1'
+                and manifest['normalization_training_ids_sha256'] != metadata_digest(split.split.train_ids)):
+            raise ValueError('Normalization training IDs differ from the primary training half')
         report = self.evaluate_model(features=features, responses=responses, split=split.split)
+        selection_file = write_trial_selection_manifest(self.config, manifest)
         return replace(report, evaluation_provenance={**report.evaluation_provenance,
             'analysis_role': 'primary_replication', 'split_protocol_id': split.split.protocol_id,
             'split_sha256': split.split.source_digest, 'split_source_revision': split.source_revision,
             'split_dataset_release': dataset_release, 'split_pool': split.pool,
             'canonical_order_sha256': CANONICAL_ORDER_SHA256,
             'canonical_source_file_sha256': SOURCE_SHA256, 'repeat_policy': repeat_policy,
-            'repeat_policy_status': 'explicit caller choice; aggregation not performed here'})
+            'repeat_policy_status': 'owner-decided matched3; manifest and counts verified',
+            'trial_selection_sha256': responses.provenance['trial_selection_sha256'],
+            'trial_selection_file': selection_file,
+            'selected_trial_session_span': json.dumps(manifest['session_span'], sort_keys=True),
+            'projection_spec': json.dumps(spec, sort_keys=True)})
 
     def save_report(self, report: EvaluationReport, *, run_id: str) -> Path:
         """Write a new summary under configured results_root; never overwrite.

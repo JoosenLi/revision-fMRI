@@ -4,6 +4,7 @@ from .evaluation import even_odd_split
 from .official_splits import load_official_split
 from .provenance import metadata_digest
 from .splits import RecordedSplit
+from .repeats import MATCHED3_POLICY
 
 PRIMARY_PROTOCOL = 'laion_splithalf_even_odd_v1'
 CANONICAL_ORDER_SHA256 = '8299304097406a108d94db054763edea759ccfe9d1d4446a7ba6e3dd50006db9'
@@ -17,10 +18,11 @@ def load_primary_laion_split(config: LocalConfig, *, dataset_release: str,
 
     Only the image universe/order is borrowed; the official OOD assignment is
     not used as the primary partition. Require an explicit aggregation policy
-    label without choosing or performing trial selection/averaging here.
+    label matching the owner-decided matched-three policy; aggregation is handled
+    by the shared data API, not the split loader.
     """
-    if not isinstance(repeat_policy, str) or not repeat_policy.strip():
-        raise ValueError('Explicit repeat_policy is required; there is no default')
+    if repeat_policy != MATCHED3_POLICY:
+        raise ValueError('Primary repeat_policy must explicitly be matched3_first_chronological_v1')
     original = load_official_split(config, name='ood', dataset_release=dataset_release)
     ids = original.split.train_ids
     if (original.source_revision != SOURCE_REVISION or original.split.source_digest != SOURCE_SHA256
@@ -33,3 +35,15 @@ def load_primary_laion_split(config: LocalConfig, *, dataset_release: str,
                               'repeat_policy': repeat_policy})
     split = even_odd_split(ids, protocol_id=PRIMARY_PROTOCOL, source_digest=digest)
     return RecordedSplit(split, dataset_release, SOURCE_REVISION, 'shared_non_ood')
+
+
+PRIMARY_PROJECTION_POLICY = 'jl_recomputed_eps0.1'
+
+
+def primary_projection_spec(split):
+    """C3 projects before the split: derive JL size from the complete image universe."""
+    from .features import jl_dimensions
+    n_samples = len(split.train_ids) + len(split.test_ids)
+    return {'policy': PRIMARY_PROJECTION_POLICY, 'n_samples': n_samples, 'eps': 0.1,
+            'n_components': jl_dimensions(n_samples, eps=0.1), 'seed': 0,
+            'density': 'auto', 'upsampling': True}

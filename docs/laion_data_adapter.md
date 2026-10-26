@@ -125,3 +125,13 @@ python scripts/validate_laion_pilot.py --config configs/paths.local.yaml --manif
 
 The script reads three singly presented images through the shared adapter;
 it performs no feature inference, fitting or ROI reliability selection.
+
+## Matched-three primary reader — F9 update (2026-10-26)
+
+The original all-listed mean path above remains a secondary interface. The new
+`responses_matched3` path accepts a manifest explicitly naming
+`matched3_first_chronological_v1` plus a supported normalization policy, and requires
+explicit validity and training-ID arguments. It reuses the same volume/mask/index
+validation, requires onset and numeric session/run acquisition metadata, normalizes
+valid rows per session before first-three averaging, and persists a selection
+manifest under configured results_root. See [matched-three responses](matched3_responses.md).

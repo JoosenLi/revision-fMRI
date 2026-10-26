@@ -3,6 +3,7 @@ import csv
 from dataclasses import dataclass, replace
 import hashlib
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -10,6 +11,7 @@ import numpy as np
 from .config import LocalConfig, load_config
 from .data import ResponseSet, unique_ids
 from .provenance import metadata_digest
+from .repeats import MATCHED3_POLICY, TrialPresentation, TrialSession, aggregate_matched3
 
 
 def _digest(path: Path) -> str:
@@ -36,6 +38,8 @@ class TrialRecord:
     beta_index: int
     image_id: str
     volume_index: int
+    onset: float | None = None
+    valid: bool | None = None
 
 
 def _read_trials(path: Path, session: str, n_volumes: int, *, index_mode: str,
@@ -54,7 +58,12 @@ def _read_trials(path: Path, session: str, n_volumes: int, *, index_mode: str,
                 index = int(row['beta_index'])
             except (ValueError, TypeError) as exc:
                 raise ValueError('beta_index must be a zero-based integer') from exc
-            records.append(TrialRecord(session, row['run'], index, row['label'], index))
+            onset = float(row['onset']) if row.get('onset', '').strip() else None
+            flag = row.get('valid', '').strip().lower()
+            if flag not in ('', '0', '1', 'false', 'true'):
+                raise ValueError('Optional valid column must contain explicit boolean values')
+            valid = None if not flag else flag in ('1', 'true')
+            records.append(TrialRecord(session, row['run'], index, row['label'], index, onset, valid))
     if index_mode == 'run_index':
         if set(run_order) != {r.run for r in records}:
             raise ValueError('Explicit run_order must cover exactly the TSV runs')
@@ -74,8 +83,8 @@ def _read_trials(path: Path, session: str, n_volumes: int, *, index_mode: str,
 class LaionNiftiAdapter:
     """DatasetAdapter for explicitly listed T1w NIfTI sessions and a supplied mask.
 
-    Only mean_all_listed_trials_v1 / normalization=none is implemented. This is
-    an opt-in LAION adaptation, not the original NSD normalization. The manifest
+    All-listed means and explicit normalized matched-three selection are supported.
+    These are LAION adaptations, not identical NSD trials. The manifest
     must document upstream normalization, mask/reliability and session coverage.
     No automatic ROI construction, reliability threshold or resampling occurs.
     """
@@ -93,8 +102,10 @@ class LaionNiftiAdapter:
             raise ValueError('Subject, ROI and space must be explicit strings')
         if m['space'] != 'T1w':
             raise ValueError('Only explicit native T1w volumetric inputs are supported')
-        if m['aggregation'] != 'mean_all_listed_trials_v1' or m['normalization'] != 'none':
-            raise ValueError('Only explicit all-listed-trial mean without additional normalization is implemented')
+        if not ((m['aggregation'] == 'mean_all_listed_trials_v1' and m['normalization'] == 'none')
+                or (m['aggregation'] == MATCHED3_POLICY and m['normalization'] in
+                    ('legacy_deepnsd_session_v1', 'train_only_session_v1'))):
+            raise ValueError('Explicit supported aggregation/normalization pair required')
         p = m['provenance']
         required_provenance = {'dataset_release', 'roi_definition', 'reliability',
                                'upstream_normalization', 'session_coverage'}
@@ -138,7 +149,7 @@ class LaionNiftiAdapter:
                                         index_mode=entry['index_mode'], run_order=entry['run_order']))
         return tuple(records)
 
-    def responses(self, subject_id: str, roi_id: str, image_ids: tuple[str, ...]) -> ResponseSet:
+    def _prepare_response_inputs(self, subject_id: str, roi_id: str, image_ids: tuple[str, ...]):
         import nibabel as nib
         m = self.manifest
         unique_ids(image_ids, 'Requested image IDs')
@@ -169,6 +180,14 @@ class LaionNiftiAdapter:
             sessions.append((beta, records))
             source_hashes.append({'session_id': entry['session_id'],
                                   'betas_sha256': _digest(beta_path), 'trials_sha256': _digest(trials_path)})
+        return m, mask_path, mask_img, mask, coords, sessions, source_hashes
+
+    def responses(self, subject_id: str, roi_id: str, image_ids: tuple[str, ...]) -> ResponseSet:
+        if self.manifest['aggregation'] == MATCHED3_POLICY:
+            raise ValueError('Use responses_matched3 with explicit normalization/training/validity parameters')
+        import nibabel as nib
+        m, mask_path, mask_img, mask, coords, sessions, source_hashes = self._prepare_response_inputs(
+            subject_id, roi_id, image_ids)
         lookup = {label: i for i, label in enumerate(image_ids)}
         counts = np.zeros(len(image_ids), dtype=np.int64)
         sums = np.zeros((len(image_ids), len(coords[0])), dtype=np.float64)
@@ -200,3 +219,56 @@ class LaionNiftiAdapter:
         })
         return ResponseSet(image_ids, voxel_ids, values, subject_id, roi_id, m['space'],
                            tuple(int(n) for n in counts), provenance)
+
+
+    def responses_matched3(self, subject_id: str, roi_id: str, image_ids: tuple[str, ...], *,
+                           repeat_policy: str, normalization_policy: str,
+                           training_image_ids: tuple[str, ...] | None,
+                           validity_policy: str) -> ResponseSet:
+        """Read sessions once, normalize valid rows, select/average first three, persist manifest.
+
+        Numeric BIDS session/run labels define acquisition ranks; onset is required.
+        Validity must be explicitly declared from the TSV or as all presentations
+        valid. No inference from beta magnitudes or implicit bad-trial exclusion.
+        """
+        m = self.manifest
+        if (repeat_policy != MATCHED3_POLICY or m['aggregation'] != repeat_policy
+                or m['normalization'] != normalization_policy):
+            raise ValueError('Matched3 call must agree with manifest aggregation/normalization')
+        if validity_policy not in ('tsv_valid_column_v1', 'all_presentations_valid_v1'):
+            raise ValueError('Explicit supported validity policy required')
+        m, mask_path, mask_img, mask, coords, sessions, source_hashes = self._prepare_response_inputs(
+            subject_id, roi_id, image_ids)
+        def rank(label, prefix):
+            match = re.fullmatch(r'(?:' + prefix + r'-)?([0-9]+)', label)
+            if not match:
+                raise ValueError('Acquisition order requires numeric session/run labels')
+            return int(match[1])
+        def session_arrays():
+            for (beta, records), entry in zip(sessions, m['sessions']):
+                trials = []
+                for r in records:
+                    if r.onset is None:
+                        raise ValueError('Matched3 requires explicit trial onset metadata')
+                    if validity_policy == 'tsv_valid_column_v1' and r.valid is None:
+                        raise ValueError('Validity column is required for every trial')
+                    if validity_policy == 'all_presentations_valid_v1' and r.valid is False:
+                        raise ValueError('All-valid declaration conflicts with explicit invalid flag')
+                    trials.append(TrialPresentation(
+                        f'{subject_id}/{r.session}/{r.run}/volume-{r.volume_index}', r.image_id,
+                        rank(r.run, 'run'), r.onset,
+                        r.valid if validity_policy == 'tsv_valid_column_v1' else True))
+                # One session's ROI matrix, never the full dataset or GPU memory.
+                values = np.stack([np.asarray(beta.dataobj[..., r.volume_index])[coords] for r in records])
+                yield TrialSession(entry['session_id'], rank(entry['session_id'], 'ses'), tuple(trials), values)
+        provenance = {**m['provenance'], 'adapter': 'laion-nifti-matched3-v1',
+                      'manifest_sha256': hashlib.sha256(self._manifest_bytes).hexdigest(),
+                      'source_files_sha256': metadata_digest(source_hashes),
+                      'source_files': json.dumps(source_hashes, sort_keys=True),
+                      'mask_sha256': _digest(mask_path), 'validity_policy': validity_policy,
+                      'grid_sha256': metadata_digest({'shape': list(mask.shape), 'affine': mask_img.affine.tolist()})}
+        return aggregate_matched3(session_arrays(), config=self.config, image_ids=image_ids,
+            voxel_ids=tuple(f'T1w:{i}:{j}:{k}' for i,j,k in zip(*coords)),
+            subject_id=subject_id, roi_id=roi_id, space=m['space'], provenance=provenance,
+            repeat_policy=repeat_policy, normalization_policy=normalization_policy,
+            training_image_ids=training_image_ids)

@@ -106,6 +106,13 @@ untested real-checkpoint/CUDA boundaries. Feature hooks remain unimplemented.
 
 `load_primary_laion_split` and `ReproductionPipeline.evaluate_primary_laion_model`
 implement the primary 561/560 even/odd protocol. Both require `repeat_policy`
-without a default; the facade checks response aggregation provenance and reuses
-training-only selection. See [primary protocol](primary_laion_protocol.md) and
+without a default; the facade enforces `matched3_first_chronological_v1`, verifies
+the selection manifest/counts and reuses training-only selection. Construct its
+encoding protocol using `DeepNSDProtocol.jl_recomputed(split.split)` (6018 for the
+full 1121-image pool). See [primary protocol](primary_laion_protocol.md) and
 [report-facing replication differences](replication_differences.md).
+
+`TrialPresentation`, `TrialSession` and `aggregate_matched3` provide the common
+chronological selection/normalization/mean API. `LaionNiftiAdapter.responses_matched3`
+feeds it validated local trial/beta metadata. Selection JSON artifacts are written
+only beneath configured results_root; see [matched-three responses](matched3_responses.md).

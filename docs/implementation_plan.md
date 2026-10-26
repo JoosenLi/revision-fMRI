@@ -23,7 +23,7 @@ Suggested ownership is by component rather than institution-specific paths; coll
 2. Agree the adapted ROI, reliability scope, beta normalization, repeat policy, shared pool and exact split revision. No automatic “equivalent OTC” claim.
 3. Establish small numerical fixtures in each collaborator's configured development environment. Current tests are CPU-only array/configuration checks, not training. Future model tests require configured available CUDA resources and must fail rather than switch inference to CPU.
 4. Test legacy RidgeCVMod under a compatible isolated sklearn environment, then compare the port against it. Do not use today's private sklearn APIs without a version check. CPU reference linear algebra is not CPU vision-network training.
-5. Before later experiments, choose original half-split baseline versus re:vision tau/cluster/OOD adaptations, SRP dimension policy and explicit legacy-filter handling. A modern independent evaluation may be scientifically appropriate but is a deviation from C7, not evidence of source parity.
+5. Primary decisions are now original-style half-split, matched-three chronological repeats and full-pool JL recomputation (1121 -> 6018); official splits are secondary. Obtain remaining collaborator sign-offs and resolve normalization/ROI details before scientific runs. A modern independent evaluation may be scientifically appropriate but is a deviation from C7, not evidence of source parity.
 6. Authorized long tasks run locally per the user update on 2026-10-26; consult local execution settings. No remote job or scheduler automation is created.
 
 ## Tests implemented now
@@ -64,3 +64,22 @@ T6 now imports all twelve pinned official shared-pool splits without regeneratio
 with exact upstream-loader parity, explicit trial coverage diagnostics and
 five-fold partition validation. Subject/pooled pools, OOD subcategories, model
 loaders/hooks and experiment-wide orchestration remain pending.
+
+## Owner-decided primary protocol — 2026-10-26 (F7/F9)
+
+- Full-pool C3 JL recomputation: `jl_recomputed_eps0.1`, epsilon .1, N=1121,
+  6018 components, seed 0, auto density, original upsampling.
+- `matched3_first_chronological_v1`: first three valid session/run/onset-ordered
+  presentations, after explicit session normalization; no missing-image/repeat
+  fallback; persist trial-selection manifest/hash and session spans.
+- Both decisions still require the other collaborators' formal sign-offs.
+  No GPU or full-data scientific evaluation is authorized by this implementation.
+
+## Generalization-award backlog — only after faithful reproduction (F8/F9d)
+
+1. **NSD-image bridge:** map the 240 LAION NSD-image labels to original NSD IDs,
+   verify actual overlap with the paper stimuli, then design a separate bridge
+   analysis. Deferred until faithful reproduction is complete; no analysis now.
+2. **All-repeat averaging (12/4 reps):** compare against the matched-three primary
+   under a separately named extension protocol; assess unequal SNR/repeat counts.
+   Deferred to the generalization-award stage; never substitute it for primary.

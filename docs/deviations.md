@@ -11,9 +11,9 @@ Register initiated 2026-10-24; dated updates below record subsequent decisions. 
 | D05 | NCSNR/t strict paper thresholds vs inclusive parser boundaries; generic parser includes EVC | Published OTC metadata is reference artifact, not generic parser defaults | Match original mask counts and exact voxel IDs; tests at threshold equality |
 | D06 | Model/library defaults, RNG states and checkpoint hashes incompletely specified | All models remain unapproved for extraction | Resolve local bytes, dependency versions, init seeds and candidate-layer fingerprints |
 | D07 | LAION anatomical visual sectors are not NSD streams; some category ROIs differ | Proposed `laion_otc_adapted_v1`, not original OTC | Explicit masks and reviewed mapping; missing ROIs are errors, not silent omissions |
-| D08 | LAION repeats and image counts differ from NSD shared1000×3 | Trial-aware data contract; no automatic subsampling/aggregation chosen | Persist image IDs, repeated-image grouping and counts; choose all-repeat vs matched-three protocol explicitly |
+| D08 | LAION has 12/4 scheduled repeats vs NSD shared1000×3 | Owner decided matched-3 (2026-10-26); implement explicit `matched3_first_chronological_v1` | Normalize valid session rows before averaging; first three may cluster early; persist trial/session spans and hashes; other sign-offs pending; all-repeat deferred |
 | D09 | re:vision tau/cluster/OOD splits differ from original even/odd half split | Primary: pinned 1121-image even/odd 561/560; official LAION splits secondary | Pin split release/content; layer/alpha/scaler selection only inside outer training images |
-| D10 | Original 5,920 SRP dimensions derives from 1,000 samples | No LAION default selected | Decide fixed-budget versus JL-recomputed policy; report dimensions, epsilon, density, seed |
+| D10 | Original 5920 SRP dimensions derives from N=1000 | Owner decided original-formula recomputation (2026-10-26): `jl_recomputed_eps0.1`, full N=1121 -> 6018 | Enforce primary policy; record N, eps=.1, seed=0, density auto and upsampling; verify NSD1000 still gives 5920; other sign-offs pending |
 | D11 | LAION voxel NC (%) and NCSNR are not interchangeable with RSM ceiling | No threshold in percentage units substituted | Recover/recompute NCSNR from correct variance and repeat convention; GSN remains separate |
 | D12 | SLIP released statistics include architecture interaction absent in paper pseudocode | Preserve both descriptions; no Python replacement fitted | Compare R design matrices, coefficients, SEs and reference levels |
 | D13 | Source malformed NaN warning and implicit image alignment | New metrics/data APIs reject nonfinite/degenerate patterns and mismatched IDs | Implemented validation deviation; test deterministic failures |
@@ -25,8 +25,8 @@ Register initiated 2026-10-24; dated updates below record subsequent decisions. 
 | D19 | Executing released C4 on sklearn 1.3.2 reveals `copy_X=True` binds to positional `normalize`, enabling feature L2 normalization | Corrected the initial static audit; reference requires explicit `legacy_l2_normalize`; True matches unmodified source in the pinned compatibility environment | Five synthetic source fixtures plus brute-force LOO tests pass; original authors' dependency version/intent remains unresolved; no silent choice for scientific runs |
 
 2026-10-26 implementation update: D03's centered LOO behavior is now numerically
-verified against unmodified source; D10 remains an explicit caller-supplied
-projection count; D18's float32 ridge option remains unavailable in the numerical
+verified against unmodified source; at this earlier implementation stage D10 was caller-supplied
+(subsequently decided below); D18's float32 ridge option remains unavailable in the numerical
 reference and fails explicitly. D01/D02 remain unresolved; subsequent LAION protocol decisions are recorded
 in the dated updates below. See `encoding_reference.md` for scope and validation tolerances.
 
@@ -74,6 +74,27 @@ The order adapts C1's NSD stimulus CSV order; source bytes and ordered-ID hashes
 are fixed in [primary protocol](primary_laion_protocol.md). Existing training-only
 layer selection is reused; C7 filtering is excluded. Repeat policy is a mandatory
 parameter with no default and must match prepared-response aggregation metadata.
-This does not implement or approve a repeat-selection algorithm; D08 and D10
-remain open. Requires 3-collaborator review. Maintain the report-facing account in
+At initial F4 implementation no repeat algorithm or SRP budget was selected;
+the subsequent F7/F9 decisions below supersede that status. Requires 3-collaborator review. Maintain the report-facing account in
 [replication differences](replication_differences.md).
+
+### D08/D10 — Owner decisions implemented (2026-10-26, PR #10 F7/F9)
+
+Primary SRP now uses the full split image universe with the original JL formula,
+eps=0.1: 1121 -> 6018, while 1000 -> 5920 remains unchanged. Named policy
+`jl_recomputed_eps0.1` preserves seed 0, auto density and upsampling. Primary
+reports record this specification and reject arbitrary caller budgets.
+
+Primary repeats now require explicit `matched3_first_chronological_v1`: normalize
+valid rows within each session first, then select the earliest three valid trials
+by acquisition session/run/onset and mean with float64 accumulation. No RNG and
+no fallback below three. Trial manifests retain eligible and selected identifiers,
+hashes and session span. Explicit validity exclusions affect normalization scope;
+all-valid data retain the original operation order. First-three temporal clustering
+is a LAION adaptation relative to NSD repeats across sessions. D21's normalization
+scope remains explicit; legacy all-session responses remain forbidden in the
+independent evaluator. See [matched-three responses](matched3_responses.md).
+
+Owner decisions are recorded; remaining two collaborator sign-offs are pending.
+All-repeat averaging and the NSD bridge are deferred to the generalization-award
+stage after faithful reproduction (F8/F9d), not silently run as primary analyses.
