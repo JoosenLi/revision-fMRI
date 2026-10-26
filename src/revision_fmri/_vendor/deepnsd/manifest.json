@@ -2,6 +2,70 @@
   "repository": "https://github.com/ColinConwell/DeepNSD",
   "commit": "36f6a34727dccb5eec8fa49364b210a049a388d7",
   "files": {
+    "hooks.py": {
+      "source_path": "source_code/pressures/model_opts/feature_extraction.py",
+      "source_sha256": "72c358474f6264ebbbe97bc81eac262f95224a1c4da82ab0d79d96c882f4d0c5",
+      "adaptation": "exact function excerpts; minimal module imports",
+      "functions": {
+        "warn_once": {
+          "source_lines": [
+            8,
+            10
+          ],
+          "sha256": "121318ebaeb97d75dbed33658149eff5d601c3f04a066a29c1daaa5e622e83af"
+        },
+        "prep_model_for_extraction": {
+          "source_lines": [
+            41,
+            56
+          ],
+          "sha256": "40ca67a83c25667f80d58c4193c7f18d5db32397927d14bc0579d5437fb7eca2"
+        },
+        "convert_relu": {
+          "source_lines": [
+            58,
+            63
+          ],
+          "sha256": "b8fd37121699179fca85247525fb03e85c67e250ce81e91df3656b78faa09d5a"
+        },
+        "get_module_name": {
+          "source_lines": [
+            93,
+            97
+          ],
+          "sha256": "62e269c4f7dcb06fd21141a9be834893256bfa1b66ab901b06b8ef33f511e153"
+        },
+        "remove_duplicate_feature_maps": {
+          "source_lines": [
+            126,
+            167
+          ],
+          "sha256": "451636cdfe4760c25e5de51093295779d00b384dfa405447157ad1c7397436a0"
+        },
+        "check_for_input_axis": {
+          "source_lines": [
+            169,
+            171
+          ],
+          "sha256": "4a35df29b2be3ec9e11c635642e235ccae46d83df47d26a19a176ae16a9331b6"
+        },
+        "reset_input_axis": {
+          "source_lines": [
+            173,
+            175
+          ],
+          "sha256": "ebd456c5a92f69504a676addfff35e7ee37a1c9bc42e45e49277965e54d7f6ec"
+        },
+        "get_feature_maps": {
+          "source_lines": [
+            177,
+            245
+          ],
+          "sha256": "bb122bf98d97a371a57866792f1ab642c84aa545bd448a7f020cdc8b28026c7c"
+        }
+      },
+      "vendored_sha256": "b29cec17873f5bbdcb1dddf2b0d438d893bb5998dbe8b0b7fe1b56ea244ed72f"
+    },
     "vision.py": {
       "source_path": "source_code/pressures/model_opts/model_options.py",
       "source_sha256": "55d603877e1755e0153dea1a2557a98eac5780bcbd7afff337284a0a5d72979c",
