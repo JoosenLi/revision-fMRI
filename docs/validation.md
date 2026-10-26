@@ -94,3 +94,21 @@ response normalization scope, axis, dtype and held-out perturbation checks.
 These are tiny synthetic tests; no new full-session preprocessing, ROI generation
 or GPU experiment was run. The shared README now delegates machine details to
 ignored local instructions.
+
+## Cached evaluation — 2026-10-26
+
+118 tests passed. The 20 new cache/split tests also passed against the built wheel,
+with the package imported from that wheel rather than the source tree. Dependency
+consistency and diff whitespace checks passed. Importing the package did not
+import torch. Tests use only tiny synthetic arrays and temporary configured roots.
+
+Cached and direct evaluation agree on metrics and per-voxel alphas. Copying the
+same artifacts to different roots produces identical reports. Tests cover source
+identity changes, image order/precision changes, tampered metadata/values,
+incomplete writes, no overwrite, symlinks, split digest/partition errors,
+candidate mismatches and response/split dataset-release mismatches.
+
+No existing shared cache was overwritten, no scientific method was changed,
+and no real feature extraction, additional dataset/checkpoint download, GPU
+experiment or whole-data evaluation ran. Official LAION split import and vision
+loaders/hooks remain unimplemented.

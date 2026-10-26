@@ -1,9 +1,13 @@
 """Stable collaborator-facing API v1; original methods stay behind this boundary."""
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import json
 from pathlib import Path
 import re
-from typing import Mapping, Sequence
+from typing import Mapping, Sequence, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .cache import CachedModel
+    from .splits import RecordedSplit
 
 from .config import LocalConfig, load_config
 from .data import ResponseSet
@@ -135,3 +139,29 @@ class ReproductionPipeline:
         with path.open('x') as stream:
             stream.write(document)
         return path
+
+    def evaluate_cached_model(self, *, model: 'CachedModel', responses: ResponseSet,
+                              split: 'RecordedSplit') -> EvaluationReport:
+        """Evaluate a CachedModel against a RecordedSplit using configured storage.
+
+        Verify identity/content and requested model/layer order before invoking
+        the same scientific evaluator used by evaluate_model. No model inference.
+        """
+        from .cache import FeatureStore
+        if responses.provenance.get('dataset_release') != split.dataset_release:
+            raise ValueError('Response dataset_release must match the pinned split release')
+        store = FeatureStore(self.config)
+        layers = []
+        for layer_id, key in zip(model.layer_ids, model.feature_keys):
+            feature = store.get(key, expected_identity=model.identity)
+            if feature.model_id != model.model_id or feature.layer_id != layer_id:
+                raise ValueError('Cached model/layer differs from declared candidate order')
+            layers.append(replace(feature, provenance={**feature.provenance,
+                          'feature_cache_key': key,
+                          'feature_identity_sha256': metadata_digest(asdict(model.identity))}))
+        report = self.evaluate_model(features=layers, responses=responses, split=split.split)
+        return replace(report, evaluation_provenance={**report.evaluation_provenance,
+            'cached_model_sha256': metadata_digest(asdict(model)),
+            'feature_identity': json.dumps(asdict(model.identity), sort_keys=True),
+            'split_dataset_release': split.dataset_release,
+            'split_source_revision': split.source_revision, 'split_pool': split.pool})
