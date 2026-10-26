@@ -42,4 +42,5 @@ and the released PIL classification transform. See [offline vision](offline_visi
 for the pinned compatibility environment, config binding and validation limits.
 All historical checkpoint identities remain unresolved; this adapter does not
 change any publication-manifest approval or verification status. Other model
-families and hook extraction remain unimplemented.
+families and complete dataset extraction remain unimplemented; see
+[the single-batch hook API](feature_hooks.md) for the implemented primitive.

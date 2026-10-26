@@ -114,12 +114,13 @@ than being hidden as skips. This does not establish
 actual AlexNet checkpoint compatibility, CUDA execution or paper-level parity.
 
 No real checkpoint was loaded, no AlexNet forward pass/GPU experiment was run,
-and no checkpoints were downloaded. Other model families, real hook enumeration,
+and no checkpoints were downloaded. A [single-batch hook primitive](feature_hooks.md) is now implemented. Other model
+families, complete candidate enumeration,
 execution-order deduplication, image-to-feature-cache extraction and historical
-runtime validation remain unimplemented. The extractor must also preserve the
+runtime validation remain unimplemented. The single-batch primitive preserves the
 upstream `nn.ReLU(inplace=False)` conversion before registering hooks
-(`feature_extraction.py:231`, audit C1/C2); a future regression must check that
-conv hook outputs retain pre-ReLU values. Statistical backends remain contract-only.
+(`feature_extraction.py:231`, audit C1/C2); synthetic regressions check that
+linear hook outputs retain pre-ReLU values; real conv/CUDA parity remains untested. Statistical backends remain contract-only.
 
 **Protocol-review flag: Requires 3-collaborator review.** This introduces a pinned
 preprocessing compatibility profile and enforces the feature precision policy.

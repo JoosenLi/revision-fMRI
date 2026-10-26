@@ -63,3 +63,12 @@ Historical weights and resize-library behavior remain unresolved. Synthetic
 transform parity and mocked loader lifecycle tests do not validate real AlexNet
 weights or CUDA execution. See [offline vision](offline_vision.md).
 Requires 3-collaborator review before merging.
+
+### D15 — Single-batch hook implementation update
+
+Original C2 hook functions are now reused verbatim through `capture_feature_batch`.
+The CUDA-only adapter adds ID/runtime validation, failure cleanup and eval-mode
+restoration after upstream ReLU replacement. This returns unfiltered activations;
+random-probe enumeration, hash dedup and later-half candidate selection are still
+pending, not silently replaced. See [feature hooks](feature_hooks.md). No metrics,
+splits or original ridge hyperparameters change. Requires 3-collaborator review.

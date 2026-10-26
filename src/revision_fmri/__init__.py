@@ -2,6 +2,7 @@
 from .api import API_VERSION, DeepNSDProtocol, EvaluationReport, MetricResult, ReproductionPipeline
 from .data import DatasetAdapter, ResponseSet
 from .features import FeatureExtractor, FeatureSet
+from .hooks import CapturedHookBatch, capture_feature_batch
 from .evaluation import EvaluationSplit
 from .models import ModelLoader, ModelSpec
 from .vision import ClassificationTransform, LoadedVisionModel, TorchvisionAlexNetLoader
@@ -17,7 +18,7 @@ from .official_splits import (load_official_split, official_split_inventory,
 __version__ = "0.1.0"
 __all__ = ["API_VERSION", "DeepNSDProtocol", "EvaluationReport", "MetricResult",
            "ReproductionPipeline", "DatasetAdapter", "ResponseSet", "FeatureExtractor",
-           "FeatureSet", "EvaluationSplit", "ModelLoader", "ModelSpec",
+           "FeatureSet", "CapturedHookBatch", "capture_feature_batch", "EvaluationSplit", "ModelLoader", "ModelSpec",
            "ClassificationTransform", "LoadedVisionModel", "TorchvisionAlexNetLoader",
            "StatisticalAdapter", "StatisticalSpec", "LaionNiftiAdapter",
            "VoxelMap", "OTCProtocol", "ROISelection", "select_otc",
