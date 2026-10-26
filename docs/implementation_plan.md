@@ -44,3 +44,10 @@ T2 now includes an explicit-manifest local NIfTI/TSV reader, validated beta-inde
 mask geometry checks, all-listed-trial aggregation, and portable provenance.
 OTC/NCSNR construction and historical normalization remain unresolved; see
 `laion_data_adapter.md`. Public pilot acquisition is separately authorized.
+
+## ROI/response protocol update — 2026-10-26
+
+Shared aligned-map OTC/NCSNR selection and explicit legacy/training-only session
+normalization primitives are implemented. Real ROI construction, reliability
+estimation and complete legacy evaluation remain pending. See
+`roi_response_protocols.md` and `branch_integration.md`.

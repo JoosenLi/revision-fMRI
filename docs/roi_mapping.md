@@ -41,3 +41,10 @@ Before an adapter may return an ROI: verify subject, space, hemisphere, affine/g
 ## Image splitting and repeats
 
 The [LAION split documentation](https://laion-fmri.hebartlab.com/train_test_splits.html) currently offers a shared pool of 1,121 regular images, `tau` (897 train / 224 test), five cluster holdouts, and an OOD test of 371 images. These are not NSD's 500/500 split. Use exact label IDs, group all repeats of an image on one side, pin the release and split digest, and select model layers only inside each outer training set. Shared pool is the proposed analogue because the original study uses cross-subject shared stimuli. Whether to use all repeats or a matched-repeat subset remains explicit and unresolved; no data were downloaded to choose it here.
+
+## Implementation boundary — 2026-10-26
+
+`select_otc` now implements the audited set expression on aligned supplied maps,
+with explicit strict/inclusive NCSNR thresholds, union overlap counts and result
+provenance. No real LAION OTC is generated and no missing regions/t maps are
+inferred. See `roi_response_protocols.md`.
