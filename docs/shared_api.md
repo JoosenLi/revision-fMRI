@@ -89,3 +89,7 @@ ROI/response primitives are now exported as `VoxelMap`, `OTCProtocol`, `ROISelec
 [protocol APIs](roi_response_protocols.md) for source fidelity, explicit adaptations
 and integration limits. They do not automatically replace the reader's supplied
 mask or normalization policy.
+
+`FeatureIdentity`, `FeatureStore`, `CachedModel`, `RecordedSplit` and `load_split`
+provide portable cached evaluation through `ReproductionPipeline.evaluate_cached_model`.
+See [cached evaluation](cached_evaluation.md) for the storage and split contracts.

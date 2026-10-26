@@ -1,6 +1,6 @@
 # Implementation tasks and unit-test plan
 
-This plan follows the audit; it does not authorize GPU experiments, large downloads, training or fine-tuning. Documentation, interfaces, unified YAML config parsing, local checksum verification, raw cRSA and training-score-only layer selection are implemented. A small-array SRP/float64 ridge/veRSA reference and held-out layer evaluator are now implemented; see [encoding_reference.md](encoding_reference.md). LAION I/O, model execution, hook extraction and statistics remain pending.
+This plan follows the audit; it does not authorize GPU experiments, large downloads, training or fine-tuning. Documentation, interfaces, unified YAML config parsing, local checksum verification, raw cRSA and training-score-only layer selection are implemented. A small-array SRP/float64 ridge/veRSA reference and held-out layer evaluator are now implemented; see [encoding_reference.md](encoding_reference.md). The local LAION reader, explicit ROI/normalization primitives and cached evaluation path are implemented; model execution, hook extraction, official split import and statistics remain pending.
 
 ## Work packages for three collaborators
 
@@ -21,7 +21,7 @@ Suggested ownership is by component rather than institution-specific paths; coll
 
 1. Finish source/version reconciliation before numerical implementation. Unknown values remain unknown; choosing a value creates a documented protocol decision.
 2. Agree the adapted ROI, reliability scope, beta normalization, repeat policy, shared pool and exact split revision. No automatic “equivalent OTC” claim.
-3. Establish small numerical fixtures on **is248155**. Current tests are CPU-only array/configuration checks, not training. Future model tests require the two RTX 6000 GPUs and must fail rather than switch training/inference to CPU.
+3. Establish small numerical fixtures in each collaborator's configured development environment. Current tests are CPU-only array/configuration checks, not training. Future model tests require configured available CUDA resources and must fail rather than switch inference to CPU.
 4. Test legacy RidgeCVMod under a compatible isolated sklearn environment, then compare the port against it. Do not use today's private sklearn APIs without a version check. CPU reference linear algebra is not CPU vision-network training.
 5. Before later experiments, choose original half-split baseline versus re:vision tau/cluster/OOD adaptations, SRP dimension policy and explicit legacy-filter handling. A modern independent evaluation may be scientifically appropriate but is a deviation from C7, not evidence of source parity.
 6. Authorized long tasks run locally per the user update on 2026-10-26; consult local execution settings. No remote job or scheduler automation is created.
@@ -51,3 +51,9 @@ Shared aligned-map OTC/NCSNR selection and explicit legacy/training-only session
 normalization primitives are implemented. Real ROI construction, reliability
 estimation and complete legacy evaluation remain pending. See
 `roi_response_protocols.md` and `branch_integration.md`.
+
+## Cached evaluation update — 2026-10-26
+
+T6/T8 now include content-addressed raw feature artifacts, pinned split JSON
+loading and `ReproductionPipeline.evaluate_cached_model`. No original numeric
+backend or scientific defaults change. See `cached_evaluation.md`.
