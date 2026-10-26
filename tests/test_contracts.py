@@ -161,3 +161,14 @@ def test_publication_inventory():
             assert m['checkpoint_locator'].endswith('_25ep.pt')
         if m['family'] == 'open_ipcl' and m['diet'] == 'imagenet':
             assert 'pct40' in m['checkpoint_locator']
+
+
+def test_base_import_does_not_load_optional_vision():
+    import os
+    import subprocess
+    import sys
+    env = dict(os.environ, PYTHONPATH=str(ROOT / 'src'))
+    subprocess.run([sys.executable, '-c',
+                    'import sys; import revision_fmri; '
+                    'assert not ({"torch", "torchvision", "PIL"} & sys.modules.keys())'],
+                   env=env, check=True)

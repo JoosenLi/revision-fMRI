@@ -2,6 +2,28 @@
   "repository": "https://github.com/ColinConwell/DeepNSD",
   "commit": "36f6a34727dccb5eec8fa49364b210a049a388d7",
   "files": {
+    "vision.py": {
+      "source_path": "source_code/pressures/model_opts/model_options.py",
+      "source_sha256": "55d603877e1755e0153dea1a2557a98eac5780bcbd7afff337284a0a5d72979c",
+      "adaptation": "exact function excerpts; minimal module imports",
+      "functions": {
+        "get_torchvision_model": {
+          "source_lines": [
+            18,
+            20
+          ],
+          "sha256": "2ef9dd401409035ac0d12487fad695805e774664df24a55b51ee962e3733a557"
+        },
+        "get_torchvision_transforms": {
+          "source_lines": [
+            55,
+            70
+          ],
+          "sha256": "780e05e2b84cfbc5a37a251168edcf6d7b6a3d5daf5810a31ef45b59e01b12cc"
+        }
+      },
+      "vendored_sha256": "45e1c28b40b3e2f5d360363dbfb67461a01738713ba738c234d86b9f17f65b42"
+    },
     "ridge_gcv_mod.py": {
       "source_path": "source_code/pressures/ridge_gcv_mod.py",
       "source_sha256": "ea80dc539534f5f7370a796c3b2d91fbc73b5e0e4c94a78355616e4db7e62659",

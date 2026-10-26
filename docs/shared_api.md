@@ -93,3 +93,8 @@ mask or normalization policy.
 `FeatureIdentity`, `FeatureStore`, `CachedModel`, `RecordedSplit` and `load_split`
 provide portable cached evaluation through `ReproductionPipeline.evaluate_cached_model`.
 See [cached evaluation](cached_evaluation.md) for the storage and split contracts.
+
+`TorchvisionAlexNetLoader`, `LoadedVisionModel` and `ClassificationTransform`
+provide the first optional offline vision compatibility backend. See
+[offline vision](offline_vision.md) for strict configuration, source reuse and
+untested real-checkpoint/CUDA boundaries. Feature hooks remain unimplemented.

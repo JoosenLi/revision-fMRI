@@ -1,7 +1,7 @@
 """Rebuild attributed DeepNSD sources from a local pinned checkout; no network.
 
-Whole ridge file is unchanged. RSA/reduction function bodies are exact excerpts;
-only module imports are adapted to avoid loading vision models and torch.
+Whole ridge file is unchanged. RSA/reduction/vision functions are exact excerpts;
+only module imports are adapted. Generation never imports vision models or torch.
 """
 import argparse
 import ast
@@ -11,12 +11,14 @@ from pathlib import Path
 
 COMMIT = '36f6a34727dccb5eec8fa49364b210a049a388d7'
 FILES = {
+ 'vision.py': ('source_code/pressures/model_opts/model_options.py', '55d603877e1755e0153dea1a2557a98eac5780bcbd7afff337284a0a5d72979c'),
  'ridge_gcv_mod.py': ('source_code/pressures/ridge_gcv_mod.py', 'ea80dc539534f5f7370a796c3b2d91fbc73b5e0e4c94a78355616e4db7e62659'),
  'rsa.py': ('source_code/pressures/model_opts/mapping_methods.py', 'e659cb187173cea246a93e40cd4b55c4af57e1f4964c2c27d6496f87784d88e2'),
  'reduction.py': ('source_code/pressures/model_opts/feature_reduction.py', '4ed85a715fcc8bdfa73496270addbf2705d6eb97a03906661b71bbc0f87e21bd'),
  'LICENSE': ('LICENSE', '3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986'),
 }
 EXCERPTS = {
+ 'vision.py': (['get_torchvision_model', 'get_torchvision_transforms'], 'import torchvision.transforms as transforms\n'),
  'rsa.py': (['compare_rdms'], 'import numpy as np\nfrom warnings import warn\nfrom scipy.stats import pearsonr, spearmanr\n'),
  'reduction.py': (['get_feature_map_filepaths','recursive_delete_if_empty','delete_saved_output',
                    'compute_jl_lemma','get_feature_map_srps'],
