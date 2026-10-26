@@ -76,6 +76,9 @@ def _gpu_preflight(torch, index: int, required_bytes: int) -> dict:
         raise RuntimeError('Configured CUDA device is unavailable; no CPU fallback')
     properties = torch.cuda.get_device_properties(index)
     uuid = str(getattr(properties, 'uuid', ''))
+    # torch may expose the bare UUID; nvidia-smi uses the GPU- prefix.
+    if uuid and not uuid.startswith(('GPU-', 'MIG-')):
+        uuid = f'GPU-{uuid}'
     if not uuid.startswith('GPU-'):
         raise RuntimeError('Cannot map CUDA device to GPU UUID for process inspection')
     result = subprocess.run(

@@ -1,4 +1,4 @@
-"""CPU-only transform tests and mocked CUDA/model lifecycle; no AlexNet forward."""
+"""CPU transform/lifecycle tests and opt-in read-only CUDA preflight; no forward."""
 from dataclasses import replace
 import hashlib
 import json
@@ -13,7 +13,7 @@ torch = pytest.importorskip('torch')
 pytest.importorskip('torchvision')
 Image = pytest.importorskip('PIL.Image')
 
-from revision_fmri.config import ComputeConfig, LocalConfig
+from revision_fmri.config import ComputeConfig, LocalConfig, load_config
 from revision_fmri.models import ModelSpec
 from revision_fmri.vision import (
     ClassificationTransform, LOADER_REVISION, TRANSFORM_ID,
@@ -184,7 +184,7 @@ def test_version_guard(monkeypatch):
 def test_gpu_preflight_without_cuda(monkeypatch, available, free, report, error):
     fake = SimpleNamespace(cuda=SimpleNamespace(
         is_available=lambda: available, device_count=lambda: 2,
-        get_device_properties=lambda index: SimpleNamespace(uuid='GPU-test'),
+        get_device_properties=lambda index: SimpleNamespace(uuid='test'),
         mem_get_info=lambda index: (free, 2000)))
     monkeypatch.setattr(vision.subprocess, 'run', lambda *a, **k: SimpleNamespace(stdout=report))
     if error:
@@ -222,3 +222,34 @@ def test_failed_cuda_preflight_does_not_transfer(setup_loader, monkeypatch):
     with pytest.raises(RuntimeError, match='CUDA unavailable'):
         loader.load_configured(spec, gpu_id=1)
     assert not any(c[0] == 'to' for c in calls)
+
+
+@pytest.mark.parametrize('uuid', ['test', 'GPU-test', '', 'MIG-test'])
+def test_gpu_uuid_normalization(monkeypatch, uuid):
+    fake = SimpleNamespace(cuda=SimpleNamespace(
+        is_available=lambda: True, device_count=lambda: 2,
+        get_device_properties=lambda index: SimpleNamespace(uuid=uuid),
+        mem_get_info=lambda index: (1000, 2000)))
+    monkeypatch.setattr(vision.subprocess, 'run', lambda *a, **k: SimpleNamespace(stdout=''))
+    if uuid in ('', 'MIG-test'):
+        with pytest.raises(RuntimeError, match='Cannot map CUDA device'):
+            _gpu_preflight(fake, 1, 10)
+    else:
+        assert _gpu_preflight(fake, 1, 10)['gpu_uuid'] == 'GPU-test'
+
+
+@pytest.mark.skipif(os.environ.get('REVISION_FMRI_TEST_CUDA') != '1',
+                    reason='Read-only CUDA check requires explicit opt-in')
+def test_real_gpu_preflight_read_only():
+    # Check inside the test so ordinary collection never probes/initializes CUDA.
+    if not torch.cuda.is_available():
+        pytest.skip('CUDA unavailable')
+    config = load_config()
+    if not config.compute.allowed_gpu_ids:
+        pytest.skip('No configured GPU allowance')
+    for index in config.compute.allowed_gpu_ids:
+        snapshot = _gpu_preflight(torch, index, required_bytes=1)
+        bare = str(torch.cuda.get_device_properties(index).uuid).removeprefix('GPU-')
+        assert snapshot['gpu_uuid'] == f'GPU-{bare}'
+        assert 1 <= snapshot['free_bytes'] <= snapshot['total_bytes']
+        assert snapshot['model_bytes'] == 1  # Query only; no tensor/model allocation.

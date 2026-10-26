@@ -20,7 +20,13 @@ state_dict with `weights_only=True`, CPU staging and strict keys/shapes/dtypes.
 No key stripping, classifier removal, wrapper extraction, downloads or alternative
 checkpoint resolution occur. Freeze all parameters, call eval, then transfer to
 an explicitly allowed CUDA device. CPU staging never performs a forward pass.
-RGB PIL input is required; grayscale/RGBA and implicit mode conversion are rejected.
+RGB PIL input is required; grayscale/RGBA/palette inputs are rejected at this
+transform boundary. The future shared stimulus reader must explicitly apply
+`Image.open(path).convert('RGB')` to **every** stimulus before calling the
+transform, matching released `feature_extraction.py:423` at the pinned commit.
+The guard forbids implicit conversion inside the transform; it is not permission
+to drop non-RGB stimuli or invent per-script conversions. This matters for LAION
+OOD stimuli such as gabor, illusions and shapes.
 
 **Unresolved:** historical torchvision/Pillow versions, historical checkpoint
 bytes and interpolation defaults are not recovered. The compatibility profile
@@ -90,13 +96,30 @@ RGB inputs match both the upstream transform and independent explicit bilinear
 resize/normalization exactly. Loader lifecycle tests substitute a tiny linear
 constructor and mock device transfer/preflight; they verify safe load arguments,
 strict loading, freezing/eval, RNG restoration, provenance and failure boundaries.
-Resource checks use synthetic CUDA/process reports. These tests do not establish
+Unit resource checks use synthetic CUDA/process reports with bare torch UUIDs;
+already-prefixed UUIDs are also accepted, while empty/MIG identities fail closed.
+The optional real-device regression calls `_gpu_preflight` for configured allowed
+GPUs, querying properties, compute processes and memory only. It does not load
+weights, allocate model tensors or run inference (CUDA queries may initialize a
+runtime context). Run it with the vision extra installed:
+
+```sh
+REVISION_FMRI_TEST_CUDA=1 REVISION_FMRI_CONFIG=configs/paths.local.yaml \
+  .venv/bin/python -m pytest -q tests/test_vision.py -k real_gpu_preflight_read_only
+```
+
+It skips without opt-in, CUDA or a configured GPU allowance. Once configured,
+UUID/process-query failures and other compute processes fail the test rather
+than being hidden as skips. This does not establish
 actual AlexNet checkpoint compatibility, CUDA execution or paper-level parity.
 
 No real checkpoint was loaded, no AlexNet forward pass/GPU experiment was run,
 and no checkpoints were downloaded. Other model families, real hook enumeration,
 execution-order deduplication, image-to-feature-cache extraction and historical
-runtime validation remain unimplemented. Statistical backends remain contract-only.
+runtime validation remain unimplemented. The extractor must also preserve the
+upstream `nn.ReLU(inplace=False)` conversion before registering hooks
+(`feature_extraction.py:231`, audit C1/C2); a future regression must check that
+conv hook outputs retain pre-ReLU values. Statistical backends remain contract-only.
 
 **Protocol-review flag: Requires 3-collaborator review.** This introduces a pinned
 preprocessing compatibility profile and enforces the feature precision policy.
