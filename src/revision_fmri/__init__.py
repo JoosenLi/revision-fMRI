@@ -11,6 +11,7 @@ from .roi import VoxelMap, OTCProtocol, ROISelection, select_otc
 from .response import NormalizedSession, normalize_session
 from .cache import FeatureIdentity, FeatureStore, CachedModel
 from .splits import RecordedSplit, load_split
+from .primary import load_primary_laion_split
 from .official_splits import (load_official_split, official_split_inventory,
                              TrialPartition, partition_trials, validate_holdout_family)
 
@@ -22,5 +23,5 @@ __all__ = ["API_VERSION", "DeepNSDProtocol", "EvaluationReport", "MetricResult",
            "StatisticalAdapter", "StatisticalSpec", "LaionNiftiAdapter",
            "VoxelMap", "OTCProtocol", "ROISelection", "select_otc",
            "NormalizedSession", "normalize_session", "FeatureIdentity", "FeatureStore",
-           "CachedModel", "RecordedSplit", "load_split", "load_official_split",
+           "CachedModel", "RecordedSplit", "load_split", "load_primary_laion_split", "load_official_split",
            "official_split_inventory", "TrialPartition", "partition_trials", "validate_holdout_family"]

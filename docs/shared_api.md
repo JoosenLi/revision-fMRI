@@ -103,3 +103,9 @@ See [cached evaluation](cached_evaluation.md) for the storage and split contract
 provide the first optional offline vision compatibility backend. See
 [offline vision](offline_vision.md) for strict configuration, source reuse and
 untested real-checkpoint/CUDA boundaries. Feature hooks remain unimplemented.
+
+`load_primary_laion_split` and `ReproductionPipeline.evaluate_primary_laion_model`
+implement the primary 561/560 even/odd protocol. Both require `repeat_policy`
+without a default; the facade checks response aggregation provenance and reuses
+training-only selection. See [primary protocol](primary_laion_protocol.md) and
+[report-facing replication differences](replication_differences.md).

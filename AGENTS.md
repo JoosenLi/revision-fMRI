@@ -47,6 +47,10 @@ do not present them as validated numerical backends.
 
 ## Scientific requirements
 
+Maintain `docs/replication_differences.md` with every methodological change for
+the final re:vision report. Separate paper evidence, released-code behavior,
+LAION adaptations and unresolved details; retain validation and decision status.
+
 - Do not train or fine-tune vision networks. Freeze pretrained models and use eval.
 - Match stimulus IDs explicitly to beta rows; preserve all repeats within splits.
 - Preserve checkpoint-specific transforms and the audited hook/layer procedure.

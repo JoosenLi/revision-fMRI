@@ -180,12 +180,22 @@ class DeepNSDEncodingEvaluator(_EncodingPipeline):
         return fit_ridge_deepnsd(x, y, alphas=alphas)
 
 
+def even_odd_split(image_ids: tuple[str, ...], *, protocol_id: str,
+                   source_digest: str) -> EvaluationSplit:
+    """C1 positional alternation; preserve supplied order without sorting/shuffling."""
+    unique_ids(image_ids, 'Ordered image IDs')
+    if len(image_ids) < 2:
+        raise ValueError('Split-half requires at least two images')
+    return EvaluationSplit(image_ids[::2], image_ids[1::2], protocol_id, source_digest)
+
+
 def deepnsd_shared1000_split(image_ids: tuple[str, ...], *, source_digest: str) -> EvaluationSplit:
     """C1 even/odd image order, strictly for an explicitly ordered shared1000 set."""
     unique_ids(image_ids, 'Shared1000 image IDs')
     if len(image_ids) != 1000:
         raise ValueError('Original shared1000 split requires exactly 1000 image IDs')
-    return EvaluationSplit(image_ids[::2], image_ids[1::2], 'deepnsd-shared1000-even-odd-v1', source_digest)
+    return even_odd_split(image_ids, protocol_id='deepnsd-shared1000-even-odd-v1',
+                          source_digest=source_digest)
 
 
 @dataclass(frozen=True)

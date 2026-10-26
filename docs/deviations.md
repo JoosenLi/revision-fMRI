@@ -1,6 +1,6 @@
 # Deviations and unresolved decisions
 
-Status as of 2026-10-24. No scientific run is authorized or launched. A proposal is not an implemented methodology choice. Each future run must record its protocol ID and resolved decisions below.
+Register initiated 2026-10-24; dated updates below record subsequent decisions. No scientific run has been launched. A proposal is not an implemented methodology choice. Each future run must record its protocol ID and resolved decisions below.
 
 | ID | Evidence / conflict | Current handling | Resolution / required test |
 |---|---|---|---|
@@ -12,7 +12,7 @@ Status as of 2026-10-24. No scientific run is authorized or launched. A proposal
 | D06 | Model/library defaults, RNG states and checkpoint hashes incompletely specified | All models remain unapproved for extraction | Resolve local bytes, dependency versions, init seeds and candidate-layer fingerprints |
 | D07 | LAION anatomical visual sectors are not NSD streams; some category ROIs differ | Proposed `laion_otc_adapted_v1`, not original OTC | Explicit masks and reviewed mapping; missing ROIs are errors, not silent omissions |
 | D08 | LAION repeats and image counts differ from NSD shared1000×3 | Trial-aware data contract; no automatic subsampling/aggregation chosen | Persist image IDs, repeated-image grouping and counts; choose all-repeat vs matched-three protocol explicitly |
-| D09 | re:vision tau/cluster/OOD splits differ from original even/odd half split | Required separate adaptation; proposed shared-pool primary analysis | Pin split release/content; layer/alpha/scaler selection only inside outer training images |
+| D09 | re:vision tau/cluster/OOD splits differ from original even/odd half split | Primary: pinned 1121-image even/odd 561/560; official LAION splits secondary | Pin split release/content; layer/alpha/scaler selection only inside outer training images |
 | D10 | Original 5,920 SRP dimensions derives from 1,000 samples | No LAION default selected | Decide fixed-budget versus JL-recomputed policy; report dimensions, epsilon, density, seed |
 | D11 | LAION voxel NC (%) and NCSNR are not interchangeable with RSM ceiling | No threshold in percentage units substituted | Recover/recompute NCSNR from correct variance and repeat convention; GSN remains separate |
 | D12 | SLIP released statistics include architecture interaction absent in paper pseudocode | Preserve both descriptions; no Python replacement fitted | Compare R design matrices, coefficients, SEs and reference levels |
@@ -27,8 +27,8 @@ Status as of 2026-10-24. No scientific run is authorized or launched. A proposal
 2026-10-26 implementation update: D03's centered LOO behavior is now numerically
 verified against unmodified source; D10 remains an explicit caller-supplied
 projection count; D18's float32 ridge option remains unavailable in the numerical
-reference and fails explicitly. D01/D02 and all LAION scientific decisions remain
-unresolved. See `encoding_reference.md` for scope and validation tolerances.
+reference and fails explicitly. D01/D02 remain unresolved; subsequent LAION protocol decisions are recorded
+in the dated updates below. See `encoding_reference.md` for scope and validation tolerances.
 
 Changes to engineering (configuration, validation, source hashing) are implemented. Scientific changes listed as proposals or unresolved must not be promoted to original-method claims. No new regularization, feature pooling, PCA, pretrained replacement, network fine-tuning or modern default scoring is introduced.
 
@@ -48,7 +48,7 @@ C6 z-scores across all trials within a session before concatenation/casting to f
 
 D09 implementation update (2026-10-26): original shared-pool assignment files at
 LAION source commit `cf82765ced029de81c3bec7254b8cbd6a65e3686` are hash-locked and
-imported unchanged. No primary split is implicitly selected. Exact upstream ID
+imported unchanged. Official assignments are secondary; the explicitly named primary even/odd protocol is documented below. Exact upstream ID
 order is preserved. The one-session pilot is incomplete; coverage diagnostics
 do not truncate the official split or establish scientific-run readiness.
 
@@ -63,3 +63,17 @@ Historical weights and resize-library behavior remain unresolved. Synthetic
 transform parity and mocked loader lifecycle tests do not validate real AlexNet
 weights or CUDA execution. See [offline vision](offline_vision.md).
 Requires 3-collaborator review before merging.
+
+### D09 — Primary protocol decision and implementation (2026-10-26)
+
+The owner's PR #9 F4 update selects `laion_splithalf_even_odd_v1` as primary:
+561 training and 560 test images from the pinned published 1121-ID non-OOD list,
+without runtime sorting. Both LAION and unchanged NSD1000 use the same even/odd
+helper. Official tau/cluster/random/OOD splits are secondary extensions.
+The order adapts C1's NSD stimulus CSV order; source bytes and ordered-ID hashes
+are fixed in [primary protocol](primary_laion_protocol.md). Existing training-only
+layer selection is reused; C7 filtering is excluded. Repeat policy is a mandatory
+parameter with no default and must match prepared-response aggregation metadata.
+This does not implement or approve a repeat-selection algorithm; D08 and D10
+remain open. Requires 3-collaborator review. Maintain the report-facing account in
+[replication differences](replication_differences.md).

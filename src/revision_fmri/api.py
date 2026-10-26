@@ -119,6 +119,31 @@ class ReproductionPipeline:
             dict(result.provenance),
         )
 
+    def evaluate_primary_laion_model(self, *, features: Sequence[FeatureSet],
+                                     responses: ResponseSet, dataset_release: str,
+                                     repeat_policy: str) -> EvaluationReport:
+        """Primary 561/560 split; reuse training-only selection, never aggregate trials.
+
+        repeat_policy must match the prepared responses' aggregation provenance.
+        This records a caller decision, not approval/implementation of that policy.
+        Projection dimensions remain explicit in this pipeline's DeepNSDProtocol.
+        """
+        from .primary import load_primary_laion_split, CANONICAL_ORDER_SHA256, SOURCE_SHA256
+        split = load_primary_laion_split(self.config, dataset_release=dataset_release,
+                                         repeat_policy=repeat_policy)
+        if responses.provenance.get('dataset_release') != dataset_release:
+            raise ValueError('Response dataset_release differs from primary protocol')
+        if responses.provenance.get('aggregation') != repeat_policy:
+            raise ValueError('Response aggregation must match explicit repeat_policy')
+        report = self.evaluate_model(features=features, responses=responses, split=split.split)
+        return replace(report, evaluation_provenance={**report.evaluation_provenance,
+            'analysis_role': 'primary_replication', 'split_protocol_id': split.split.protocol_id,
+            'split_sha256': split.split.source_digest, 'split_source_revision': split.source_revision,
+            'split_dataset_release': dataset_release, 'split_pool': split.pool,
+            'canonical_order_sha256': CANONICAL_ORDER_SHA256,
+            'canonical_source_file_sha256': SOURCE_SHA256, 'repeat_policy': repeat_policy,
+            'repeat_policy_status': 'explicit caller choice; aggregation not performed here'})
+
     def save_report(self, report: EvaluationReport, *, run_id: str) -> Path:
         """Write a new summary under configured results_root; never overwrite.
 
