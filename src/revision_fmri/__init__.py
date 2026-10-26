@@ -4,6 +4,7 @@ from .data import DatasetAdapter, ResponseSet
 from .features import FeatureExtractor, FeatureSet
 from .evaluation import EvaluationSplit
 from .models import ModelLoader, ModelSpec
+from .vision import ClassificationTransform, LoadedVisionModel, TorchvisionAlexNetLoader
 from .statistics import StatisticalAdapter, StatisticalSpec
 from .laion import LaionNiftiAdapter
 from .roi import VoxelMap, OTCProtocol, ROISelection, select_otc
@@ -17,6 +18,7 @@ __version__ = "0.1.0"
 __all__ = ["API_VERSION", "DeepNSDProtocol", "EvaluationReport", "MetricResult",
            "ReproductionPipeline", "DatasetAdapter", "ResponseSet", "FeatureExtractor",
            "FeatureSet", "EvaluationSplit", "ModelLoader", "ModelSpec",
+           "ClassificationTransform", "LoadedVisionModel", "TorchvisionAlexNetLoader",
            "StatisticalAdapter", "StatisticalSpec", "LaionNiftiAdapter",
            "VoxelMap", "OTCProtocol", "ROISelection", "select_otc",
            "NormalizedSession", "normalize_session", "FeatureIdentity", "FeatureStore",

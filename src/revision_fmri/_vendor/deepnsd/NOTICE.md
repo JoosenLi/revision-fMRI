@@ -16,6 +16,10 @@ Adapted by the re:vision collaboration on 2026-10-26:
 - reduction.py: the SRP/JL functions and their cache helpers copied verbatim
   from model_opts/feature_reduction.py; module imports reduced to dependencies.
   The public adaptation calls only the ndarray, no-cache path.
+- vision.py: get_torchvision_model and get_torchvision_transforms copied
+  verbatim from model_opts/model_options.py; only torchvision.transforms is
+  imported at module scope. The public adapter uses a fixed architecture and
+  disables pretrained downloading before loading verified local weights.
 - manifest.json: exact original file hashes, excerpt line ranges/function hashes
   and redistributed file hashes. scripts/vendor_deepnsd.py reproduces extraction.
 

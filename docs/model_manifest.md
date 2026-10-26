@@ -34,3 +34,12 @@ DeepNSD `model_options.py`, `model_code/_options.py`, vendored `ipcl_codebase/__
 ## Per-collaborator configuration
 
 Copy `configs/paths.example.yaml` to `configs/paths.local.yaml` (ignored). Configure data/stimuli/checkpoint/feature/results roots locally; relative roots resolve against the config file, not working directory. `REVISION_FMRI_CONFIG` may point to an alternative ignored local YAML file. Shared model records contain logical keys and scientific provenance only. Keep local checkpoint bindings in that ignored file. Loading is offline and must fail on absent/mismatched bytes. Installing/importing this package does not import torch, load models, download weights or start jobs.
+
+## First executable compatibility adapter
+
+`TorchvisionAlexNetLoader` now implements offline `alexnet_classification` loading
+and the released PIL classification transform. See [offline vision](offline_vision.md)
+for the pinned compatibility environment, config binding and validation limits.
+All historical checkpoint identities remain unresolved; this adapter does not
+change any publication-manifest approval or verification status. Other model
+families and hook extraction remain unimplemented.

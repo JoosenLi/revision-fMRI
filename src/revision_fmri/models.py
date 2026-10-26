@@ -1,4 +1,4 @@
-"""Offline model identity and local artifact verification; no model backend yet."""
+"""Offline model identity and local artifact verification; optional backend in revision_fmri.vision."""
 from dataclasses import dataclass
 import hashlib
 from pathlib import Path
@@ -30,7 +30,7 @@ def verify_checkpoint(path: Path, expected_sha256: str) -> Path:
 
 
 class ModelLoader(Protocol):
-    """Future backend: verify local artifact, require CUDA, eval, freeze parameters.
+    """Backend contract: verify local artifact, require CUDA, eval, freeze parameters.
 
     No training, fine-tuning, implicit CPU inference fallback or downloads.
     """
