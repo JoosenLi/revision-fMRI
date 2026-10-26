@@ -20,6 +20,10 @@ Adapted by the re:vision collaboration on 2026-10-26:
   verbatim from model_opts/model_options.py; only torchvision.transforms is
   imported at module scope. The public adapter uses a fixed architecture and
   disables pretrained downloading before loading verified local weights.
+- hooks.py: original hook/preparation/naming/shape/ReLU/dedup functions and
+  decorated warn_once copied verbatim from model_opts/feature_extraction.py.
+  Public single-batch capture disables deduplication and guards device policy;
+  failure cleanup and eval restoration live outside the vendored functions.
 - manifest.json: exact original file hashes, excerpt line ranges/function hashes
   and redistributed file hashes. scripts/vendor_deepnsd.py reproduces extraction.
 

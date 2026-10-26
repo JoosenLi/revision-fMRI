@@ -9,8 +9,8 @@ Do not import `_vendor` from analyses or duplicate the metrics in adapters.
 | --- | --- | --- |
 | Configuration | `ReproductionPipeline.from_config(path, protocol=...)` | YAML through `config.load_config`; omitted path uses `REVISION_FMRI_CONFIG` |
 | Data | `DatasetAdapter`, `ResponseSet` | Validated image/voxel IDs, responses, repeat metadata; Explicit-manifest `LaionNiftiAdapter` for local T1w NIfTI/TSV; scientific ROI construction pending |
-| Models | `ModelSpec`, `ModelLoader` | Identity contract and local hash verification; vision loaders pending |
-| Features | `FeatureExtractor`, `FeatureSet` | Validated raw arrays and source SRP; inference/hooks pending |
+| Models | `ModelSpec`, `ModelLoader` | Offline AlexNet compatibility loader and local hash verification; other families pending |
+| Features | `FeatureExtractor`, `FeatureSet` | Validated raw arrays, source SRP and single-batch hook capture; complete extractor/candidate selection pending |
 | Evaluation | `EvaluationSplit`, `DeepNSDProtocol`, `ReproductionPipeline` | Original ridge/SRP/RSA behind validated orchestration; train-only layer selection |
 | Results | `EvaluationReport`, `MetricResult` | JSON summary, content digest, exclusive creation under configured results root |
 | Statistics | `StatisticalSpec`, `StatisticalAdapter` | Contracts only; original statistical fits pending |
@@ -102,7 +102,12 @@ See [cached evaluation](cached_evaluation.md) for the storage and split contract
 `TorchvisionAlexNetLoader`, `LoadedVisionModel` and `ClassificationTransform`
 provide the first optional offline vision compatibility backend. See
 [offline vision](offline_vision.md) for strict configuration, source reuse and
-untested real-checkpoint/CUDA boundaries. Feature hooks remain unimplemented.
+untested real-checkpoint/CUDA boundaries. Single-batch hooks are available; candidate selection remains pending.
+
+`CapturedHookBatch` and `capture_feature_batch` expose original single-batch hooks
+with ordered raw activations and provenance. See [feature hooks](feature_hooks.md).
+The complete `FeatureExtractor` contract, candidate selection and cache-writing
+integration remain unimplemented; this batch primitive is not a candidate list.
 
 `load_primary_laion_split` and `ReproductionPipeline.evaluate_primary_laion_model`
 implement the primary 561/560 even/odd protocol. Both require `repeat_policy`

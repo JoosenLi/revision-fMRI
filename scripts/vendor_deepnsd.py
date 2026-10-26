@@ -11,6 +11,7 @@ from pathlib import Path
 
 COMMIT = '36f6a34727dccb5eec8fa49364b210a049a388d7'
 FILES = {
+ 'hooks.py': ('source_code/pressures/model_opts/feature_extraction.py', '72c358474f6264ebbbe97bc81eac262f95224a1c4da82ab0d79d96c882f4d0c5'),
  'vision.py': ('source_code/pressures/model_opts/model_options.py', '55d603877e1755e0153dea1a2557a98eac5780bcbd7afff337284a0a5d72979c'),
  'ridge_gcv_mod.py': ('source_code/pressures/ridge_gcv_mod.py', 'ea80dc539534f5f7370a796c3b2d91fbc73b5e0e4c94a78355616e4db7e62659'),
  'rsa.py': ('source_code/pressures/model_opts/mapping_methods.py', 'e659cb187173cea246a93e40cd4b55c4af57e1f4964c2c27d6496f87784d88e2'),
@@ -18,6 +19,12 @@ FILES = {
  'LICENSE': ('LICENSE', '3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986'),
 }
 EXCERPTS = {
+ 'hooks.py': (['warn_once', 'prep_model_for_extraction', 'convert_relu', 'get_module_name',
+               'remove_duplicate_feature_maps', 'check_for_input_axis', 'reset_input_axis',
+               'get_feature_maps'],
+              'import logging\nimport numpy as np\nimport torch\nimport torch.nn as nn\n'
+              'from functools import lru_cache\nfrom collections import OrderedDict, defaultdict\n'
+              'from collections.abc import Mapping\nfrom tqdm.auto import tqdm\n'),
  'vision.py': (['get_torchvision_model', 'get_torchvision_transforms'], 'import torchvision.transforms as transforms\n'),
  'rsa.py': (['compare_rdms'], 'import numpy as np\nfrom warnings import warn\nfrom scipy.stats import pearsonr, spearmanr\n'),
  'reduction.py': (['get_feature_map_filepaths','recursive_delete_if_empty','delete_saved_output',
@@ -47,9 +54,10 @@ def vendor(source, destination, sklearn_license):
             entry['functions'] = {}
             for name in names:
                 n = nodes[name]
-                snippet = ''.join(lines[n.lineno-1:n.end_lineno])
+                start = min([n.lineno] + [d.lineno for d in n.decorator_list])
+                snippet = ''.join(lines[start-1:n.end_lineno])
                 extracts.append(snippet)
-                entry['functions'][name] = {'source_lines': [n.lineno, n.end_lineno], 'sha256': digest(snippet.encode())}
+                entry['functions'][name] = {'source_lines': [start, n.end_lineno], 'sha256': digest(snippet.encode())}
             data = ('# Exact function excerpts from DeepNSD; see NOTICE.md and manifest.json.\n'
                     + imports + '\n\n' + '\n\n'.join(extracts)).encode()
             entry['adaptation'] = 'exact function excerpts; minimal module imports'
