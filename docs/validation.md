@@ -57,3 +57,32 @@ the checkout, using the project's pinned numerical environment. `pip check`
 passed. A first build attempt with `.venv --no-build-isolation` failed because
 that environment lacks `wheel` and a sufficiently recent setuptools; it was
 not used for packaging. This does not affect the numerical runtime checks.
+
+## Local data adapter and authorized acquisition — 2026-10-26
+
+83 tests pass, including genuine tiny NIfTI/TSV files, shuffled trial rows,
+run-local and session-global indexing, unequal repeats, missing/duplicate indices,
+invalid session/ROI identity, affine/shape mismatches, nonfinite data and explicit
+aggregation policy. Downloader tests verify conditional object identity, checksum
+receipts, no overwrite, partial-file retention and path containment.
+
+The authorized public pilot acquisition completed: sub-01/ses-01 beta NIfTI
+(1,155,267,333 bytes), seven JSON/TSV metadata files and a 67,979-byte
+laion-general mask. Storage uses local YAML and preserves original S3 keys;
+receipts record ETags and SHA-256. No gated image agreement was submitted and
+no raw stimulus images, checkpoints or raw BOLD were downloaded.
+
+Real-data I/O smoke: beta shape `(143, 143, 143, 1044)`, 1044 trial rows,
+769 unique labels; mask has 12020 selected voxels with matching geometry.
+Three singly presented images returned a finite `(3, 12020)` ResponseSet through
+the public adapter. This is not a whole-session finite-data check, an OTC
+selection, an encoding experiment or a complete reproduction. The initial
+session-global-index attempt failed, correctly detecting the actual run-local
+indices; D20 documents the explicit correction and pinned official-loader evidence.
+
+Pilot beta SHA-256: `0828db6bea2d0674cddbe20460296bb43e8f414d530e6fc7f7f49ede5ca97275`.
+Trial TSV SHA-256: `77c7e3c1360272bec1384b019e87306949acd777adf9a8093d93e1a9b931df73`.
+Mask SHA-256: `fe3ceabbb9c80a6937c095e640154938dbce6e4fa69ae1fb3e1250fa9f7a30f0`.
+
+Long tasks now run locally per explicit user instruction; private workstation
+rules were updated and remain ignored. No GPU experiment or training was run.

@@ -98,3 +98,7 @@ An additional classification discrepancy: 64 rows have `train_task=random`, but 
 ## Adaptation and implementation boundary
 
 A: versioned LAION image splits, repeated-trial aggregation, explicit ROI mapping/reliability definition, and collaborator-local paths. U: resolve the deviations before scientific runs. The canonical numerical backend now directly executes vendored C4 and verbatim RSA/SRP function excerpts, with pinned compatibility checks. The independent SVD implementation remains a test oracle. Model execution, LAION I/O, ROI reconstruction and statistical backends remain pending. See [upstream_reuse.md](upstream_reuse.md), [encoding_reference.md](encoding_reference.md) and [implementation_plan.md](implementation_plan.md). No claim of a functioning full reproduction pipeline or historical-environment recovery is made.
+
+## LAION I/O evidence update — 2026-10-26
+
+The pilot acquisition confirms 1044 TYPED volumes and 769 unique stimulus labels for sub-01/ses-01. The TSV index resets per run, contrary to the online session-global description; see D20 and `laion_data_adapter.md`. The local reader uses an explicitly selected index policy, checks geometry and preserves repeats. It does not resolve original beta normalization, OTC/NCSNR mapping or the layer-filter discrepancy.

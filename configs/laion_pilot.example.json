@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "subject_id": "sub-01",
+  "roi_id": "laion-general-io-pilot",
+  "space": "T1w",
+  "mask": "derivatives/rois/sub-01/laion/sub-01_space-T1w_res-1pt8_label-laion-general_mask.nii.gz",
+  "sessions": [
+    {
+      "session_id": "ses-01",
+      "betas": "derivatives/glmsingle-tedana/sub-01/ses-01/func/sub-01_ses-01_task-images_space-T1w_stat-effect_desc-SingletrialBetas_statmap.nii.gz",
+      "trials": "derivatives/glmsingle-tedana/sub-01/ses-01/func/sub-01_ses-01_task-images_desc-SingletrialBetas_trials.tsv",
+      "index_mode": "run_index",
+      "run_order": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12"
+      ]
+    }
+  ],
+  "aggregation": "mean_all_listed_trials_v1",
+  "normalization": "none",
+  "provenance": {
+    "dataset_release": "Public S3 pilot snapshot acquired 2026-10-26; per-file hashes recorded at read time",
+    "roi_definition": "Public laion-general T1w res-1pt8 mask; I/O validation only, not OTC",
+    "reliability": "No additional filter; I/O validation only, not NCSNR-selected analysis",
+    "upstream_normalization": "Published GLMsingle TYPED betas; no additional normalization in adapter",
+    "session_coverage": "sub-01 ses-01 only; incomplete subject coverage",
+    "trial_alignment": "Explicit acquisition run order 01-12 from GLMsingle summary Sources and TrialsPerRun; beta_index resets per run; official loader uses TSV row order"
+  }
+}
