@@ -69,8 +69,8 @@ relative to configured data_root, verifies its exact byte digest and returns a
 ```
 
 This is the project's interchange format, not an invented description of the
-LAION package's native split schema. An official tau/cluster/OOD importer remains
-pending; no split is generated or selected by this loader. IDs remain exact
+LAION package's native split schema. Official shared-pool tau/cluster/OOD import is available separately via
+`load_official_split`; no split is generated or selected by this interchange loader. IDs remain exact
 strings in supplied order. Duplicate IDs, overlapping partitions and missing
 provenance fail. Evaluation additionally requires exact coverage of response IDs.
 Because ResponseSet groups all occurrences of each image, all repeats remain
@@ -103,5 +103,5 @@ rejected in independent evaluation as before. No new LAION choices are implicit.
 Tests exercise numeric equality with direct evaluation, report equality across
 local roots, candidate/response mismatch, scientific identity invalidation,
 changed image order/dtype, corruption, partial writes, symlinks, no overwrite and
-pinned split errors. Model loading/hooks, official split import, reviewed ROI/
+pinned split errors. Model loading/hooks, additional official pools, reviewed ROI/
 normalization integration and production-scale resource management remain pending.

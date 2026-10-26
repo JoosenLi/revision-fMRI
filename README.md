@@ -33,6 +33,7 @@ pipeline.save_report(report, run_id="subject01-model01-otc-v1")
 
 For a runnable small-array demonstration, see `examples/evaluate_synthetic.py`.
 For sharing verified features across institutions, use the [cached evaluation API](docs/cached_evaluation.md).
+[Official LAION shared-pool splits](docs/official_laion_splits.md) can be imported from pinned source files without regeneration.
 
 The 224-model inventory is `manifests/models.json`. None is yet approved for feature extraction; missing checkpoint/library/transform provenance must be resolved first. Reference results remain metadata, never optimization targets.
 

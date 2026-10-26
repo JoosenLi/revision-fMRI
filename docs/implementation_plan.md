@@ -1,6 +1,6 @@
 # Implementation tasks and unit-test plan
 
-This plan follows the audit; it does not authorize GPU experiments, large downloads, training or fine-tuning. Documentation, interfaces, unified YAML config parsing, local checksum verification, raw cRSA and training-score-only layer selection are implemented. A small-array SRP/float64 ridge/veRSA reference and held-out layer evaluator are now implemented; see [encoding_reference.md](encoding_reference.md). The local LAION reader, explicit ROI/normalization primitives and cached evaluation path are implemented; model execution, hook extraction, official split import and statistics remain pending.
+This plan follows the audit; it does not authorize GPU experiments, large downloads, training or fine-tuning. Documentation, interfaces, unified YAML config parsing, local checksum verification, raw cRSA and training-score-only layer selection are implemented. A small-array SRP/float64 ridge/veRSA reference and held-out layer evaluator are now implemented; see [encoding_reference.md](encoding_reference.md). The local LAION reader, explicit ROI/normalization primitives and cached evaluation path are implemented; model execution, hook extraction, additional official pools and statistics remain pending.
 
 ## Work packages for three collaborators
 
@@ -57,3 +57,10 @@ estimation and complete legacy evaluation remain pending. See
 T6/T8 now include content-addressed raw feature artifacts, pinned split JSON
 loading and `ReproductionPipeline.evaluate_cached_model`. No original numeric
 backend or scientific defaults change. See `cached_evaluation.md`.
+
+## Official shared-pool splits — 2026-10-26
+
+T6 now imports all twelve pinned official shared-pool splits without regeneration,
+with exact upstream-loader parity, explicit trial coverage diagnostics and
+five-fold partition validation. Subject/pooled pools, OOD subcategories, model
+loaders/hooks and experiment-wide orchestration remain pending.
