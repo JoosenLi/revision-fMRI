@@ -1,6 +1,6 @@
 # Implementation tasks and unit-test plan
 
-This plan follows the audit; it does not authorize GPU experiments, large downloads, training or fine-tuning. Documentation, interfaces, unified YAML config parsing, local checksum verification, raw cRSA and training-score-only layer selection are implemented. LAION I/O, model execution, hook extraction, SRP, ridge and statistics are not yet implemented as executable backends.
+This plan follows the audit; it does not authorize GPU experiments, large downloads, training or fine-tuning. Documentation, interfaces, unified YAML config parsing, local checksum verification, raw cRSA and training-score-only layer selection are implemented. A small-array SRP/float64 ridge/veRSA reference and held-out layer evaluator are now implemented; see [encoding_reference.md](encoding_reference.md). LAION I/O, model execution, hook extraction and statistics remain pending.
 
 ## Work packages for three collaborators
 
@@ -28,7 +28,7 @@ Suggested ownership is by component rather than institution-specific paths; coll
 
 ## Tests implemented now
 
-YAML configuration portability/environment override, CUDA policy, per-stage float32/float64 settings; missing local resources/checksums; shared manifest membership/comparison counts; image/voxel axis and ID constraints; repeat counts; split disjointness/coverage; raw-feature cRSA against an independent scipy calculation; diagonal/lower-triangle exclusion; reject undefined pattern correlations and projected cRSA; train-only selector ties/nonfinite rejection. See `tests/test_contracts.py`. Numerical ridge, SRP, hooks, ROI adaptation and statistical parity tests above are **planned**, not reported as passed.
+YAML configuration portability/environment override, CUDA policy, per-stage float32/float64 settings; missing local resources/checksums; shared manifest membership/comparison counts; image/voxel axis and ID constraints; repeat counts; split disjointness/coverage; raw-feature cRSA against an independent scipy calculation; diagonal/lower-triangle exclusion; reject undefined pattern correlations and projected cRSA; train-only selector ties/nonfinite rejection. See `tests/test_contracts.py`. Ridge/SRP/held-out evaluation now have synthetic source-parity tests (42 total tests passed on 2026-10-26). Hook, ROI adaptation, float32 ridge, GPU and statistical parity tests remain **planned**. D19 was discovered by executing the original source and requires methodological review.
 
 ## Precision validation before experiments
 
