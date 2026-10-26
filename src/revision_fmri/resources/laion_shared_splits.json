@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/ViCCo-Group/LAION-fMRI",
+  "commit": "cf82765ced029de81c3bec7254b8cbd6a65e3686",
+  "pool": "shared",
+  "files": {
+    "laion_fmri/splits/__init__.py": {
+      "sha256": "17fff1acfc310d4791b2b971cada435275ab9f7cb0afe4ceeb6ed22762133c1e",
+      "size": 12653
+    },
+    "laion_fmri/splits/data/shared/tau.json": {
+      "sha256": "172c6ba1ccbf61052d36d7d152d7262d02bfbbe1b7132d73a7e568676440ff86",
+      "size": 47757,
+      "n_train": 897,
+      "n_test": 224,
+      "raw_pool": "LAION non-OOD shared (1121 images)"
+    },
+    "laion_fmri/splits/data/shared/ood.json": {
+      "sha256": "d592f700f2ce32c9733800ba524da3b4168af3e53365b25e70aaa993769df842",
+      "size": 66976,
+      "n_train": 1121,
+      "n_test": 371,
+      "raw_pool": "LAION non-OOD shared (1121 images)"
+    },
+    "laion_fmri/splits/data/shared/cluster_k5_0.json": {
+      "sha256": "95e76119da83f521b8bb8ac4fd39f1a407220771a73816746a12e1ca10433395",
+      "size": 56622,
+      "n_train": 847,
+      "n_test": 274,
+      "raw_pool": "LAION non-OOD shared (1121 images)"
+    },
+    "laion_fmri/splits/data/shared/cluster_k5_1.json": {
+      "sha256": "ed6ab66a940c9b324a970c88ce6415692664c84b3b332eea091d44b97f4bb3f1",
+      "size": 56622,
+      "n_train": 873,
+      "n_test": 248,
+      "raw_pool": "LAION non-OOD shared (1121 images)"
+    },
+    "laion_fmri/splits/data/shared/cluster_k5_2.json": {
+      "sha256": "f53025dfe57384865fa03b4925756c5838a85e9c3c806db57824561965f4c1ee",
+      "size": 56622,
+      "n_train": 875,
+      "n_test": 246,
+      "raw_pool": "LAION non-OOD shared (1121 images)"
+    },
+    "laion_fmri/splits/data/shared/cluster_k5_3.json": {
+      "sha256": "ee4b117f88a1f6136bd22f43ac2efa4a616b92c3dcc1beb2a773eb5cc0e24ef2",
+      "size": 56622,
+      "n_train": 896,
+      "n_test": 225,
+      "raw_pool": "LAION non-OOD shared (1121 images)"
+    },
+    "laion_fmri/splits/data/shared/cluster_k5_4.json": {
+      "sha256": "3622f2826a4b0adb9b6a2e3c7971287693927a288708cb74b376dfe173ac6e6f",
+      "size": 56622,
+      "n_train": 993,
+      "n_test": 128,
+      "raw_pool": "LAION non-OOD shared (1121 images)"
+    },
+    "laion_fmri/splits/data/shared/random_0.json": {
+      "sha256": "d7b8bb6470495d41990d603571c3e47a7b15b9e850dc077bc818c89d4eb8e7e3",
+      "size": 56533,
+      "n_train": 896,
+      "n_test": 225,
+      "raw_pool": "LAION non-OOD shared (1121 images)"
+    },
+    "laion_fmri/splits/data/shared/random_1.json": {
+      "sha256": "a9238bd7c64454b74e7ca4d89fbba321a03fcfc426abd36b3296ac07b4a71cbd",
+      "size": 56533,
+      "n_train": 897,
+      "n_test": 224,
+      "raw_pool": "LAION non-OOD shared (1121 images)"
+    },
+    "laion_fmri/splits/data/shared/random_2.json": {
+      "sha256": "1172fc4a33d1fe7b7cd3ebbf344275ace765159abd1a7d7f3065bfc1e0fd887d",
+      "size": 56533,
+      "n_train": 897,
+      "n_test": 224,
+      "raw_pool": "LAION non-OOD shared (1121 images)"
+    },
+    "laion_fmri/splits/data/shared/random_3.json": {
+      "sha256": "c0372c8a391e1d774a7890b425466033a73f64b20ec7c1cb5876f90705fc2efb",
+      "size": 56533,
+      "n_train": 897,
+      "n_test": 224,
+      "raw_pool": "LAION non-OOD shared (1121 images)"
+    },
+    "laion_fmri/splits/data/shared/random_4.json": {
+      "sha256": "8a781193e12321adc540427b72885b530dbb28451a07e1fc04ce9fbd4d78c37f",
+      "size": 56533,
+      "n_train": 897,
+      "n_test": 224,
+      "raw_pool": "LAION non-OOD shared (1121 images)"
+    }
+  }
+}

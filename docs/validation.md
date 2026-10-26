@@ -112,3 +112,18 @@ No existing shared cache was overwritten, no scientific method was changed,
 and no real feature extraction, additional dataset/checkpoint download, GPU
 experiment or whole-data evaluation ran. Official LAION split import and vision
 loaders/hooks remain unimplemented.
+
+## Official LAION split import — 2026-10-26
+
+127 offline tests passed. Separately, all twelve downloaded official shared-pool
+partitions matched the pinned upstream loader
+`cf82765ced029de81c3bec7254b8cbd6a65e3686`, including complete ID lists and order.
+Both five-fold families passed disjointness/exhaustive-coverage checks. Pilot TSV
+coverage was checked without reading beta values; the single session is incomplete
+for official shared-pool evaluation. See `official_laion_splits.md` for counts.
+No new beta/checkpoint/image download, GPU work or scientific evaluation occurred.
+
+The nine new split tests and official-source parity checks also passed with the
+package imported from the built wheel. Repeated-label masks and outside-pool
+exclusion matched upstream. The downloader reverified all existing small files
+without replacing them; dependency and whitespace checks passed.
