@@ -43,7 +43,7 @@ class TrialRecord:
 
 
 def _read_trials(path: Path, session: str, n_volumes: int, *, index_mode: str,
-                 run_order: list[str]) -> tuple[TrialRecord, ...]:
+                 run_order: list[str], read_acquisition: bool = False) -> tuple[TrialRecord, ...]:
     """The documented label joins stimuli; beta_index, not TSV order, joins volumes."""
     with path.open(newline='', encoding='utf-8') as stream:
         reader = csv.DictReader(stream, delimiter='\t')
@@ -58,8 +58,8 @@ def _read_trials(path: Path, session: str, n_volumes: int, *, index_mode: str,
                 index = int(row['beta_index'])
             except (ValueError, TypeError) as exc:
                 raise ValueError('beta_index must be a zero-based integer') from exc
-            onset = float(row['onset']) if row.get('onset', '').strip() else None
-            flag = row.get('valid', '').strip().lower()
+            onset = float(row['onset']) if read_acquisition and row.get('onset', '').strip() else None
+            flag = row.get('valid', '').strip().lower() if read_acquisition else ''
             if flag not in ('', '0', '1', 'false', 'true'):
                 raise ValueError('Optional valid column must contain explicit boolean values')
             valid = None if not flag else flag in ('1', 'true')
@@ -146,7 +146,8 @@ class LaionNiftiAdapter:
                 raise ValueError('Betas must be a 4D trial volume')
             records.extend(_read_trials(_local_file(self._root, entry['trials']),
                                         entry['session_id'], beta.shape[3],
-                                        index_mode=entry['index_mode'], run_order=entry['run_order']))
+                                        index_mode=entry['index_mode'], run_order=entry['run_order'],
+                                        read_acquisition=self.manifest['aggregation'] == MATCHED3_POLICY))
         return tuple(records)
 
     def _prepare_response_inputs(self, subject_id: str, roi_id: str, image_ids: tuple[str, ...]):
@@ -176,7 +177,8 @@ class LaionNiftiAdapter:
                     or not np.allclose(beta.affine, mask_img.affine, rtol=0, atol=1e-5)):
                 raise ValueError('Beta and mask shape/affine mismatch; no implicit resampling')
             records = _read_trials(trials_path, entry['session_id'], beta.shape[3],
-                                   index_mode=entry['index_mode'], run_order=entry['run_order'])
+                                   index_mode=entry['index_mode'], run_order=entry['run_order'],
+                                   read_acquisition=m['aggregation'] == MATCHED3_POLICY)
             sessions.append((beta, records))
             source_hashes.append({'session_id': entry['session_id'],
                                   'betas_sha256': _digest(beta_path), 'trials_sha256': _digest(trials_path)})

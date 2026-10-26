@@ -155,3 +155,14 @@ def test_matched3_nifti_reader_normalizes_sessions_before_selection(local_data):
     p=path.parent/'01.tsv';p.write_text(p.read_text().replace('\tonset\t','\tmissing_onset\t'))
     with pytest.raises(ValueError,match='onset'):
         obj.responses_matched3('sub-01','synthetic',('a.jpg',),**kwargs)
+
+
+def test_legacy_mean_ignores_unrequested_acquisition_columns(local_data):
+    # Optional metadata was ignored by the original reader; only matched3 needs it.
+    root=local_data[1].parent
+    for session in ('01','02'):
+        p=root/f'{session}.tsv'
+        rows=p.read_text().splitlines()
+        p.write_text(rows[0]+'\tonset\tvalid\n'+'\n'.join(row+'\tn/a\tunknown' for row in rows[1:])+'\n')
+    out=adapter(local_data).responses('sub-01','synthetic',('b.jpg','a.jpg'))
+    np.testing.assert_array_equal(out.values,[[8,16],[5,10]])
