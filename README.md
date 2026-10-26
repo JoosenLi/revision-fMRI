@@ -35,7 +35,9 @@ For a runnable small-array demonstration, see `examples/evaluate_synthetic.py`.
 
 The 224-model inventory is `manifests/models.json`. None is yet approved for feature extraction; missing checkpoint/library/transform provenance must be resolved first. Reference results remain metadata, never optimization targets.
 
-Run local debugging/tests on `is248155`; use its RTX 6000 GPUs for future authorized model work, with no CPU fallback. Authorized long tasks run locally under the current workstation instructions in `AGENTS.local.md`. Current array/configuration tests neither initialize GPUs nor train a network.
+Each collaborator keeps workstation details and execution rules in ignored
+`AGENTS.local.md`, and runtime paths/device settings in their local YAML.
+Current array/configuration tests neither initialize GPUs nor train a network.
 
 ## Provenance
 

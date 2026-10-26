@@ -83,3 +83,9 @@ It prints a summary and writes nothing unless `--run-id` is supplied. It is a
 software demonstration, not a scientific projection or split recommendation.
 
 For the local data adapter and acquisition boundary, see [LAION data adapter](laion_data_adapter.md).
+
+ROI/response primitives are now exported as `VoxelMap`, `OTCProtocol`, `ROISelection`,
+`select_otc`, `NormalizedSession` and `normalize_session`. See
+[protocol APIs](roi_response_protocols.md) for source fidelity, explicit adaptations
+and integration limits. They do not automatically replace the reader's supplied
+mask or normalization policy.

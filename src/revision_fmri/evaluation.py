@@ -208,6 +208,8 @@ def evaluate_layers(layers: tuple[FeatureSet, ...], responses: ResponseSet,
     """
     from .metrics import versa
     from .provenance import metadata_digest, array_digest
+    if responses.provenance.get('normalization') == 'legacy_deepnsd_session_v1':
+        raise ValueError('Legacy all-session normalization cannot enter independent evaluation')
     if not layers or len({f.layer_id for f in layers}) != len(layers):
         raise ValueError('Candidate layers must be nonempty and have unique IDs')
     if len({f.model_id for f in layers}) != 1:

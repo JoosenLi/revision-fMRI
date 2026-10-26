@@ -86,3 +86,11 @@ Mask SHA-256: `fe3ceabbb9c80a6937c095e640154938dbce6e4fa69ae1fb3e1250fa9f7a30f0`
 
 Long tasks now run locally per explicit user instruction; private workstation
 rules were updated and remain ignored. No GPU experiment or training was run.
+
+## ROI and response primitives — 2026-10-26
+
+98 unit tests passed, including analytic OTC union/threshold/identity cases and
+response normalization scope, axis, dtype and held-out perturbation checks.
+These are tiny synthetic tests; no new full-session preprocessing, ROI generation
+or GPU experiment was run. The shared README now delegates machine details to
+ignored local instructions.
