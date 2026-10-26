@@ -24,7 +24,7 @@ Suggested ownership is by component rather than institution-specific paths; coll
 3. Establish small numerical fixtures on **is248155**. Current tests are CPU-only array/configuration checks, not training. Future model tests require the two RTX 6000 GPUs and must fail rather than switch training/inference to CPU.
 4. Test legacy RidgeCVMod under a compatible isolated sklearn environment, then compare the port against it. Do not use today's private sklearn APIs without a version check. CPU reference linear algebra is not CPU vision-network training.
 5. Before later experiments, choose original half-split baseline versus re:vision tau/cluster/OOD adaptations, SRP dimension policy and explicit legacy-filter handling. A modern independent evaluation may be scientifically appropriate but is a deviation from C7, not evidence of source parity.
-6. Long tasks run via `ssh jz` only after separately authorized. This phase creates no remote job and no scheduler automation.
+6. Authorized long tasks run locally per the user update on 2026-10-26; consult local execution settings. No remote job or scheduler automation is created.
 
 ## Tests implemented now
 
@@ -37,3 +37,10 @@ Feature inference/cache precision defaults to float32. Original RidgeCVMod conve
 ## Source-reuse implementation update
 
 The canonical encoding path is now `DeepNSDEncodingEvaluator`: original RidgeCVMod file plus verbatim RSA/SRP functions, pinned compatibility environment and packaged license/provenance. The SVD implementation is retained as a test oracle. 53 tests pass; original-code calls, hashes, settings and environment failure paths are covered. See [upstream_reuse.md](upstream_reuse.md). Data/model/hook/statistics adapters remain pending; D01/D02/D19 are documented, not silently reconciled.
+
+## Data adapter update — 2026-10-26
+
+T2 now includes an explicit-manifest local NIfTI/TSV reader, validated beta-index joins,
+mask geometry checks, all-listed-trial aggregation, and portable provenance.
+OTC/NCSNR construction and historical normalization remain unresolved; see
+`laion_data_adapter.md`. Public pilot acquisition is separately authorized.

@@ -2,7 +2,7 @@
 
 Methodological fidelity first. Start with [original_paper.md](docs/original_paper.md), [methodology_audit.md](docs/methodology_audit.md), [deviations.md](docs/deviations.md), [model_manifest.md](docs/model_manifest.md), and [roi_mapping.md](docs/roi_mapping.md). The [implementation and unit-test plan](docs/implementation_plan.md) distinguishes working foundations from future numerical backends.
 
-The shared `revision_fmri` package exposes a [standard API](docs/shared_api.md) for configuration, ID-aligned data/features, evaluation and portable results. `ReproductionPipeline` encapsulates original DeepNSD SRP, float64 Pearson-LOOCV ridge and RSA source, with documented train-only layer selection. Dataset/model/hook/statistical backends remain pending. **It does not yet run the complete reproduction.** No vision training/fine-tuning, GPU experiment, large dataset or checkpoint download is part of this stage.
+The shared `revision_fmri` package exposes a [standard API](docs/shared_api.md) for configuration, ID-aligned data/features, evaluation and portable results. `ReproductionPipeline` encapsulates original DeepNSD SRP, float64 Pearson-LOOCV ridge and RSA source, with documented train-only layer selection. A [local NIfTI/TSV data adapter](docs/laion_data_adapter.md) is implemented; ROI construction and model/hook/statistical backends remain pending. **It does not yet run the complete reproduction.** No vision training/fine-tuning or GPU experiment has run. A public pilot data download is authorized; checkpoint downloads remain pending.
 
 ## Local setup
 
@@ -35,7 +35,7 @@ For a runnable small-array demonstration, see `examples/evaluate_synthetic.py`.
 
 The 224-model inventory is `manifests/models.json`. None is yet approved for feature extraction; missing checkpoint/library/transform provenance must be resolved first. Reference results remain metadata, never optimization targets.
 
-Run local debugging/tests on `is248155`; use its RTX 6000 GPUs for future authorized model work, with no CPU fallback. Long authorized tasks go through `ssh jz`. Current array/configuration tests neither initialize GPUs nor train a network.
+Run local debugging/tests on `is248155`; use its RTX 6000 GPUs for future authorized model work, with no CPU fallback. Authorized long tasks run locally under the current workstation instructions in `AGENTS.local.md`. Current array/configuration tests neither initialize GPUs nor train a network.
 
 ## Provenance
 

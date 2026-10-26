@@ -77,9 +77,9 @@ dataset into GPU memory. Never fall back to CPU vision training or silently
 move model inference to CPU. Tiny CPU unit tests and reference linear algebra
 are permitted and are not vision-network training.
 
-The current phase authorizes documentation, APIs and small tests only. Do not
-download large datasets/checkpoints or launch GPU experiments until separately
-instructed. Use local execution/remote-job rules from `AGENTS.local.md`.
+The current phase authorizes documentation, APIs, small tests and the explicitly
+authorized pilot dataset acquisition. Further scope follows user instructions;
+do not download checkpoints or launch GPU experiments until separately instructed. Use local execution/remote-job rules from `AGENTS.local.md`.
 
 ## Development and merging
 

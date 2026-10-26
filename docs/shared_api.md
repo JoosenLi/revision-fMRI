@@ -8,7 +8,7 @@ Do not import `_vendor` from analyses or duplicate the metrics in adapters.
 | Boundary | Public contract | Current implementation |
 | --- | --- | --- |
 | Configuration | `ReproductionPipeline.from_config(path, protocol=...)` | YAML through `config.load_config`; omitted path uses `REVISION_FMRI_CONFIG` |
-| Data | `DatasetAdapter`, `ResponseSet` | Validated image/voxel IDs, responses, repeat metadata; LAION file reader pending |
+| Data | `DatasetAdapter`, `ResponseSet` | Validated image/voxel IDs, responses, repeat metadata; Explicit-manifest `LaionNiftiAdapter` for local T1w NIfTI/TSV; scientific ROI construction pending |
 | Models | `ModelSpec`, `ModelLoader` | Identity contract and local hash verification; vision loaders pending |
 | Features | `FeatureExtractor`, `FeatureSet` | Validated raw arrays and source SRP; inference/hooks pending |
 | Evaluation | `EvaluationSplit`, `DeepNSDProtocol`, `ReproductionPipeline` | Original ridge/SRP/RSA behind validated orchestration; train-only layer selection |
@@ -81,3 +81,5 @@ python examples/evaluate_synthetic.py --config configs/paths.local.yaml
 
 It prints a summary and writes nothing unless `--run-id` is supplied. It is a
 software demonstration, not a scientific projection or split recommendation.
+
+For the local data adapter and acquisition boundary, see [LAION data adapter](laion_data_adapter.md).

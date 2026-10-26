@@ -5,9 +5,10 @@ from .features import FeatureExtractor, FeatureSet
 from .evaluation import EvaluationSplit
 from .models import ModelLoader, ModelSpec
 from .statistics import StatisticalAdapter, StatisticalSpec
+from .laion import LaionNiftiAdapter
 
 __version__ = "0.1.0"
 __all__ = ["API_VERSION", "DeepNSDProtocol", "EvaluationReport", "MetricResult",
            "ReproductionPipeline", "DatasetAdapter", "ResponseSet", "FeatureExtractor",
            "FeatureSet", "EvaluationSplit", "ModelLoader", "ModelSpec",
-           "StatisticalAdapter", "StatisticalSpec"]
+           "StatisticalAdapter", "StatisticalSpec", "LaionNiftiAdapter"]

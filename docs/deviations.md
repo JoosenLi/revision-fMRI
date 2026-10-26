@@ -33,3 +33,9 @@ unresolved. See `encoding_reference.md` for scope and validation tolerances.
 Changes to engineering (configuration, validation, source hashing) are implemented. Scientific changes listed as proposals or unresolved must not be promoted to original-method claims. No new regularization, feature pooling, PCA, pretrained replacement, network fine-tuning or modern default scoring is introduced.
 
 Source-reuse update (2026-10-26): the canonical backend directly uses upstream code and selects the released C1 alpha grid (D01) and observed original preprocessing (D19), without patching the vendor file. These are explicitly source-backed choices in the compatibility environment, not claims about the original execution environment. D02 remains an explicit difference in the independent evaluation path. See `upstream_reuse.md`.
+
+Data adapter update (2026-10-26): D08/D16 now have an explicit opt-in `mean_all_listed_trials_v1` with no additional normalization. This reads all occurrences in the supplied session list and uses float64 accumulation; it is not selected as the scientific reproduction protocol. No OTC or reliability threshold is inferred. See `laion_data_adapter.md`.
+
+### D20 — LAION pilot beta indices reset per run
+
+The public sub-01/ses-01 TSV has 1044 rows but only 87 distinct beta_index values (0–86), repeated across 12 runs. The website describes session-global indices. The official loader at `cf82765ced029de81c3bec7254b8cbd6a65e3686` preserves TSV row order and constructs a separate session_trial index. The GLMsingle summary lists acquisition sources in run order 01–12 and 87 trials per run. The explicit `run_index` adapter maps volume_index = cumulative preceding run lengths + beta_index; this matches the pilot TSV order. Other releases require their own verified mapping. No silent fallback to row order is allowed.
