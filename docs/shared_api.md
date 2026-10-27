@@ -128,3 +128,8 @@ Schema v3 records distinct-session preference, within-session fill and source-gr
 counts. Primary requires `legacy_deepnsd_session_v1` and uses the validated,
 primary-only `c6_legacy_session_zscore` exception. Generic independent APIs retain
 their rejection of legacy normalization. See [F10/F11](matched3_responses.md).
+
+Subject/ROI evaluation now requires at least 11 voxels, matching released C6
+RDM eligibility. Too-small ROIs fail explicitly through generic, cached and
+primary facades. Low-level metric/ridge primitives remain available for tiny
+mathematical tests; see [G1–G3 validation](encoding_fidelity_regressions.md).

@@ -139,3 +139,8 @@ implemented feature-cache storage system. Model checkpoints/transforms/hooks,
 LAION adapters/ROI rules, GSN ceilings and R statistical parity remain pending.
 The next scientific decision is D19 alongside D01/D02; implementation should
 then proceed to data/ROI adapters once those inputs and policies are explicit.
+
+D19 evidence update (2026-10-27): historical source signatures confirm the L2
+binding across five pre-1.4 versions. See [G3 evidence](encoding_fidelity_regressions.md);
+this supersedes treating the behavior as merely a 1.3.2 artifact. No numeric
+default is changed; the exact historical environment remains unknown.

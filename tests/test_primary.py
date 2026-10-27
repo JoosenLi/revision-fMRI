@@ -77,14 +77,14 @@ def test_primary_uses_existing_train_only_selector_and_reports_test_half(pool):
     config, ids, _ = pool
     rng = np.random.default_rng(74)
     x = rng.normal(size=(1121, 4)).astype('float32')
-    y = x @ rng.normal(size=(4, 5)) + rng.normal(size=(1121, 5)) * .1
+    y = x @ rng.normal(size=(4, 12)) + rng.normal(size=(1121, 12)) * .1
     features = [FeatureSet(ids, 'synthetic', name, values, 'raw_flattened', {'fixture': 'true'})
                 for name, values in [('signal', x), ('other', rng.normal(size=x.shape).astype('float32'))]]
     sessions = [TrialSession(f's{rep}',rep,
                 tuple(TrialPresentation(f's{rep}-t{i}',image,1,None,True,
                       ordering_source='laion_volume_acquisition_order_v1',volume_index=i) for i,image in enumerate(ids)),
                 y.copy()) for rep in range(3)]
-    response = aggregate_matched3(sessions,config=config,image_ids=ids,voxel_ids=tuple(f'v{i}' for i in range(5)),
+    response = aggregate_matched3(sessions,config=config,image_ids=ids,voxel_ids=tuple(f'v{i}' for i in range(12)),
         subject_id='s',roi_id='r',space='space',provenance={'dataset_release':'synthetic'},
         repeat_policy=MATCHED3_POLICY,normalization_policy='legacy_deepnsd_session_v1',training_image_ids=None)
     split=load_primary_laion_split(config,dataset_release='synthetic',repeat_policy=MATCHED3_POLICY)
@@ -93,8 +93,8 @@ def test_primary_uses_existing_train_only_selector_and_reports_test_half(pool):
     # a 6018-column ridge fit as a unit test. Real source SRP/ridge has separate fixtures.
     class ToyEncoder:
         def fit_predict(self, feature, response, split, *, alphas):
-            values=np.column_stack([feature.values, feature.values[:,0]])
-            return EncodingPredictions(values[::2],values[1::2],np.ones(5),{},split.train_ids,split.test_ids)
+            values=np.tile(feature.values, (1, 3))
+            return EncodingPredictions(values[::2],values[1::2],np.ones(12),{},split.train_ids,split.test_ids)
     pipeline._encoder=ToyEncoder()
     args = dict(features=features, responses=response, dataset_release='synthetic',
                 repeat_policy=MATCHED3_POLICY)

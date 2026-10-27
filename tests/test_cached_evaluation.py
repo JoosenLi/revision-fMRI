@@ -20,8 +20,8 @@ def case(tmp_path):
     ids=tuple(f'image-{i}' for i in range(20))
     x=rng.normal(size=(20,8)).astype('float32')
     f=FeatureSet(ids,'fixture-model','layer-1',x,'raw_flattened',{'source':'synthetic'})
-    y=x@rng.normal(size=(8,6)) + rng.normal(size=(20,6))*.2
-    r=ResponseSet(ids,tuple(f'v{i}' for i in range(6)),y,'subject','roi','T1w',(3,)*20,
+    y=x@rng.normal(size=(8,12)) + rng.normal(size=(20,12))*.2
+    r=ResponseSet(ids,tuple(f'v{i}' for i in range(12)),y,'subject','roi','T1w',(3,)*20,
                   {'source':'synthetic','dataset_release':'fixture-v1'})
     payload={'schema_version':1,'protocol_id':'synthetic-split-v1', 'dataset_release':'fixture-v1',
              'source_revision':'fixture-source-v1','pool':'synthetic','train_ids':list(ids[:14]),'test_ids':list(ids[14:])}
