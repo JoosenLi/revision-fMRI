@@ -23,7 +23,7 @@ Suggested ownership is by component rather than institution-specific paths; coll
 2. Agree the adapted ROI, reliability scope, beta normalization, repeat policy, shared pool and exact split revision. No automatic “equivalent OTC” claim.
 3. Establish small numerical fixtures in each collaborator's configured development environment. Current tests are CPU-only array/configuration checks, not training. Future model tests require configured available CUDA resources and must fail rather than switch inference to CPU.
 4. Test legacy RidgeCVMod under a compatible isolated sklearn environment, then compare the port against it. Do not use today's private sklearn APIs without a version check. CPU reference linear algebra is not CPU vision-network training.
-5. Primary decisions are now original-style half-split, matched-three chronological repeats and full-pool JL recomputation (1121 -> 6018); official splits are secondary. Obtain remaining collaborator sign-offs and resolve normalization/ROI details before scientific runs. A modern independent evaluation may be scientifically appropriate but is a deviation from C7, not evidence of source parity.
+5. Primary decisions are now original-style half-split, matched-three distinct-session preference with flagged fill and full-pool JL recomputation (1121 -> 6018); official splits are secondary. Obtain remaining collaborator sign-offs and resolve ROI details before scientific runs. A modern independent evaluation may be scientifically appropriate but is a deviation from C7, not evidence of source parity.
 6. Authorized long tasks run locally per the user update on 2026-10-26; consult local execution settings. No remote job or scheduler automation is created.
 
 ## Tests implemented now
@@ -69,8 +69,8 @@ loaders/hooks and experiment-wide orchestration remain pending.
 
 - Full-pool C3 JL recomputation: `jl_recomputed_eps0.1`, epsilon .1, N=1121,
   6018 components, seed 0, auto density, original upsampling.
-- `matched3_first_chronological_v1`: first three valid session/run/onset-ordered
-  presentations, after explicit session normalization; no missing-image/repeat
+- `matched3_distinct_sessions_v1`: earliest in three earliest sessions, with
+  earliest-unused fill if needed, after primary C6 all-valid session normalization; no missing-image/repeat
   fallback; persist trial-selection manifest/hash and session spans.
 - Both decisions still require the other collaborators' formal sign-offs.
   No GPU or full-data scientific evaluation is authorized by this implementation.
@@ -83,3 +83,8 @@ loaders/hooks and experiment-wide orchestration remain pending.
 2. **All-repeat averaging (12/4 reps):** compare against the matched-three primary
    under a separately named extension protocol; assess unequal SNR/repeat counts.
    Deferred to the generalization-award stage; never substitute it for primary.
+
+F11 owner decision (2026-10-27) resolves N1 in favor of primary C6 all-valid
+session normalization under the explicit primary-only exception. Optional
+`exclude_test_session_v1` is a deferred named sensitivity analysis, not implemented.
+F1–F3 and F5/F6 remain isolated in PR #11; do not stack them into PR #10.

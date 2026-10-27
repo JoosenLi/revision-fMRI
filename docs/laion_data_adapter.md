@@ -130,8 +130,10 @@ it performs no feature inference, fitting or ROI reliability selection.
 
 The original all-listed mean path above remains a secondary interface. The new
 `responses_matched3` path accepts a manifest explicitly naming
-`matched3_first_chronological_v1` plus a supported normalization policy, and requires
-explicit validity and training-ID arguments. It reuses the same volume/mask/index
-validation, requires onset and numeric session/run acquisition metadata, normalizes
-valid rows per session before first-three averaging, and persists a selection
-manifest under configured results_root. See [matched-three responses](matched3_responses.md).
+`matched3_distinct_sessions_v1` and explicit session normalization. Primary uses
+`legacy_deepnsd_session_v1`; all valid session trials are normalized before repeat
+selection. Required ordering source `laion_volume_acquisition_order_v1` uses the
+explicit `beta_sidecar` field in every session entry to verify/hash acquisition
+ordering. The unchanged geometry and run-index mapping supply volume_index.
+Missing onset/validity columns are not fabricated. Selection and primary-only
+normalization exception details are in [matched-three responses](matched3_responses.md).

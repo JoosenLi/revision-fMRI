@@ -11,7 +11,8 @@ import numpy as np
 from .config import LocalConfig, load_config
 from .data import ResponseSet, unique_ids
 from .provenance import metadata_digest
-from .repeats import MATCHED3_POLICY, ORDERING_SOURCES, TrialPresentation, TrialSession, aggregate_matched3
+from .repeats import (REPEAT_POLICIES, VOLUME_ORDER, ORDERING_SOURCES,
+                      TrialPresentation, TrialSession, aggregate_matched3)
 
 
 def _digest(path: Path) -> str:
@@ -87,10 +88,20 @@ def _acquisition_rank(label: str, prefix: str) -> int:
     return int(match[1])
 
 
+ACQUISITION_STATEMENT = '4D NIfTI with one volume per trial, ordered by acquisition time across runs.'
+
+
+def _verify_acquisition_sidecar(sidecar):
+    if (not isinstance(sidecar, dict)
+            or not isinstance(sidecar.get('Description'), str)
+            or ACQUISITION_STATEMENT not in sidecar['Description']):
+        raise ValueError('Beta sidecar must explicitly state acquisition-time volume order')
+
+
 def matched3_trial_presentations(records: tuple[TrialRecord, ...], *, subject_id: str,
                                  index_mode: str, ordering_source: str,
-                                 validity_policy: str) -> tuple[TrialPresentation, ...]:
-    """Metadata-only conversion; beta-index chronology is an explicit assumption.
+                                 validity_policy: str, beta_sidecar: dict | None = None) -> tuple[TrialPresentation, ...]:
+    """Metadata-only conversion; acquisition volume order requires sidecar evidence.
 
     No beta values or events files are read here. The beta-index policy requires
     the validated run-local mapping, not TSV row order or session-global indices.
@@ -101,6 +112,10 @@ def matched3_trial_presentations(records: tuple[TrialRecord, ...], *, subject_id
         raise ValueError('Beta-index ordering requires explicit run_index mapping')
     if validity_policy not in ('tsv_valid_column_v1', 'all_presentations_valid_v1'):
         raise ValueError('Explicit supported validity policy required')
+    if ordering_source == VOLUME_ORDER:
+        _verify_acquisition_sidecar(beta_sidecar)
+        if sorted(r.volume_index for r in records) != list(range(len(records))):
+            raise ValueError('Acquisition volume indices must cover the session exactly once')
     trials = []
     for r in records:
         _acquisition_rank(r.session, 'ses')
@@ -115,7 +130,7 @@ def matched3_trial_presentations(records: tuple[TrialRecord, ...], *, subject_id
             _acquisition_rank(r.run, 'run'),
             r.onset if ordering_source == 'tsv_onset_v1' else None,
             r.valid if validity_policy == 'tsv_valid_column_v1' else True,
-            ordering_source=ordering_source, beta_index=r.beta_index))
+            ordering_source=ordering_source, beta_index=r.beta_index, volume_index=r.volume_index))
     return tuple(trials)
 
 
@@ -142,7 +157,7 @@ class LaionNiftiAdapter:
         if m['space'] != 'T1w':
             raise ValueError('Only explicit native T1w volumetric inputs are supported')
         if not ((m['aggregation'] == 'mean_all_listed_trials_v1' and m['normalization'] == 'none')
-                or (m['aggregation'] == MATCHED3_POLICY and m['normalization'] in
+                or (m['aggregation'] in REPEAT_POLICIES and m['normalization'] in
                     ('legacy_deepnsd_session_v1', 'train_only_session_v1'))):
             raise ValueError('Explicit supported aggregation/normalization pair required')
         p = m['provenance']
@@ -155,7 +170,7 @@ class LaionNiftiAdapter:
         if not isinstance(sessions, list) or not sessions:
             raise ValueError('An explicit nonempty session list is required')
         for s in sessions:
-            if (not isinstance(s, dict) or set(s) != {'session_id', 'betas', 'trials', 'index_mode', 'run_order'}
+            if (not isinstance(s, dict) or set(s) - {'beta_sidecar'} != {'session_id', 'betas', 'trials', 'index_mode', 'run_order'}
                     or any(not isinstance(s[k], str) or not s[k] for k in ('session_id', 'betas', 'trials'))):
                 raise ValueError('Each session requires explicit files and index/run-order policy')
             if s['index_mode'] not in ('session_index', 'run_index') or not isinstance(s['run_order'], list):
@@ -186,7 +201,7 @@ class LaionNiftiAdapter:
             records.extend(_read_trials(_local_file(self._root, entry['trials']),
                                         entry['session_id'], beta.shape[3],
                                         index_mode=entry['index_mode'], run_order=entry['run_order'],
-                                        read_acquisition=self.manifest['aggregation'] == MATCHED3_POLICY))
+                                        read_acquisition=self.manifest['aggregation'] in REPEAT_POLICIES))
         return tuple(records)
 
     def _prepare_response_inputs(self, subject_id: str, roi_id: str, image_ids: tuple[str, ...]):
@@ -217,14 +232,14 @@ class LaionNiftiAdapter:
                 raise ValueError('Beta and mask shape/affine mismatch; no implicit resampling')
             records = _read_trials(trials_path, entry['session_id'], beta.shape[3],
                                    index_mode=entry['index_mode'], run_order=entry['run_order'],
-                                   read_acquisition=m['aggregation'] == MATCHED3_POLICY)
+                                   read_acquisition=m['aggregation'] in REPEAT_POLICIES)
             sessions.append((beta, records))
             source_hashes.append({'session_id': entry['session_id'],
                                   'betas_sha256': _digest(beta_path), 'trials_sha256': _digest(trials_path)})
         return m, mask_path, mask_img, mask, coords, sessions, source_hashes
 
     def responses(self, subject_id: str, roi_id: str, image_ids: tuple[str, ...]) -> ResponseSet:
-        if self.manifest['aggregation'] == MATCHED3_POLICY:
+        if self.manifest['aggregation'] in REPEAT_POLICIES:
             raise ValueError('Use responses_matched3 with explicit normalization/training/validity parameters')
         import nibabel as nib
         m, mask_path, mask_img, mask, coords, sessions, source_hashes = self._prepare_response_inputs(
@@ -273,7 +288,7 @@ class LaionNiftiAdapter:
         valid. No inference from beta magnitudes or implicit bad-trial exclusion.
         """
         m = self.manifest
-        if (repeat_policy != MATCHED3_POLICY or m['aggregation'] != repeat_policy
+        if (repeat_policy not in REPEAT_POLICIES or m['aggregation'] != repeat_policy
                 or m['normalization'] != normalization_policy):
             raise ValueError('Matched3 call must agree with manifest aggregation/normalization')
         if ordering_source not in ORDERING_SOURCES:
@@ -282,11 +297,20 @@ class LaionNiftiAdapter:
             raise ValueError('Explicit supported validity policy required')
         m, mask_path, mask_img, mask, coords, sessions, source_hashes = self._prepare_response_inputs(
             subject_id, roi_id, image_ids)
+        sidecars = {}
+        if ordering_source == VOLUME_ORDER:
+            for entry, hashes in zip(m['sessions'], source_hashes):
+                if not entry.get('beta_sidecar'):
+                    raise ValueError('Volume ordering requires an explicit beta_sidecar file')
+                path = _local_file(self._root, entry['beta_sidecar'])
+                sidecars[entry['session_id']] = json.loads(path.read_text())
+                _verify_acquisition_sidecar(sidecars[entry['session_id']])
+                hashes['beta_sidecar_sha256'] = _digest(path)
         def session_arrays():
             for (beta, records), entry in zip(sessions, m['sessions']):
                 trials = matched3_trial_presentations(records, subject_id=subject_id,
                     index_mode=entry['index_mode'], ordering_source=ordering_source,
-                    validity_policy=validity_policy)
+                    validity_policy=validity_policy, beta_sidecar=sidecars.get(entry['session_id']))
                 # One session's ROI matrix, never the full dataset or GPU memory.
                 values = np.stack([np.asarray(beta.dataobj[..., r.volume_index])[coords] for r in records])
                 yield TrialSession(entry['session_id'], _acquisition_rank(entry['session_id'], 'ses'), tuple(trials), values)

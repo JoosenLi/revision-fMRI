@@ -112,8 +112,13 @@ class ReproductionPipeline:
     def evaluate_model(self, *, features: Sequence[FeatureSet], responses: ResponseSet,
                        split: EvaluationSplit) -> EvaluationReport:
         """One model/subject/ROI per call; candidate order breaks training-score ties."""
+        return self._evaluate_model(features=features, responses=responses, split=split,
+                                    normalization_exception=None)
+
+    def _evaluate_model(self, *, features, responses, split, normalization_exception):
         layers = tuple(features)
-        result = evaluate_layers(layers, responses, split, self._encoder, alphas=RELEASED_CODE_ALPHAS)
+        result = evaluate_layers(layers, responses, split, self._encoder, alphas=RELEASED_CODE_ALPHAS,
+                                 normalization_exception=normalization_exception)
         metrics = {metric: MetricResult(layer, result.training_scores[metric][layer], result.test_scores[metric])
                    for metric, layer in result.selected_layers.items()}
         return EvaluationReport(
@@ -143,15 +148,14 @@ class ReproductionPipeline:
         if responses.provenance.get('aggregation') != repeat_policy:
             raise ValueError('Response aggregation must match explicit repeat_policy')
         from .primary import primary_projection_spec
-        from .repeats import validate_matched3_responses, write_trial_selection_manifest
+        from .repeats import write_trial_selection_manifest
         spec = primary_projection_spec(split.split)
         if self.protocol != DeepNSDProtocol.jl_recomputed(split.split):
             raise ValueError('Primary projection requires jl_recomputed_eps0.1 on the full split (6018 for 1121)')
-        manifest = validate_matched3_responses(responses)
-        if (manifest['normalization'] == 'train_only_session_v1'
-                and manifest['normalization_training_ids_sha256'] != metadata_digest(split.split.train_ids)):
-            raise ValueError('Normalization training IDs differ from the primary training half')
-        report = self.evaluate_model(features=features, responses=responses, split=split.split)
+        from .primary import (validate_primary_normalization_exception, NORMALIZATION_EXCEPTION)
+        manifest = validate_primary_normalization_exception(split.split, responses, NORMALIZATION_EXCEPTION)
+        report = self._evaluate_model(features=features, responses=responses, split=split.split,
+                                      normalization_exception=NORMALIZATION_EXCEPTION)
         selection_file = write_trial_selection_manifest(self.config, manifest)
         return replace(report, evaluation_provenance={**report.evaluation_provenance,
             'analysis_role': 'primary_replication', 'split_protocol_id': split.split.protocol_id,
@@ -162,6 +166,7 @@ class ReproductionPipeline:
             'repeat_policy_status': 'owner-decided matched3; manifest and counts verified',
             'trial_selection_sha256': responses.provenance['trial_selection_sha256'],
             'trial_selection_file': selection_file,
+            'trial_selection_summary': json.dumps(manifest['selection_summary'], sort_keys=True),
             'selected_trial_session_span': json.dumps(manifest['session_span'], sort_keys=True),
             'projection_spec': json.dumps(spec, sort_keys=True)})
 

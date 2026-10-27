@@ -11,7 +11,7 @@ Register initiated 2026-10-24; dated updates below record subsequent decisions. 
 | D05 | NCSNR/t strict paper thresholds vs inclusive parser boundaries; generic parser includes EVC | Published OTC metadata is reference artifact, not generic parser defaults | Match original mask counts and exact voxel IDs; tests at threshold equality |
 | D06 | Model/library defaults, RNG states and checkpoint hashes incompletely specified | All models remain unapproved for extraction | Resolve local bytes, dependency versions, init seeds and candidate-layer fingerprints |
 | D07 | LAION anatomical visual sectors are not NSD streams; some category ROIs differ | Proposed `laion_otc_adapted_v1`, not original OTC | Explicit masks and reviewed mapping; missing ROIs are errors, not silent omissions |
-| D08 | LAION has 12/4 scheduled repeats vs NSD shared1000×3 | Owner decided matched-3 (2026-10-26); implement explicit `matched3_first_chronological_v1` | Normalize valid session rows before averaging; first three may cluster early; persist trial/session spans and hashes; other sign-offs pending; all-repeat deferred |
+| D08 | LAION scheduled repeats and within-session clustering differ from NSD | Owner F10 (2026-10-27): primary `matched3_distinct_sessions_v1`, earliest in each of three earliest sessions; fill from earliest unused if needed | Record filled flag, session spans and source-group summary; fail only below three valid trials total; remaining sign-offs pending |
 | D09 | re:vision tau/cluster/OOD splits differ from original even/odd half split | Primary: pinned 1121-image even/odd 561/560; official LAION splits secondary | Pin split release/content; layer/alpha/scaler selection only inside outer training images |
 | D10 | Original 5920 SRP dimensions derives from N=1000 | Owner decided original-formula recomputation (2026-10-26): `jl_recomputed_eps0.1`, full N=1121 -> 6018 | Enforce primary policy; record N, eps=.1, seed=0, density auto and upsampling; verify NSD1000 still gives 5920; other sign-offs pending |
 | D11 | LAION voxel NC (%) and NCSNR are not interchangeable with RSM ceiling | No threshold in percentage units substituted | Recover/recompute NCSNR from correct variance and repeat convention; GSN remains separate |
@@ -40,7 +40,7 @@ Data adapter update (2026-10-26): D08/D16 now have an explicit opt-in `mean_all_
 
 The public sub-01/ses-01 TSV has 1044 rows but only 87 distinct beta_index values (0–86), repeated across 12 runs. The website describes session-global indices. The official loader at `cf82765ced029de81c3bec7254b8cbd6a65e3686` preserves TSV row order and constructs a separate session_trial index. The GLMsingle summary lists acquisition sources in run order 01–12 and 87 trials per run. The explicit `run_index` adapter maps volume_index = cumulative preceding run lengths + beta_index; this matches the pilot TSV order. Other releases require their own verified mapping. No silent fallback to row order is allowed.
 
-### D21 — Session normalization scope
+### D21 — Session normalization scope (initial state; superseded by F11 below)
 
 C6 z-scores across all trials within a session before concatenation/casting to float32. `legacy_deepnsd_session_v1` preserves that operation; a separately named `train_only_session_v1` fits only caller-specified training trials. Both are explicit primitives, not enabled automatically in the LAION reader. Independent evaluation rejects the legacy provenance tag. This documents response preprocessing scope separately from C7 layer filtering; exact historical averaged-beta export provenance remains unresolved.
 
@@ -108,7 +108,7 @@ Owner decisions are recorded; remaining two collaborator sign-offs are pending.
 All-repeat averaging and the NSD bridge are deferred to the generalization-award
 stage after faithful reproduction (F8/F9d), not silently run as primary analyses.
 
-### B1 / D20 / D21 — Explicit ordering and pending N1 (2026-10-27)
+### B1 / D20 / D21 — Earlier B1 fix and pending N1 (superseded by F10/F11 below)
 
 The real pilot TSV has no onset/valid columns. Matched-three now requires a named
 ordering source: `tsv_onset_v1` or `glmsingle_beta_index_order_v1`. The latter
@@ -121,3 +121,26 @@ C6 all-session, proposed exclude-test (not implemented), and existing train-only
 The legacy-tag evaluator rejection remains; train-only availability does not
 resolve N1. Primary scientific execution is blocked on that decision.
 Requires 3-collaborator review (trial ordering/repetition provenance).
+
+### B1 / F10 / F11 — Owner decisions (2026-10-27; current)
+
+D08 now requires `matched3_distinct_sessions_v1`: earliest trial in each of the
+three earliest sessions; if fewer than three sessions, fill with earliest unused
+trials and flag the image, never drop it. Fewer than three valid presentations
+still fails. Source-group summaries distinguish three-session vs filled images.
+This supersedes the first-chronological primary rule; that policy is secondary.
+
+B1 uses `laion_volume_acquisition_order_v1`: numeric session then volume_index,
+backed by the beta sidecar's acquisition-time statement and recorded source hash.
+No invented onset is required. Optional events verification remains unimplemented.
+
+D21/N1 is resolved by the owner: primary requires C6 `legacy_deepnsd_session_v1`,
+all valid session trials (shared, unique and OOD), ddof=0, before selection/mean.
+The explicit `c6_legacy_session_zscore` exception is restricted to the canonical
+primary protocol. Test betas contribute to unsupervised session mean/std only;
+ridge fitting, alpha/layer selection and C7 rules do not change. Generic independent
+paths reject legacy normalization. This matches session-wide GLMsingle fitting
+scope but does not establish historical export equivalence. Train-only is not
+primary; exclude-test is deferred sensitivity work. Policy/exception and selection
+summary are recorded in reports. Requires 3-collaborator review; other sign-offs
+remain pending. See [matched-three API](matched3_responses.md).

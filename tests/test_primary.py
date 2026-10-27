@@ -81,11 +81,12 @@ def test_primary_uses_existing_train_only_selector_and_reports_test_half(pool):
     features = [FeatureSet(ids, 'synthetic', name, values, 'raw_flattened', {'fixture': 'true'})
                 for name, values in [('signal', x), ('other', rng.normal(size=x.shape).astype('float32'))]]
     sessions = [TrialSession(f's{rep}',rep,
-                tuple(TrialPresentation(f's{rep}-t{i}',image,1,float(i),True) for i,image in enumerate(ids)),
+                tuple(TrialPresentation(f's{rep}-t{i}',image,1,None,True,
+                      ordering_source='laion_volume_acquisition_order_v1',volume_index=i) for i,image in enumerate(ids)),
                 y.copy()) for rep in range(3)]
     response = aggregate_matched3(sessions,config=config,image_ids=ids,voxel_ids=tuple(f'v{i}' for i in range(5)),
         subject_id='s',roi_id='r',space='space',provenance={'dataset_release':'synthetic'},
-        repeat_policy=MATCHED3_POLICY,normalization_policy='train_only_session_v1',training_image_ids=ids[::2])
+        repeat_policy=MATCHED3_POLICY,normalization_policy='legacy_deepnsd_session_v1',training_image_ids=None)
     split=load_primary_laion_split(config,dataset_release='synthetic',repeat_policy=MATCHED3_POLICY)
     pipeline = ReproductionPipeline(config, DeepNSDProtocol.jl_recomputed(split.split))
     # Test selector orchestration with a cheap deterministic encoder; do not run
@@ -98,6 +99,29 @@ def test_primary_uses_existing_train_only_selector_and_reports_test_half(pool):
     args = dict(features=features, responses=response, dataset_release='synthetic',
                 repeat_policy=MATCHED3_POLICY)
     report = pipeline.evaluate_primary_laion_model(**args)
+    assert report.evaluation_provenance['normalization']=='legacy_deepnsd_session_v1'
+    assert report.evaluation_provenance['normalization_exception']=='c6_legacy_session_zscore'
+    assert json.loads(report.evaluation_provenance['trial_selection_summary'])['three_distinct_sessions']==1121
+    # The public generic path remains strict, even with canonical split metadata.
+    with pytest.raises(ValueError,match='independent evaluation'):
+        pipeline.evaluate_model(features=features,responses=response,split=split.split)
+    from revision_fmri.evaluation import evaluate_layers, RELEASED_CODE_ALPHAS
+    for changed_split,flag in [(replace(split.split,protocol_id='secondary'),'c6_legacy_session_zscore'),
+                               (replace(split.split,source_digest='fake'),'c6_legacy_session_zscore'),
+                               (split.split,'allow_all'),
+                               (replace(split.split,train_ids=split.split.train_ids[::-1]),'c6_legacy_session_zscore')]:
+        with pytest.raises(ValueError,match='exception'):
+            evaluate_layers(tuple(features),response,changed_split,pipeline._encoder,
+                            alphas=RELEASED_CODE_ALPHAS,normalization_exception=flag)
+    train_only=aggregate_matched3(sessions,config=config,image_ids=ids,voxel_ids=response.voxel_ids,
+        subject_id='s',roi_id='r',space='space',provenance={'dataset_release':'synthetic'},
+        repeat_policy=MATCHED3_POLICY,normalization_policy='train_only_session_v1',training_image_ids=ids[::2])
+    with pytest.raises(ValueError,match='Primary requires legacy'):
+        pipeline.evaluate_primary_laion_model(**{**args,'responses':train_only})
+    with pytest.raises(ValueError,match='repeat_policy'):
+        pipeline.evaluate_primary_laion_model(**{**args,'repeat_policy':'matched3_first_chronological_v1'})
+    # Perturb already-normalized held-out responses, not raw session betas:
+    # C6 preprocessing explicitly allows raw test betas to affect session statistics.
     perturbed = response.values.copy()
     perturbed[1::2] = rng.normal(size=perturbed[1::2].shape)
     manifest=json.loads(response.provenance['trial_selection_manifest'])

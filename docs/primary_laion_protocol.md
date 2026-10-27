@@ -45,10 +45,15 @@ scheduled trial.
 
 Owner decisions (2026-10-26, PR #9 D10/F7 and PR #10 D08/F9) now specify:
 
-- **Repeats:** `matched3_first_chronological_v1`, first three valid presentations
-  per image ordered by session acquisition rank, run rank, then an explicit within-run ordering source. No RNG.
-  The repeat-policy argument remains mandatory with no default, but primary
-  entry points reject other policy names. All-repeat averaging is deferred.
+- **Repeats (F10, 2026-10-27):** `matched3_distinct_sessions_v1`, earliest
+  presentation in each of the three earliest sessions; fill from earliest unused
+  trials when fewer than three sessions exist. Acquisition order is numeric
+  session then sidecar-backed volume_index. Flag filled images; no RNG and no
+  dropping. Repeat policy remains mandatory with no default.
+- **Normalization (F11, 2026-10-27):** `legacy_deepnsd_session_v1`, all valid
+  session trials including shared/unique/OOD, ddof=0, before repeat selection.
+  Explicit primary-only exception `c6_legacy_session_zscore`; generic independent
+  paths continue rejecting legacy normalization. Other sign-offs remain pending.
 - **SRP:** `jl_recomputed_eps0.1`, using the original C3 JL formula on the **full
   split universe** before splitting: 1121 -> **6018**, 1000 -> **5920**.
   Epsilon 0.1, random_state 0, density auto and original upsampling are preserved.
@@ -57,25 +62,25 @@ Owner decisions (2026-10-26, PR #9 D10/F7 and PR #10 D08/F9) now specify:
 ```python
 split = load_primary_laion_split(
     config, dataset_release=reviewed_release,
-    repeat_policy="matched3_first_chronological_v1")
+    repeat_policy="matched3_distinct_sessions_v1")
 pipeline = ReproductionPipeline(config, DeepNSDProtocol.jl_recomputed(split.split))
 responses = adapter.responses_matched3(
     subject_id, roi_id, canonical_image_ids,
-    repeat_policy="matched3_first_chronological_v1",
-    normalization_policy=reviewed_normalization_policy,
-    training_image_ids=normalization_training_ids,
+    repeat_policy="matched3_distinct_sessions_v1",
+    normalization_policy="legacy_deepnsd_session_v1",
+    training_image_ids=None,
     validity_policy=reviewed_validity_policy,
-    ordering_source=reviewed_ordering_source)
+    ordering_source="laion_volume_acquisition_order_v1")
 report = pipeline.evaluate_primary_laion_model(
     features=features, responses=responses, dataset_release=reviewed_release,
-    repeat_policy="matched3_first_chronological_v1")
+    repeat_policy="matched3_distinct_sessions_v1")
 ```
 
 `canonical_image_ids` must match the feature row order and cover the complete
-primary pool. For `train_only_session_v1`, `normalization_training_ids` must be
-exactly `split.split.train_ids`. Normalization scope is still explicit: this
-change does not silently choose the legacy all-session policy or change the
-independent evaluator's rejection of legacy all-session normalization (D21).
+primary pool. The primary facade requires the owner-decided normalization and
+validates the canonical split and matched-three manifest before using the narrow
+exception. Train-only normalization cannot be used as primary. Test betas affect
+unsupervised session mean/std, not ridge fitting, alpha or layer selection.
 
 The shared [matched-three API](matched3_responses.md) normalizes valid session
 rows **before** selecting/averaging the three responses. Fewer than three valid
@@ -86,8 +91,8 @@ session spans, normalization hashes and response binding. The primary evaluator
 checks policy, exact repeat counts, manifest integrity and normalization fit-ID
 provenance, persists/verifies the artifact, and includes its hash plus the
 projection specification (N, epsilon, dimensions, seed, density, upsampling) in
-the report. Selected trials may cluster in early sessions, unlike NSD's spread
-repetitions; this is a documented LAION adaptation, not a hidden equivalence.
+the report. Selected trials may still cluster in early sessions, or require within-session
+fill, unlike NSD's spread repetitions; this is a documented LAION adaptation, not a hidden equivalence.
 
 Both owner decisions are implemented; formal sign-off from the other two
 collaborators remains required. The NSD image bridge and all-repeat averaging
@@ -116,6 +121,6 @@ responses/features and a deterministic test encoder; they do not execute a
 existing source-parity fixtures cover SRP/ridge numerics. No scientific
 result, GPU run or complete real-data evaluation is claimed.
 
-N1 remains pending: no normalization has been selected as primary. The existing
-train-only acceptance path is not a scientific endorsement; do not launch primary
-evaluation until the owner and collaborators resolve normalization scope.
+F10/F11 supersede the earlier repeat rule and pending N1 status. Reports record
+normalization policy, exception flag and source-group fill summary. No scientific
+run authorization or other-collaborator sign-off is implied.

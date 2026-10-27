@@ -210,7 +210,7 @@ class LayerEvaluation:
 
 def evaluate_layers(layers: tuple[FeatureSet, ...], responses: ResponseSet,
                     split: EvaluationSplit, encoder: EncodingEvaluator, *,
-                    alphas: tuple[float, ...]) -> LayerEvaluation:
+                    alphas: tuple[float, ...], normalization_exception: str | None = None) -> LayerEvaluation:
     """Evaluate an explicitly supplied candidate set, never infer hook eligibility.
 
     Caller invokes separately for each model/subject/ROI. No C7 test-dependent
@@ -218,7 +218,10 @@ def evaluate_layers(layers: tuple[FeatureSet, ...], responses: ResponseSet,
     """
     from .metrics import versa
     from .provenance import metadata_digest, array_digest
-    if responses.provenance.get('normalization') == 'legacy_deepnsd_session_v1':
+    if normalization_exception is not None:
+        from .primary import validate_primary_normalization_exception
+        validate_primary_normalization_exception(split, responses, normalization_exception)
+    elif responses.provenance.get('normalization') == 'legacy_deepnsd_session_v1':
         raise ValueError('Legacy all-session normalization cannot enter independent evaluation')
     if not layers or len({f.layer_id for f in layers}) != len(layers):
         raise ValueError('Candidate layers must be nonempty and have unique IDs')
@@ -251,6 +254,8 @@ def evaluate_layers(layers: tuple[FeatureSet, ...], responses: ResponseSet,
         'candidate_order_sha256': metadata_digest([f.layer_id for f in layers]),
         'response_values_sha256': array_digest(responses.values),
         'repeat_counts_sha256': metadata_digest(responses.repeat_counts),
+        'normalization': responses.provenance.get('normalization', 'unspecified'),
+        'normalization_exception': normalization_exception or 'none',
         'selection': 'max training RSA; first candidate wins ties; no test-dependent filter',
     }
     return LayerEvaluation(selected, training, test_scores, predictions, provenance)

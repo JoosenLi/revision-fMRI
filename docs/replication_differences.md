@@ -21,8 +21,8 @@ of the authors' historical run configuration.
 | Dataset / stimulus pool | P/C: NSD shared1000 analysis | A: primary pool is 1121 non-OOD LAION shared images; OOD excluded | Different image distribution, participants and acquisition; do not describe this as identical-data replication. Record subject/session/release hashes. |
 | Primary split (D09, C1) | C: CSV-order even positions train, odd positions test; 500/500 | A: preserve alternation on the pinned published LAION list; 561/560, protocol `laion_splithalf_even_odd_v1` | Order is adapted from NSD CSV to official LAION list. Not a random split or exact equal halves. Owner decision recorded; all-collaborator review remains required. |
 | Secondary splits (D09) | C: official LAION tau/cluster/random/OOD are different protocols | A: retained as explicitly secondary adaptation/extension analyses | Do not combine these scores with primary split-half results or present them as the original replication split. Fold aggregation remains unresolved. |
-| Repeated responses (D08/F9) | P/C: original NSD shared images have 3 repetitions | A: owner decided matched-3 on 2026-10-26; implement `matched3_first_chronological_v1` after explicit session normalization, with no RNG | First three valid acquisition-ordered trials may cluster in early sessions unlike NSD. Save eligible/selected trials and session spans; fail below three. Other collaborator sign-offs pending. All-repeat analysis deferred to generalization-award backlog. |
-| Response normalization (D16/D21, C6) | C: released session z-scoring can use all trials; exact exported-beta history U | A: explicit normalization primitives; independent evaluator rejects legacy all-session provenance | Report normalization scope. Train-only alternative differs from released session preprocessing; do not claim historical export equivalence. |
+| Repeated responses (D08/F10) | P/C: NSD shared images have three repetitions | A: owner revised primary to `matched3_distinct_sessions_v1` on 2026-10-27; earliest in three earliest sessions, deterministic earliest-unused fill if necessary | Sidecar-backed volume ordering; report filled flag, spans and source-group counts. Temporal spacing still differs. Other sign-offs pending; first-chronological is secondary. |
+| Response normalization (D16/D21/F11, C6) | C: all-session voxel z-score; historical export provenance U | Owner decided primary `legacy_deepnsd_session_v1`, all valid shared/unique/OOD trials before repeat selection; explicit primary-only exception | Test betas enter unsupervised session mean/std only. Generic paths reject legacy; ridge/alpha/layer selection remains training-only. Policy and exception recorded; other sign-offs pending. |
 | ROI and reliability (D05/D07/D11) | P/C: OTC region definitions; paper strict thresholds vs inclusive parser, generic EVC inclusion discrepancy | A/U: explicit ROI primitives exist; LAION anatomical mapping/reliability policy still requires review | LAION NC percentages are not NCSNR. No silent threshold conversion or complete OTC-equivalence claim. |
 | Checkpoints and dependencies (D06) | C: many mutable loader defaults; historical bytes and versions U | A: local SHA-verified offline loader, currently AlexNet compatibility profile only | Matching a caller SHA does not verify the paper checkpoint. Historical weights/environment still unresolved; no weights downloaded by this implementation. |
 | Image preprocessing (C9/D04/D22) | C: torchvision direct square 224 resize + ImageNet normalization; C2 explicitly converts RGB | C/A: exact source transform reused under pinned modern compatibility versions; shared reader must convert RGB explicitly | Historical interpolation/library behavior U; do not substitute modern weight-enum resize/crop. Other families and random-model normalization differences remain unresolved. |
@@ -85,7 +85,7 @@ actual data/ROI/split/checkpoint/transform/layer hashes, trial-selection manifes
 software versions, precision and seeds to each result. Do not promote predictions
 or open reviewer recommendations to observed scientific results.
 
-## B1 / N1 follow-up — 2026-10-27
+## Earlier B1 / N1 follow-up — superseded by F10/F11 below
 
 **LAION adaptation / unresolved chronology:** the actual pilot TSV has only
 session/run/beta_index/label. An explicit `glmsingle_beta_index_order_v1` source
@@ -101,3 +101,26 @@ choice; exclude-test is a proposed, unimplemented alternative. The current
 independent evaluator rejects all-session normalization. Primary scientific
 execution awaits owner/collaborator resolution, with alternatives intended for
 explicit sensitivity analyses. B1 does not change normalization mathematics.
+
+## Current F10/F11 decisions — 2026-10-27
+
+Owner decision [PR #10](https://github.com/JoosenLi/revision-fMRI/pull/10#issuecomment-6437990821)
+supersedes first-chronological selection and resolves N1. Distinct-session
+matched-three prefers the earliest trial in three earliest sessions, with earliest
+unused fill when only one/two sessions exist. It does not force the 4-rep NSD
+images out of the pool. Manifest schema v3 records filled flags, source-group
+counts and session spans. Fewer than three valid total trials still fails.
+
+B1 ordering is now evidence-backed `(session number, volume_index)` from the beta
+sidecar, whose text and hash are recorded; the previous run-local rank assumption
+is not silently equated with acquisition time. Optional events cross-check remains.
+
+Primary C6 normalization uses all valid session trials including shared, unique
+and OOD, ddof=0, before selection. AGENTS explicitly permits test betas in session
+mean/std under `c6_legacy_session_zscore` for the canonical primary protocol only.
+Generic independent paths retain their rejection; no test responses enter ridge
+fitting, alpha choice, layer selection or C7 filtering. The normalization scope
+is not independent preprocessing; raw test-trial changes can affect training
+normalization. Train-only is secondary, exclude-test sensitivity is deferred.
+These are owner decisions with two remaining sign-offs pending, not claims of
+reproducing historical averaged-beta exports or a completed scientific run.

@@ -3,8 +3,9 @@ from dataclasses import replace
 import json
 import numpy as np
 import pytest
-from revision_fmri import (TrialSession, TrialPresentation, aggregate_matched3, MATCHED3_POLICY,
+from revision_fmri import (TrialSession, TrialPresentation, aggregate_matched3,
                           validate_matched3_responses, write_trial_selection_manifest)
+from revision_fmri.repeats import CHRONOLOGICAL_POLICY as MATCHED3_POLICY
 from revision_fmri.config import load_config
 from revision_fmri.provenance import metadata_digest
 from revision_fmri.response import normalize_session
