@@ -30,7 +30,7 @@ of the authors' historical run configuration.
 | cRSA (C5) | P/C: Pearson correlation of upper-triangle correlation-distance RDMs on raw features | C: original routine reused behind validated common API | No SRP, rank correlation or crossnobis substitution for cRSA. Nonfinite/degenerate inputs now fail explicitly (D13). |
 | SRP and veRSA (C3/D10/F7) | C: sparse random projection before split; original JL formula eps=0.1, seed=0, auto density, upsampling; 1000 -> 5920 | C/A: owner decided full-pool recomputation on 2026-10-26; primary `jl_recomputed_eps0.1` fixes 1121 -> 6018 | Primary evaluator enforces this policy and records N/epsilon/dimensions/seed. It adapts sample count while retaining the original formula. Other collaborator sign-offs pending. |
 | Ridge alpha grid (D01/C1/C4) | P: range extends to 10^7; released C1 default is seven log-spaced values 10^-1 through 10^5 | C: released-code grid is canonical backend behavior | Paper/code discrepancy remains unresolved. Historical run configuration needed; alternatives must have separate protocol IDs. |
-| Ridge scoring / predictions (D03/D19) | C: per-voxel Pearson LOOCV alpha choice, centered training LOOCV predictions; test intercept restored; L2 normalization observed in compatibility environment | C: vendored original backend preserves these semantics | Do not replace with modern RidgeCV MSE defaults, in-sample predictions or restored training offsets. Compatibility parity is not historical-environment proof. |
+| Ridge scoring / predictions (D03/D19) | C: per-voxel Pearson LOOCV alpha choice, centered training LOOCV predictions; test intercept restored; L2 normalization grounded in inspected historical sklearn signatures (G3) | C: vendored original backend preserves these semantics | Do not replace with modern RidgeCV MSE defaults, in-sample predictions or restored training offsets. Compatibility parity is not historical-environment proof. |
 | Layer selection (D02/C7) | C: maximize training RSA, but released R filter can first use test-minus-train scores; historical effect U | A: primary evaluation uses training-half scores only; selected test-half score reported; C7 filter excluded | Intentional deviation from released test-dependent filtering to maintain independent evaluation. Must be disclosed, not described as exact reproduction of every released analysis step. |
 | Precision (D18) | C: original ridge path uses float64 | C/A: float32 vision features; float64 reference ridge; TF32/autocast rejected | Float32 ridge requires separate explicit configuration, deviation and parity evidence; not enabled by preference alone. |
 | Statistical comparisons (C8/D12) | P/C: source-specific fixed/mixed formulas; SLIP interaction differs from paper pseudocode | U: specifications audited; numerical statistical backends contract-only | No final inference, CI or p-value replication claim until source formulas/reference levels/bootstrap details are validated. |
@@ -124,3 +124,20 @@ is not independent preprocessing; raw test-trial changes can affect training
 normalization. Train-only is secondary, exclude-test sensitivity is deferred.
 These are owner decisions with two remaining sign-offs pending, not claims of
 reproducing historical averaged-beta exports or a completed scientific run.
+
+## G1–G3 — 2026-10-27
+
+C6 only constructs subject/ROI RDMs above 10 voxels. Shared evaluation now rejects
+<=10 voxels explicitly (engineering adaptation of upstream omission), records the
+count/boundary, and leaves tiny metric/ridge primitives available for tests.
+A permanent synthetic three-layer end-to-end transcription regression compares
+training scores, selected layers, held-out scores, alphas and predictions to the
+released flow at atol=1e-10. No real-data parity is claimed.
+
+D19 evidence now includes official sklearn source signatures at 0.24.2, 1.0.2,
+1.1.3, 1.2.2 and 1.3.2: positional argument four is normalize, receiving the
+released copy_X=True. L2 normalization is historically grounded behavior, not
+solely a modern compatibility artifact. 1.4.0 makes fit_intercept keyword-only,
+breaking that call. Earlier versions were inspected, not installed/executed;
+the authors' exact environment remains unresolved. See [evidence and hashes](encoding_fidelity_regressions.md).
+G4/G5 remain undecided; this PR does not choose the primary alpha grid or OTC map.

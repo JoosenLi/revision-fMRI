@@ -101,6 +101,10 @@ def test_original_split_is_order_preserving_not_random():
 def test_source_backend_test_response_independence():
     f,r,s,encoder = objects(CASES[1])
     rng = np.random.default_rng(72)
+    # Orchestration requires a real-sized ROI; component golden fixtures stay unchanged.
+    from dataclasses import replace
+    r = replace(r, voxel_ids=tuple(f'v{i}' for i in range(12)),
+                values=f.values @ rng.normal(size=(f.values.shape[1],12)) + rng.normal(size=(len(f.image_ids),12)))
     second = FeatureSet(f.image_ids,f.model_id,'layer-2',rng.normal(size=f.values.shape).astype('float32'),
                          'raw_flattened',{'source':'synthetic'})
     result = evaluate_layers((f,second),r,s,encoder,alphas=RELEASED_CODE_ALPHAS)

@@ -225,6 +225,9 @@ def evaluate_layers(layers: tuple[FeatureSet, ...], responses: ResponseSet,
         raise ValueError('Legacy all-session normalization cannot enter independent evaluation')
     if not layers or len({f.layer_id for f in layers}) != len(layers):
         raise ValueError('Candidate layers must be nonempty and have unique IDs')
+    # C6 benchmark.get_rdms only constructs subject/ROI RDMs for >10 voxels.
+    if len(responses.voxel_ids) < 11:
+        raise ValueError('DeepNSD subject/ROI evaluation requires at least 11 voxels (>10)')
     if len({f.model_id for f in layers}) != 1:
         raise ValueError('Evaluate one model at a time')
     for f in layers:
@@ -254,6 +257,8 @@ def evaluate_layers(layers: tuple[FeatureSet, ...], responses: ResponseSet,
         'candidate_order_sha256': metadata_digest([f.layer_id for f in layers]),
         'response_values_sha256': array_digest(responses.values),
         'repeat_counts_sha256': metadata_digest(responses.repeat_counts),
+        'roi_voxel_count': str(len(responses.voxel_ids)),
+        'roi_minimum_voxels': '11; released benchmark.get_rdms >10',
         'normalization': responses.provenance.get('normalization', 'unspecified'),
         'normalization_exception': normalization_exception or 'none',
         'selection': 'max training RSA; first candidate wins ties; no test-dependent filter',

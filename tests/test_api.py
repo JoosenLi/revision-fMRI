@@ -15,10 +15,10 @@ from revision_fmri.provenance import metadata_digest
 def inputs():
     rng = np.random.default_rng(23)
     x = rng.normal(size=(24, 8)).astype('float32')
-    y = x @ rng.normal(size=(8, 6)) + rng.normal(size=(24, 6)) * .1 + 2
+    y = x @ rng.normal(size=(8, 12)) + rng.normal(size=(24, 12)) * .1 + 2
     ids = tuple(f'image-{i}' for i in range(24))
     features = [FeatureSet(ids, 'synthetic', 'layer-1', x, 'raw_flattened', {'source': 'synthetic'})]
-    responses = ResponseSet(ids, tuple(f'voxel-{i}' for i in range(6)), y,
+    responses = ResponseSet(ids, tuple(f'voxel-{i}' for i in range(12)), y,
                             'subject', 'roi', 'space', (3,)*24, {'source': 'synthetic'})
     split = EvaluationSplit(ids[:16], ids[16:], 'synthetic-v1', 'synthetic')
     return dict(features=features, responses=responses, split=split)
@@ -47,7 +47,7 @@ def test_report_is_portable_and_source_backed(tmp_path, inputs):
     assert report.encoding_provenance['layer-1']['backend'] == 'deepnsd-vendored-sklearn132-v1'
     assert report.train_image_ids == inputs['split'].train_ids
     assert set(report.metrics) == {'crsa', 'versa'}
-    assert len(report.alpha_per_layer['layer-1']) == 6
+    assert len(report.alpha_per_layer['layer-1']) == 12
     path = a.save_report(report, run_id='synthetic-1')
     assert path.parent == a.config.storage['results_root']
     saved = json.loads(path.read_text())

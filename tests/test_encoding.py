@@ -105,6 +105,10 @@ def test_outer_scaler_and_selection_do_not_use_test_responses():
     case = FIXTURE['cases'][1]
     f, r, s = objects(case)
     rng = np.random.default_rng(13)
+    # Orchestration requires a real-sized ROI; component golden fixtures stay unchanged.
+    from dataclasses import replace
+    r = replace(r, voxel_ids=tuple(f'v{i}' for i in range(12)),
+                values=f.values @ rng.normal(size=(f.values.shape[1],12)) + rng.normal(size=(len(f.image_ids),12)))
     other = FeatureSet(f.image_ids, f.model_id, 'second', rng.normal(size=f.values.shape).astype('float32'),
                        'raw_flattened', {'fixture': 'second'})
     encoder = ReferenceEncodingEvaluator(5, 0, True, 'float64')

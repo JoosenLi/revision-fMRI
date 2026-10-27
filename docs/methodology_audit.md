@@ -102,3 +102,10 @@ A: versioned LAION image splits, repeated-trial aggregation, explicit ROI mappin
 ## LAION I/O evidence update — 2026-10-26
 
 The pilot acquisition confirms 1044 TYPED volumes and 769 unique stimulus labels for sub-01/ses-01. The TSV index resets per run, contrary to the online session-global description; see D20 and `laion_data_adapter.md`. The local reader uses an explicitly selected index policy, checks geometry and preserves repeats. It does not resolve original beta normalization, OTC/NCSNR mapping or the layer-filter discrepancy.
+
+## G1–G3 audit update — 2026-10-27
+
+C6 >10-voxel subject/ROI eligibility is now enforced by shared evaluation with an
+explicit error rather than silent omission. D19 is historically grounded by
+official sklearn signatures across 0.24.2–1.3.2, not only the pinned execution
+profile. The 1.4.0 call is incompatible. See [regression and source evidence](encoding_fidelity_regressions.md).

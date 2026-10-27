@@ -1,0 +1,96 @@
+[
+  {
+    "version": "0.24.2",
+    "url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/0.24.2/sklearn/linear_model/_base.py",
+    "sha256": "5e3f16ace6a7b6a8ff647d580f93052ff16293a044a35a5528b2e0efd8fcdec8",
+    "positional": [
+      "X",
+      "y",
+      "fit_intercept",
+      "normalize",
+      "copy",
+      "sample_weight",
+      "return_mean",
+      "check_input"
+    ],
+    "keyword_only": []
+  },
+  {
+    "version": "1.0.2",
+    "url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/1.0.2/sklearn/linear_model/_base.py",
+    "sha256": "f761fead8a4cba100b505d03f3d0b34d1c387cc77b9fe3fae06dbd8f40daae06",
+    "positional": [
+      "X",
+      "y",
+      "fit_intercept",
+      "normalize",
+      "copy",
+      "sample_weight",
+      "return_mean",
+      "check_input"
+    ],
+    "keyword_only": []
+  },
+  {
+    "version": "1.1.3",
+    "url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/1.1.3/sklearn/linear_model/_base.py",
+    "sha256": "98b29347805915bc4cc9de66f885efed39cd19905370e07c19e18ef1582dea7a",
+    "positional": [
+      "X",
+      "y",
+      "fit_intercept",
+      "normalize",
+      "copy",
+      "sample_weight",
+      "check_input"
+    ],
+    "keyword_only": []
+  },
+  {
+    "version": "1.2.2",
+    "url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/1.2.2/sklearn/linear_model/_base.py",
+    "sha256": "0cdbda9e9487a2504981f8f55896f420e8da645e98ed70e6617535f26d83057e",
+    "positional": [
+      "X",
+      "y",
+      "fit_intercept",
+      "normalize",
+      "copy",
+      "sample_weight",
+      "check_input"
+    ],
+    "keyword_only": []
+  },
+  {
+    "version": "1.3.2",
+    "url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/1.3.2/sklearn/linear_model/_base.py",
+    "sha256": "ebc076b4c3e68030b84a4c5f147fb7874c5a067e69e0868b7ed573e2ecdd0a1b",
+    "positional": [
+      "X",
+      "y",
+      "fit_intercept",
+      "normalize",
+      "copy",
+      "copy_y",
+      "sample_weight",
+      "check_input"
+    ],
+    "keyword_only": []
+  },
+  {
+    "version": "1.4.0",
+    "url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/1.4.0/sklearn/linear_model/_base.py",
+    "sha256": "6d9f6db871de234274264e7fbf32e90ceef99a66504f79dcddd161ebd643c4d6",
+    "positional": [
+      "X",
+      "y"
+    ],
+    "keyword_only": [
+      "fit_intercept",
+      "copy",
+      "copy_y",
+      "sample_weight",
+      "check_input"
+    ]
+  }
+]

@@ -22,7 +22,7 @@ Register initiated 2026-10-24; dated updates below record subsequent decisions. 
 | D16 | LAION response space/session scaling may differ | No implicit beta re-scaling or space conversion | Preserve voxel ID/affine/space and normalization provenance; inspect local metadata before implementation |
 | D18 | User prefers float32 when adequate; original ridge uses float64 | YAML separates feature precision (float32) and ridge precision (float64) | Float32 ridge needs conditioning/alpha/prediction/RSA/layer-choice parity tests and joint review |
 | D17 | 64 random-task rows plus a random Taskonomy encoder labeled taskonomy | Preserve raw labels and initialization status separately | Reconcile paper trained/random counts and downstream grouping before reclassification |
-| D19 | Executing released C4 on sklearn 1.3.2 reveals `copy_X=True` binds to positional `normalize`, enabling feature L2 normalization | Corrected the initial static audit; reference requires explicit `legacy_l2_normalize`; True matches unmodified source in the pinned compatibility environment | Five synthetic source fixtures plus brute-force LOO tests pass; original authors' dependency version/intent remains unresolved; no silent choice for scientific runs |
+| D19 | Executing released C4 on sklearn 1.3.2 reveals `copy_X=True` binds to positional `normalize`, enabling feature L2 normalization | Corrected the initial static audit; reference requires explicit `legacy_l2_normalize`; True matches unmodified source; historical pre-1.4 signature evidence is recorded under G3 below | Five synthetic source fixtures plus brute-force LOO tests pass; original authors' dependency version/intent remains unresolved; no silent choice for scientific runs |
 
 2026-10-26 implementation update: D03's centered LOO behavior is now numerically
 verified against unmodified source; at this earlier implementation stage D10 was caller-supplied
@@ -158,3 +158,21 @@ scope but does not establish historical export equivalence. Train-only is not
 primary; exclude-test is deferred sensitivity work. Policy/exception and selection
 summary are recorded in reports. Requires 3-collaborator review; other sign-offs
 remain pending. See [matched-three API](matched3_responses.md).
+
+### G1–G3 fidelity follow-up — 2026-10-27
+
+G1 adds a permanent independent orchestration transcription check: 80 images,
+three layers, 30 nonzero-mean voxels, absolute tolerance 1e-10. G2 now enforces
+C6's >10-voxel subject/ROI RDM eligibility in the shared evaluator; unlike upstream
+omission, too-small ROIs fail explicitly. Low-level numerical primitives remain
+available for tiny fixtures; this is not an ROI anatomy/reliability decision.
+
+D19/G3: official sklearn 0.24.2, 1.0.2, 1.1.3, 1.2.2 and 1.3.2 signatures all
+bind positional argument four to normalize. Released copy_X=True therefore enables
+L2 normalization across these inspected historical versions; it is not merely a
+1.3.2 compatibility artifact. In 1.4.0, fit_intercept is keyword-only and the
+unmodified call is invalid. Source hashes/signatures and validation limits are in
+[encoding fidelity regressions](encoding_fidelity_regressions.md). Authors' exact
+environment remains unknown; only 1.3.2 is numerically executed here. No ridge
+normalization change is introduced. G4/G5 remain decisions in issue #14.
+Requires 3-collaborator review for ROI-size eligibility enforcement.
