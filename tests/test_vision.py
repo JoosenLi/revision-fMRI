@@ -75,6 +75,8 @@ def setup_loader(tmp_path, monkeypatch):
         calls.append(('constructor', name, pretrained))
         return Tiny(3, 2)
 
+    # Tiny lifecycle seam only; separate tests exercise the real count contract.
+    monkeypatch.setattr(vision, 'ALEXNET_PARAMETER_COUNT', 8)
     monkeypatch.setattr(source, 'get_torchvision_model', constructor)
     monkeypatch.setattr(vision, '_gpu_preflight', lambda *a: {'mock': True})
     monkeypatch.setattr(torch.backends.cuda.matmul, 'allow_tf32', False)
@@ -99,6 +101,7 @@ def test_offline_load_freezes_evals_records_provenance_and_restores_rng(setup_lo
     assert not result.model.training
     assert all(not p.requires_grad for p in result.model.parameters())
     assert torch.equal(result.model.weight, torch.ones((2, 3)))
+    assert result.provenance['parameter_count'] == 8  # Tiny lifecycle seam.
     assert result.provenance['checkpoint_sha256'] == spec.checkpoint_sha256
     assert result.provenance['transform_sha256'] == result.preprocess.sha256
     assert str(checkpoint) not in json.dumps(result.provenance)
@@ -253,3 +256,23 @@ def test_real_gpu_preflight_read_only():
         assert snapshot['gpu_uuid'] == f'GPU-{bare}'
         assert 1 <= snapshot['free_bytes'] <= snapshot['total_bytes']
         assert snapshot['model_bytes'] == 1  # Query only; no tensor/model allocation.
+
+
+def test_published_parameter_count_guard_precedes_transfer(setup_loader, monkeypatch):
+    loader,spec,checkpoint,calls=setup_loader
+    monkeypatch.setattr(vision,'ALEXNET_PARAMETER_COUNT',61_100_840)
+    with pytest.raises(ValueError,match='parameter count'):
+        loader.load_configured(spec,gpu_id=1)
+    assert calls == [('constructor','models.alexnet',False)]
+
+
+def test_real_alexnet_constructor_count_matches_published_metadata():
+    # Meta tensors inspect the real constructor without storage, CUDA or forward.
+    from torchvision.models import alexnet
+    with torch.device('meta'):
+        model=alexnet(weights=None)
+    published=json.loads((Path(__file__).resolve().parents[1]/'manifests/models.json').read_text())
+    row=next(r for r in published['models'] if r['model_id']=='alexnet_classification')
+    count=sum(p.numel() for p in model.parameters())
+    assert count == vision.ALEXNET_PARAMETER_COUNT == 61_100_840
+    assert count == int(row['raw_result_metadata']['total_parameter_count'])
