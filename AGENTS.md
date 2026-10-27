@@ -47,12 +47,25 @@ do not present them as validated numerical backends.
 
 ## Scientific requirements
 
+Maintain `docs/replication_differences.md` with every methodological change for
+the final re:vision report. Separate paper evidence, released-code behavior,
+LAION adaptations and unresolved details; retain validation and decision status.
+
 - Do not train or fine-tune vision networks. Freeze pretrained models and use eval.
 - Match stimulus IDs explicitly to beta rows; preserve all repeats within splits.
 - Preserve checkpoint-specific transforms and the audited hook/layer procedure.
 - Never use test responses to fit, tune or select layers in independent evaluation.
   The released test-dependent layer filter is a documented discrepancy; reproducing
   it requires a separately named legacy protocol, never silent inclusion.
+  Owner F11 decision (2026-10-27): the named primary LAION protocol explicitly
+  requires C6 `legacy_deepnsd_session_v1`, z-scoring all valid session trials
+  (shared, unique and OOD) before repeat selection. Test-image betas contribute
+  only to unsupervised per-voxel session mean/std. The explicit primary-only flag
+  `normalization_exception='c6_legacy_session_zscore'` permits this preprocessing;
+  other independent paths still reject it. No test labels/scores or responses
+  enter ridge fitting, alpha choice or layer selection. C7 remains excluded.
+  This is consistent with GLMsingle fitting each session jointly. Remaining
+  collaborator sign-offs are required; it does not authorize scientific runs.
 - Never silently substitute modern defaults for historical methods or hyperparameters.
 - Prefer pinned, attributed upstream DeepNSD code for original methods. Keep
   configuration, ID checks and dataset adaptation outside vendored algorithms.

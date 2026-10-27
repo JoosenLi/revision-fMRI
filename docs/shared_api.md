@@ -108,3 +108,23 @@ untested real-checkpoint/CUDA boundaries. Single-batch hooks are available; cand
 with ordered raw activations and provenance. See [feature hooks](feature_hooks.md).
 The complete `FeatureExtractor` contract, candidate selection and cache-writing
 integration remain unimplemented; this batch primitive is not a candidate list.
+
+`load_primary_laion_split` and `ReproductionPipeline.evaluate_primary_laion_model`
+implement the primary 561/560 even/odd protocol. Both require `repeat_policy`
+without a default; the facade enforces `matched3_distinct_sessions_v1`, verifies
+the selection manifest/counts and reuses training-only selection. Construct its
+encoding protocol using `DeepNSDProtocol.jl_recomputed(split.split)` (6018 for the
+full 1121-image pool). See [primary protocol](primary_laion_protocol.md) and
+[report-facing replication differences](replication_differences.md).
+
+`TrialPresentation`, `TrialSession` and `aggregate_matched3` provide the common
+chronological selection/normalization/mean API. `LaionNiftiAdapter.responses_matched3`
+feeds it validated local trial/beta metadata. Selection JSON artifacts are written
+only beneath configured results_root; see [matched-three responses](matched3_responses.md).
+
+Matched-three NIfTI calls require `ordering_source` (no default). Primary uses
+`laion_volume_acquisition_order_v1` with explicit per-session `beta_sidecar` paths.
+Schema v3 records distinct-session preference, within-session fill and source-group
+counts. Primary requires `legacy_deepnsd_session_v1` and uses the validated,
+primary-only `c6_legacy_session_zscore` exception. Generic independent APIs retain
+their rejection of legacy normalization. See [F10/F11](matched3_responses.md).

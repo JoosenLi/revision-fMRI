@@ -1,6 +1,6 @@
 # Deviations and unresolved decisions
 
-Status as of 2026-10-24. No scientific run is authorized or launched. A proposal is not an implemented methodology choice. Each future run must record its protocol ID and resolved decisions below.
+Register initiated 2026-10-24; dated updates below record subsequent decisions. No scientific run has been launched. A proposal is not an implemented methodology choice. Each future run must record its protocol ID and resolved decisions below.
 
 | ID | Evidence / conflict | Current handling | Resolution / required test |
 |---|---|---|---|
@@ -11,9 +11,9 @@ Status as of 2026-10-24. No scientific run is authorized or launched. A proposal
 | D05 | NCSNR/t strict paper thresholds vs inclusive parser boundaries; generic parser includes EVC | Published OTC metadata is reference artifact, not generic parser defaults | Match original mask counts and exact voxel IDs; tests at threshold equality |
 | D06 | Model/library defaults, RNG states and checkpoint hashes incompletely specified | All models remain unapproved for extraction | Resolve local bytes, dependency versions, init seeds and candidate-layer fingerprints |
 | D07 | LAION anatomical visual sectors are not NSD streams; some category ROIs differ | Proposed `laion_otc_adapted_v1`, not original OTC | Explicit masks and reviewed mapping; missing ROIs are errors, not silent omissions |
-| D08 | LAION repeats and image counts differ from NSD shared1000×3 | Trial-aware data contract; no automatic subsampling/aggregation chosen | Persist image IDs, repeated-image grouping and counts; choose all-repeat vs matched-three protocol explicitly |
-| D09 | re:vision tau/cluster/OOD splits differ from original even/odd half split | Required separate adaptation; proposed shared-pool primary analysis | Pin split release/content; layer/alpha/scaler selection only inside outer training images |
-| D10 | Original 5,920 SRP dimensions derives from 1,000 samples | No LAION default selected | Decide fixed-budget versus JL-recomputed policy; report dimensions, epsilon, density, seed |
+| D08 | LAION scheduled repeats and within-session clustering differ from NSD | Owner F10 (2026-10-27): primary `matched3_distinct_sessions_v1`, earliest in each of three earliest sessions; fill from earliest unused if needed | Record filled flag, session spans and source-group summary; fail only below three valid trials total; remaining sign-offs pending |
+| D09 | re:vision tau/cluster/OOD splits differ from original even/odd half split | Primary: pinned 1121-image even/odd 561/560; official LAION splits secondary | Pin split release/content; layer/alpha/scaler selection only inside outer training images |
+| D10 | Original 5920 SRP dimensions derives from N=1000 | Owner decided original-formula recomputation (2026-10-26): `jl_recomputed_eps0.1`, full N=1121 -> 6018 | Enforce primary policy; record N, eps=.1, seed=0, density auto and upsampling; verify NSD1000 still gives 5920; other sign-offs pending |
 | D11 | LAION voxel NC (%) and NCSNR are not interchangeable with RSM ceiling | No threshold in percentage units substituted | Recover/recompute NCSNR from correct variance and repeat convention; GSN remains separate |
 | D12 | SLIP released statistics include architecture interaction absent in paper pseudocode | Preserve both descriptions; no Python replacement fitted | Compare R design matrices, coefficients, SEs and reference levels |
 | D13 | Source malformed NaN warning and implicit image alignment | New metrics/data APIs reject nonfinite/degenerate patterns and mismatched IDs | Implemented validation deviation; test deterministic failures |
@@ -25,10 +25,10 @@ Status as of 2026-10-24. No scientific run is authorized or launched. A proposal
 | D19 | Executing released C4 on sklearn 1.3.2 reveals `copy_X=True` binds to positional `normalize`, enabling feature L2 normalization | Corrected the initial static audit; reference requires explicit `legacy_l2_normalize`; True matches unmodified source in the pinned compatibility environment | Five synthetic source fixtures plus brute-force LOO tests pass; original authors' dependency version/intent remains unresolved; no silent choice for scientific runs |
 
 2026-10-26 implementation update: D03's centered LOO behavior is now numerically
-verified against unmodified source; D10 remains an explicit caller-supplied
-projection count; D18's float32 ridge option remains unavailable in the numerical
-reference and fails explicitly. D01/D02 and all LAION scientific decisions remain
-unresolved. See `encoding_reference.md` for scope and validation tolerances.
+verified against unmodified source; at this earlier implementation stage D10 was caller-supplied
+(subsequently decided below); D18's float32 ridge option remains unavailable in the numerical
+reference and fails explicitly. D01/D02 remain unresolved; subsequent LAION protocol decisions are recorded
+in the dated updates below. See `encoding_reference.md` for scope and validation tolerances.
 
 Changes to engineering (configuration, validation, source hashing) are implemented. Scientific changes listed as proposals or unresolved must not be promoted to original-method claims. No new regularization, feature pooling, PCA, pretrained replacement, network fine-tuning or modern default scoring is introduced.
 
@@ -40,7 +40,7 @@ Data adapter update (2026-10-26): D08/D16 now have an explicit opt-in `mean_all_
 
 The public sub-01/ses-01 TSV has 1044 rows but only 87 distinct beta_index values (0–86), repeated across 12 runs. The website describes session-global indices. The official loader at `cf82765ced029de81c3bec7254b8cbd6a65e3686` preserves TSV row order and constructs a separate session_trial index. The GLMsingle summary lists acquisition sources in run order 01–12 and 87 trials per run. The explicit `run_index` adapter maps volume_index = cumulative preceding run lengths + beta_index; this matches the pilot TSV order. Other releases require their own verified mapping. No silent fallback to row order is allowed.
 
-### D21 — Session normalization scope
+### D21 — Session normalization scope (initial state; superseded by F11 below)
 
 C6 z-scores across all trials within a session before concatenation/casting to float32. `legacy_deepnsd_session_v1` preserves that operation; a separately named `train_only_session_v1` fits only caller-specified training trials. Both are explicit primitives, not enabled automatically in the LAION reader. Independent evaluation rejects the legacy provenance tag. This documents response preprocessing scope separately from C7 layer filtering; exact historical averaged-beta export provenance remains unresolved.
 
@@ -48,7 +48,7 @@ C6 z-scores across all trials within a session before concatenation/casting to f
 
 D09 implementation update (2026-10-26): original shared-pool assignment files at
 LAION source commit `cf82765ced029de81c3bec7254b8cbd6a65e3686` are hash-locked and
-imported unchanged. No primary split is implicitly selected. Exact upstream ID
+imported unchanged. Official assignments are secondary; the explicitly named primary even/odd protocol is documented below. Exact upstream ID
 order is preserved. The one-session pilot is incomplete; coverage diagnostics
 do not truncate the official split or establish scientific-run readiness.
 
@@ -86,3 +86,75 @@ See [hook acceptance spec](feature_hooks.md) and [model manifest](model_manifest
 No normalization, split, repeat, ROI or metric decision is made here. Future
 candidate selection needs 3-collaborator review; this follow-up adds acceptance
 specifications, an architecture guard and tests, not that numerical backend.
+
+### D09 — Primary protocol decision and implementation (2026-10-26)
+
+The owner's PR #9 F4 update selects `laion_splithalf_even_odd_v1` as primary:
+561 training and 560 test images from the pinned published 1121-ID non-OOD list,
+without runtime sorting. Both LAION and unchanged NSD1000 use the same even/odd
+helper. Official tau/cluster/random/OOD splits are secondary extensions.
+The order adapts C1's NSD stimulus CSV order; source bytes and ordered-ID hashes
+are fixed in [primary protocol](primary_laion_protocol.md). Existing training-only
+layer selection is reused; C7 filtering is excluded. Repeat policy is a mandatory
+parameter with no default and must match prepared-response aggregation metadata.
+At initial F4 implementation no repeat algorithm or SRP budget was selected;
+the subsequent F7/F9 decisions below supersede that status. Requires 3-collaborator review. Maintain the report-facing account in
+[replication differences](replication_differences.md).
+
+### D08/D10 — Owner decisions implemented (2026-10-26, PR #10 F7/F9)
+
+Primary SRP now uses the full split image universe with the original JL formula,
+eps=0.1: 1121 -> 6018, while 1000 -> 5920 remains unchanged. Named policy
+`jl_recomputed_eps0.1` preserves seed 0, auto density and upsampling. Primary
+reports record this specification and reject arbitrary caller budgets.
+
+Primary repeats now require explicit `matched3_first_chronological_v1`: normalize
+valid rows within each session first, then select the earliest three valid trials
+by acquisition session/run/onset and mean with float64 accumulation. No RNG and
+no fallback below three. Trial manifests retain eligible and selected identifiers,
+hashes and session span. Explicit validity exclusions affect normalization scope;
+all-valid data retain the original operation order. First-three temporal clustering
+is a LAION adaptation relative to NSD repeats across sessions. D21's normalization
+scope remains explicit; legacy all-session responses remain forbidden in the
+independent evaluator. See [matched-three responses](matched3_responses.md).
+
+Owner decisions are recorded; remaining two collaborator sign-offs are pending.
+All-repeat averaging and the NSD bridge are deferred to the generalization-award
+stage after faithful reproduction (F8/F9d), not silently run as primary analyses.
+
+### B1 / D20 / D21 — Earlier B1 fix and pending N1 (superseded by F10/F11 below)
+
+The real pilot TSV has no onset/valid columns. Matched-three now requires a named
+ordering source: `tsv_onset_v1` or `glmsingle_beta_index_order_v1`. The latter
+requires validated run-local indices and assumes their order is chronological;
+independent events/onset verification remains required when available. Schema-v2
+selection artifacts distinguish index ranks from timing and retain source hashes.
+Validity remains explicit; all-valid is a declaration, not inferred QC.
+No primary normalization is chosen. N1 awaits owner/collaborator decision among
+C6 all-session, proposed exclude-test (not implemented), and existing train-only.
+The legacy-tag evaluator rejection remains; train-only availability does not
+resolve N1. Primary scientific execution is blocked on that decision.
+Requires 3-collaborator review (trial ordering/repetition provenance).
+
+### B1 / F10 / F11 — Owner decisions (2026-10-27; current)
+
+D08 now requires `matched3_distinct_sessions_v1`: earliest trial in each of the
+three earliest sessions; if fewer than three sessions, fill with earliest unused
+trials and flag the image, never drop it. Fewer than three valid presentations
+still fails. Source-group summaries distinguish three-session vs filled images.
+This supersedes the first-chronological primary rule; that policy is secondary.
+
+B1 uses `laion_volume_acquisition_order_v1`: numeric session then volume_index,
+backed by the beta sidecar's acquisition-time statement and recorded source hash.
+No invented onset is required. Optional events verification remains unimplemented.
+
+D21/N1 is resolved by the owner: primary requires C6 `legacy_deepnsd_session_v1`,
+all valid session trials (shared, unique and OOD), ddof=0, before selection/mean.
+The explicit `c6_legacy_session_zscore` exception is restricted to the canonical
+primary protocol. Test betas contribute to unsupervised session mean/std only;
+ridge fitting, alpha/layer selection and C7 rules do not change. Generic independent
+paths reject legacy normalization. This matches session-wide GLMsingle fitting
+scope but does not establish historical export equivalence. Train-only is not
+primary; exclude-test is deferred sensitivity work. Policy/exception and selection
+summary are recorded in reports. Requires 3-collaborator review; other sign-offs
+remain pending. See [matched-three API](matched3_responses.md).

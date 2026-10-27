@@ -125,3 +125,15 @@ python scripts/validate_laion_pilot.py --config configs/paths.local.yaml --manif
 
 The script reads three singly presented images through the shared adapter;
 it performs no feature inference, fitting or ROI reliability selection.
+
+## Matched-three primary reader — F9 update (2026-10-26)
+
+The original all-listed mean path above remains a secondary interface. The new
+`responses_matched3` path accepts a manifest explicitly naming
+`matched3_distinct_sessions_v1` and explicit session normalization. Primary uses
+`legacy_deepnsd_session_v1`; all valid session trials are normalized before repeat
+selection. Required ordering source `laion_volume_acquisition_order_v1` uses the
+explicit `beta_sidecar` field in every session entry to verify/hash acquisition
+ordering. The unchanged geometry and run-index mapping supply volume_index.
+Missing onset/validity columns are not fabricated. Selection and primary-only
+normalization exception details are in [matched-three responses](matched3_responses.md).
