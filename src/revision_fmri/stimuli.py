@@ -98,7 +98,7 @@ class StimulusReader:
                 with Image.open(BytesIO(raw)) as image:
                     source = {'image_id': image_id, 'sha256': digest,
                               'mode': image.mode, 'size': list(image.size)}
-                    # C2 ImageDataset.__getitem__: every image, including RGB.
+                    # C2 StimulusSet.__getitem__ (feature_extraction.py:422): every image, including RGB.
                     with image.convert('RGB') as rgb:
                         tensor = preprocess(rgb)
                 if (not isinstance(tensor, torch.Tensor) or tensor.device.type != 'cpu'
