@@ -121,3 +121,8 @@ full 1121-image pool). See [primary protocol](primary_laion_protocol.md) and
 chronological selection/normalization/mean API. `LaionNiftiAdapter.responses_matched3`
 feeds it validated local trial/beta metadata. Selection JSON artifacts are written
 only beneath configured results_root; see [matched-three responses](matched3_responses.md).
+
+Matched-three NIfTI calls also require `ordering_source` (no default): explicit
+TSV onset or `glmsingle_beta_index_order_v1` under run-local indexing. Selection
+schema v2 records rank versus onset distinctly; see [B1/N1 status](matched3_responses.md).
+N1 is pending; no primary normalization is selected.

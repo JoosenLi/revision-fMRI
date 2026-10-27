@@ -46,7 +46,7 @@ scheduled trial.
 Owner decisions (2026-10-26, PR #9 D10/F7 and PR #10 D08/F9) now specify:
 
 - **Repeats:** `matched3_first_chronological_v1`, first three valid presentations
-  per image ordered by session acquisition rank, run rank, then onset. No RNG.
+  per image ordered by session acquisition rank, run rank, then an explicit within-run ordering source. No RNG.
   The repeat-policy argument remains mandatory with no default, but primary
   entry points reject other policy names. All-repeat averaging is deferred.
 - **SRP:** `jl_recomputed_eps0.1`, using the original C3 JL formula on the **full
@@ -64,7 +64,8 @@ responses = adapter.responses_matched3(
     repeat_policy="matched3_first_chronological_v1",
     normalization_policy=reviewed_normalization_policy,
     training_image_ids=normalization_training_ids,
-    validity_policy=reviewed_validity_policy)
+    validity_policy=reviewed_validity_policy,
+    ordering_source=reviewed_ordering_source)
 report = pipeline.evaluate_primary_laion_model(
     features=features, responses=responses, dataset_release=reviewed_release,
     repeat_policy="matched3_first_chronological_v1")
@@ -114,3 +115,7 @@ responses/features and a deterministic test encoder; they do not execute a
 6018-column ridge job. Separate tests verify the exact 5920/6018 JL results, and
 existing source-parity fixtures cover SRP/ridge numerics. No scientific
 result, GPU run or complete real-data evaluation is claimed.
+
+N1 remains pending: no normalization has been selected as primary. The existing
+train-only acceptance path is not a scientific endorsement; do not launch primary
+evaluation until the owner and collaborators resolve normalization scope.

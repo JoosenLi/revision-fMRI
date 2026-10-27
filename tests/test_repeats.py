@@ -108,3 +108,13 @@ def test_all_invalid_session_is_audited_without_contributing(fixture):
     manifest=validate_matched3_responses(out)
     assert manifest['sessions'][0]['n_valid']==0
     assert manifest['session_span']['first_session']=='s1'
+
+
+def test_mixed_order_units_fail(fixture):
+    sessions,kwargs=fixture
+    trials=list(sessions[0].trials)
+    trials[0]=replace(trials[0],onset=None,beta_index=0,
+                      ordering_source='glmsingle_beta_index_order_v1')
+    sessions[0]=replace(sessions[0],trials=tuple(trials))
+    with pytest.raises(ValueError,match='Mixed ordering'):
+        aggregate_matched3(sessions,**kwargs)

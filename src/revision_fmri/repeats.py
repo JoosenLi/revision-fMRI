@@ -9,6 +9,7 @@ from .provenance import array_digest, metadata_digest
 from .response import normalize_session
 
 MATCHED3_POLICY = 'matched3_first_chronological_v1'
+ORDERING_SOURCES = ('tsv_onset_v1', 'glmsingle_beta_index_order_v1')
 
 
 @dataclass(frozen=True)
@@ -16,8 +17,14 @@ class TrialPresentation:
     trial_id: str
     image_id: str
     run_order: int
-    onset: float
+    onset: float | None
     valid: bool
+    ordering_source: str = 'tsv_onset_v1'
+    beta_index: int | None = None
+
+    @property
+    def within_run_order(self):
+        return self.onset if self.ordering_source == 'tsv_onset_v1' else self.beta_index
 
 
 @dataclass(frozen=True)
@@ -66,7 +73,7 @@ def validate_matched3_responses(responses: ResponseSet) -> dict:
             raise ValueError('Trial-selection artifact reference mismatch')
         if metadata_digest(manifest) != expected:
             raise ValueError('Trial-selection manifest hash mismatch')
-        if (manifest['schema_version'] != 1 or manifest['seed'] is not None
+        if (manifest['schema_version'] != 2 or manifest['seed'] is not None
                 or manifest['normalization'] not in ('legacy_deepnsd_session_v1', 'train_only_session_v1')
                 or manifest['policy'] != MATCHED3_POLICY or tuple(manifest['image_ids']) != responses.image_ids
                 or manifest['response_values_sha256'] != array_digest(responses.values)
@@ -79,10 +86,22 @@ def validate_matched3_responses(responses: ResponseSet) -> dict:
         if tuple(row['image_id'] for row in manifest['images']) != responses.image_ids:
             raise ValueError('Trial-selection image order mismatch')
         seen = set()
+        ordering_sources = set()
         for row in manifest['images']:
             selected = row['selected_trials']
             eligible = row['valid_presentations']
-            order = lambda t: (t['session_order'], t['run_order'], t['onset'])
+            for trial in eligible:
+                source = trial['ordering_source']
+                ordering_sources.add(source)
+                value = trial['onset'] if source == 'tsv_onset_v1' else trial['beta_index']
+                if (source not in ORDERING_SOURCES or len(ordering_sources) != 1
+                        or isinstance(value, bool) or not isinstance(value, (int, float))
+                        or not np.isfinite(value) or value < 0
+                        or trial['within_run_order'] != value
+                        or (source == 'glmsingle_beta_index_order_v1'
+                            and (type(value) is not int or trial['onset'] is not None))):
+                    raise ValueError('Invalid explicit ordering source/value')
+            order = lambda t: (t['session_order'], t['run_order'], t['within_run_order'])
             if (len(eligible) != row['n_valid_available'] or eligible != sorted(eligible, key=order)
                     or selected != eligible[:3]
                     or any(t['valid'] is not True or t['image_id'] != row['image_id'] for t in eligible)
@@ -91,7 +110,7 @@ def validate_matched3_responses(responses: ResponseSet) -> dict:
                 raise ValueError('Manifest must select the earliest three valid presentations')
             if len(selected) != 3 or row['n_valid_available'] < 3:
                 raise ValueError('Require exactly three selected valid trials per image')
-            keys = [(t['session_order'], t['run_order'], t['onset']) for t in selected]
+            keys = [(t['session_order'], t['run_order'], t['within_run_order']) for t in selected]
             if keys != sorted(keys) or len(set(keys)) != 3:
                 raise ValueError('Selected trial chronology is ambiguous or unordered')
             for trial in selected:
@@ -140,6 +159,7 @@ def aggregate_matched3(sessions: Iterable[TrialSession], *, config: LocalConfig,
     available = dict.fromkeys(image_ids, 0)
     eligible = {image: [] for image in image_ids}
     session_ids, session_orders, trial_ids, audits = set(), set(), set(), []
+    ordering_sources = set()
     for session in sessions:
         if (not isinstance(session.session_id, str) or not session.session_id or type(session.session_order) is not int or session.session_order < 0
                 or session.session_id in session_ids or session.session_order in session_orders):
@@ -154,20 +174,30 @@ def aggregate_matched3(sessions: Iterable[TrialSession], *, config: LocalConfig,
                     or not isinstance(t.image_id, str) or not t.image_id
                     or t.trial_id in trial_ids or type(t.valid) is not bool
                     or type(t.run_order) is not int or t.run_order < 0
-                    or isinstance(t.onset, bool) or not isinstance(t.onset, (int,float,np.integer,np.floating))
-                    or not np.isfinite(t.onset) or t.onset < 0):
+                    or t.ordering_source not in ORDERING_SOURCES
+                    or isinstance(t.within_run_order, bool)
+                    or not isinstance(t.within_run_order, (int,float,np.integer,np.floating))
+                    or not np.isfinite(t.within_run_order) or t.within_run_order < 0
+                    or (t.ordering_source == 'glmsingle_beta_index_order_v1'
+                        and (type(t.beta_index) is not int or t.onset is not None))):
                 raise ValueError('Valid unique trial IDs and explicit acquisition metadata required')
-            key = (t.run_order, t.onset)
+            ordering_sources.add(t.ordering_source)
+            if len(ordering_sources) != 1:
+                raise ValueError('Mixed ordering sources are not supported')
+            key = (t.run_order, t.within_run_order)
             if key in keys:
-                raise ValueError('Ambiguous trial acquisition order: duplicate run/onset')
+                raise ValueError('Ambiguous trial acquisition order: duplicate run/within-run order')
             keys.add(key); trial_ids.add(t.trial_id)
             metadata.append({'trial_id': t.trial_id, 'image_id': t.image_id,
                              'session_id': session.session_id, 'session_order': session.session_order,
-                             'run_order': t.run_order, 'onset': float(t.onset), 'valid': t.valid})
+                             'run_order': t.run_order,
+                             'onset': None if t.onset is None else float(t.onset), 'valid': t.valid,
+                             'within_run_order': float(t.within_run_order),
+                             'ordering_source': t.ordering_source, 'beta_index': t.beta_index})
         # Sort before normalization as well, to make floating accumulation stable
         # when TSV rows/volume storage are permuted but acquisition metadata agrees.
         valid_rows = sorted((i for i,t in enumerate(session.trials) if t.valid),
-                            key=lambda i: (session.trials[i].run_order, session.trials[i].onset))
+                            key=lambda i: (session.trials[i].run_order, session.trials[i].within_run_order))
         if not valid_rows:
             audits.append({'session_id': session.session_id, 'session_order': session.session_order,
                            'input_values_sha256': array_digest(values),
@@ -191,7 +221,7 @@ def aggregate_matched3(sessions: Iterable[TrialSession], *, config: LocalConfig,
             eligible[t.image_id].append(metadata[i])
             entry = (metadata[i], normalized.values[j].copy())
             candidates[t.image_id].append(entry)
-            candidates[t.image_id].sort(key=lambda e: (e[0]['session_order'], e[0]['run_order'], e[0]['onset']))
+            candidates[t.image_id].sort(key=lambda e: (e[0]['session_order'], e[0]['run_order'], e[0]['within_run_order']))
             del candidates[t.image_id][3:]
     missing = [image for image in image_ids if available[image] < 3]
     if missing:
@@ -199,11 +229,12 @@ def aggregate_matched3(sessions: Iterable[TrialSession], *, config: LocalConfig,
     values = np.stack([np.asarray([entry[1] for entry in candidates[image]], dtype=np.float64).mean(axis=0)
                        for image in image_ids])
     images = [{'image_id': image, 'n_valid_available': available[image],
-               'valid_presentations': sorted(eligible[image], key=lambda t: (t['session_order'], t['run_order'], t['onset'])),
+               'valid_presentations': sorted(eligible[image], key=lambda t: (t['session_order'], t['run_order'], t['within_run_order'])),
                'selected_trials': [entry[0] for entry in candidates[image]],
                'session_span': _span([entry[0] for entry in candidates[image]])} for image in image_ids]
-    manifest = {'schema_version': 1, 'policy': repeat_policy, 'seed': None,
-                'ordering': 'session_order, run_order, onset; no tie breaking',
+    manifest = {'schema_version': 2, 'policy': repeat_policy, 'seed': None,
+                'ordering': 'session_order, run_order, within_run_order; no tie breaking',
+                'source_provenance': dict(provenance),
                 'subject_id': subject_id, 'roi_id': roi_id, 'space': space,
                 'dataset_release': provenance['dataset_release'], 'image_ids': image_ids,
                 'voxel_ids_sha256': metadata_digest(voxel_ids), 'normalization': normalization_policy,

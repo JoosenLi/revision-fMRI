@@ -107,3 +107,17 @@ independent evaluator. See [matched-three responses](matched3_responses.md).
 Owner decisions are recorded; remaining two collaborator sign-offs are pending.
 All-repeat averaging and the NSD bridge are deferred to the generalization-award
 stage after faithful reproduction (F8/F9d), not silently run as primary analyses.
+
+### B1 / D20 / D21 — Explicit ordering and pending N1 (2026-10-27)
+
+The real pilot TSV has no onset/valid columns. Matched-three now requires a named
+ordering source: `tsv_onset_v1` or `glmsingle_beta_index_order_v1`. The latter
+requires validated run-local indices and assumes their order is chronological;
+independent events/onset verification remains required when available. Schema-v2
+selection artifacts distinguish index ranks from timing and retain source hashes.
+Validity remains explicit; all-valid is a declaration, not inferred QC.
+No primary normalization is chosen. N1 awaits owner/collaborator decision among
+C6 all-session, proposed exclude-test (not implemented), and existing train-only.
+The legacy-tag evaluator rejection remains; train-only availability does not
+resolve N1. Primary scientific execution is blocked on that decision.
+Requires 3-collaborator review (trial ordering/repetition provenance).

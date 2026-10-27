@@ -84,3 +84,20 @@ For the final report, attach the merged protocol revision, approval history,
 actual data/ROI/split/checkpoint/transform/layer hashes, trial-selection manifest,
 software versions, precision and seeds to each result. Do not promote predictions
 or open reviewer recommendations to observed scientific results.
+
+## B1 / N1 follow-up — 2026-10-27
+
+**LAION adaptation / unresolved chronology:** the actual pilot TSV has only
+session/run/beta_index/label. An explicit `glmsingle_beta_index_order_v1` source
+now permits matched-three selection using validated per-run ranks. This assumes
+chronology and must be verified against events/onsets once available; there is
+no silent fallback from onset ordering. Selection schema v2 records the source,
+rank, null onset and source-file hashes. Metadata-only pilot-format and tiny
+synthetic response tests cover the boundary, not acquisition-timing equivalence.
+
+**Unresolved N1:** no primary normalization selected. C6 all-session is the
+released-code behavior; train-only is an implemented adaptation, not the primary
+choice; exclude-test is a proposed, unimplemented alternative. The current
+independent evaluator rejects all-session normalization. Primary scientific
+execution awaits owner/collaborator resolution, with alternatives intended for
+explicit sensitivity analyses. B1 does not change normalization mathematics.

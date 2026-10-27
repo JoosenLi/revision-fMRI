@@ -11,7 +11,7 @@ import numpy as np
 from .config import LocalConfig, load_config
 from .data import ResponseSet, unique_ids
 from .provenance import metadata_digest
-from .repeats import MATCHED3_POLICY, TrialPresentation, TrialSession, aggregate_matched3
+from .repeats import MATCHED3_POLICY, ORDERING_SOURCES, TrialPresentation, TrialSession, aggregate_matched3
 
 
 def _digest(path: Path) -> str:
@@ -78,6 +78,45 @@ def _read_trials(path: Path, session: str, n_volumes: int, *, index_mode: str,
     if len(records) != n_volumes or sorted(r.volume_index for r in records) != list(range(n_volumes)):
         raise ValueError('beta_index must map every beta volume exactly once')
     return tuple(sorted(records, key=lambda row: row.volume_index))
+
+
+def _acquisition_rank(label: str, prefix: str) -> int:
+    match = re.fullmatch(r'(?:' + prefix + r'-)?([0-9]+)', label)
+    if not match:
+        raise ValueError('Acquisition order requires numeric session/run labels')
+    return int(match[1])
+
+
+def matched3_trial_presentations(records: tuple[TrialRecord, ...], *, subject_id: str,
+                                 index_mode: str, ordering_source: str,
+                                 validity_policy: str) -> tuple[TrialPresentation, ...]:
+    """Metadata-only conversion; beta-index chronology is an explicit assumption.
+
+    No beta values or events files are read here. The beta-index policy requires
+    the validated run-local mapping, not TSV row order or session-global indices.
+    """
+    if ordering_source not in ORDERING_SOURCES:
+        raise ValueError('Explicit supported ordering source required')
+    if ordering_source == 'glmsingle_beta_index_order_v1' and index_mode != 'run_index':
+        raise ValueError('Beta-index ordering requires explicit run_index mapping')
+    if validity_policy not in ('tsv_valid_column_v1', 'all_presentations_valid_v1'):
+        raise ValueError('Explicit supported validity policy required')
+    trials = []
+    for r in records:
+        _acquisition_rank(r.session, 'ses')
+        if ordering_source == 'tsv_onset_v1' and r.onset is None:
+            raise ValueError('Onset ordering requires explicit trial onset metadata')
+        if validity_policy == 'tsv_valid_column_v1' and r.valid is None:
+            raise ValueError('Validity column is required for every trial')
+        if validity_policy == 'all_presentations_valid_v1' and r.valid is False:
+            raise ValueError('All-valid declaration conflicts with explicit invalid flag')
+        trials.append(TrialPresentation(
+            f'{subject_id}/{r.session}/{r.run}/volume-{r.volume_index}', r.image_id,
+            _acquisition_rank(r.run, 'run'),
+            r.onset if ordering_source == 'tsv_onset_v1' else None,
+            r.valid if validity_policy == 'tsv_valid_column_v1' else True,
+            ordering_source=ordering_source, beta_index=r.beta_index))
+    return tuple(trials)
 
 
 class LaionNiftiAdapter:
@@ -226,10 +265,10 @@ class LaionNiftiAdapter:
     def responses_matched3(self, subject_id: str, roi_id: str, image_ids: tuple[str, ...], *,
                            repeat_policy: str, normalization_policy: str,
                            training_image_ids: tuple[str, ...] | None,
-                           validity_policy: str) -> ResponseSet:
+                           validity_policy: str, ordering_source: str) -> ResponseSet:
         """Read sessions once, normalize valid rows, select/average first three, persist manifest.
 
-        Numeric BIDS session/run labels define acquisition ranks; onset is required.
+        Numeric BIDS labels define ranks; the within-run ordering source is required.
         Validity must be explicitly declared from the TSV or as all presentations
         valid. No inference from beta magnitudes or implicit bad-trial exclusion.
         """
@@ -237,37 +276,26 @@ class LaionNiftiAdapter:
         if (repeat_policy != MATCHED3_POLICY or m['aggregation'] != repeat_policy
                 or m['normalization'] != normalization_policy):
             raise ValueError('Matched3 call must agree with manifest aggregation/normalization')
+        if ordering_source not in ORDERING_SOURCES:
+            raise ValueError('Explicit supported ordering source required')
         if validity_policy not in ('tsv_valid_column_v1', 'all_presentations_valid_v1'):
             raise ValueError('Explicit supported validity policy required')
         m, mask_path, mask_img, mask, coords, sessions, source_hashes = self._prepare_response_inputs(
             subject_id, roi_id, image_ids)
-        def rank(label, prefix):
-            match = re.fullmatch(r'(?:' + prefix + r'-)?([0-9]+)', label)
-            if not match:
-                raise ValueError('Acquisition order requires numeric session/run labels')
-            return int(match[1])
         def session_arrays():
             for (beta, records), entry in zip(sessions, m['sessions']):
-                trials = []
-                for r in records:
-                    if r.onset is None:
-                        raise ValueError('Matched3 requires explicit trial onset metadata')
-                    if validity_policy == 'tsv_valid_column_v1' and r.valid is None:
-                        raise ValueError('Validity column is required for every trial')
-                    if validity_policy == 'all_presentations_valid_v1' and r.valid is False:
-                        raise ValueError('All-valid declaration conflicts with explicit invalid flag')
-                    trials.append(TrialPresentation(
-                        f'{subject_id}/{r.session}/{r.run}/volume-{r.volume_index}', r.image_id,
-                        rank(r.run, 'run'), r.onset,
-                        r.valid if validity_policy == 'tsv_valid_column_v1' else True))
+                trials = matched3_trial_presentations(records, subject_id=subject_id,
+                    index_mode=entry['index_mode'], ordering_source=ordering_source,
+                    validity_policy=validity_policy)
                 # One session's ROI matrix, never the full dataset or GPU memory.
                 values = np.stack([np.asarray(beta.dataobj[..., r.volume_index])[coords] for r in records])
-                yield TrialSession(entry['session_id'], rank(entry['session_id'], 'ses'), tuple(trials), values)
+                yield TrialSession(entry['session_id'], _acquisition_rank(entry['session_id'], 'ses'), tuple(trials), values)
         provenance = {**m['provenance'], 'adapter': 'laion-nifti-matched3-v1',
                       'manifest_sha256': hashlib.sha256(self._manifest_bytes).hexdigest(),
                       'source_files_sha256': metadata_digest(source_hashes),
                       'source_files': json.dumps(source_hashes, sort_keys=True),
                       'mask_sha256': _digest(mask_path), 'validity_policy': validity_policy,
+                      'ordering_source': ordering_source,
                       'grid_sha256': metadata_digest({'shape': list(mask.shape), 'affine': mask_img.affine.tolist()})}
         return aggregate_matched3(session_arrays(), config=self.config, image_ids=image_ids,
             voxel_ids=tuple(f'T1w:{i}:{j}:{k}' for i,j,k in zip(*coords)),
