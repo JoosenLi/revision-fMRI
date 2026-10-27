@@ -6,6 +6,7 @@ from .hooks import CapturedHookBatch, capture_feature_batch
 from .evaluation import EvaluationSplit
 from .models import ModelLoader, ModelSpec
 from .vision import ClassificationTransform, LoadedVisionModel, TorchvisionAlexNetLoader
+from .stimuli import StimulusBatch, StimulusReader
 from .statistics import StatisticalAdapter, StatisticalSpec
 from .laion import LaionNiftiAdapter
 from .roi import VoxelMap, OTCProtocol, ROISelection, select_otc
@@ -19,7 +20,7 @@ from .official_splits import (load_official_split, official_split_inventory,
                              TrialPartition, partition_trials, validate_holdout_family)
 
 __version__ = "0.1.0"
-__all__ = ["TrialPresentation", "TrialSession", "aggregate_matched3", "MATCHED3_POLICY",
+__all__ = ["StimulusBatch", "StimulusReader", "TrialPresentation", "TrialSession", "aggregate_matched3", "MATCHED3_POLICY",
            "validate_matched3_responses", "write_trial_selection_manifest","API_VERSION", "DeepNSDProtocol", "EvaluationReport", "MetricResult",
            "ReproductionPipeline", "DatasetAdapter", "ResponseSet", "FeatureExtractor",
            "FeatureSet", "CapturedHookBatch", "capture_feature_batch", "EvaluationSplit", "ModelLoader", "ModelSpec",
