@@ -1,9 +1,12 @@
-# Official LAION shared-pool split import
+# Official LAION shared-pool splits — secondary analyses
 
 The importer reads the original assignment files from
 [LAION-fMRI commit cf82765](https://github.com/ViCCo-Group/LAION-fMRI/tree/cf82765ced029de81c3bec7254b8cbd6a65e3686/laion_fmri/splits).
 It never regenerates random, CLIP-cluster, tau or OOD partitions. This is a named
-LAION adaptation (D09), not the original NSD even/odd 500/500 protocol.
+LAION adaptation (D09) for **secondary extension analyses**, not the primary
+replication protocol. The primary analysis uses the original-style even/odd
+split-half over 1121 non-OOD images (561/560); see
+[primary LAION protocol](primary_laion_protocol.md).
 
 The package includes only a small lock manifest of paths, sizes and SHA-256
 hashes (`revision_fmri/resources/laion_shared_splits.json`). Actual official JSON

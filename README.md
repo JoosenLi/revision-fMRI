@@ -54,3 +54,7 @@ The canonical backend now directly executes pinned DeepNSD source. `ridge_gcv_mo
 Shared development rules live in `AGENTS.md`. Local workstation instructions live in ignored `AGENTS.local.md`; agents must read it when local environment details are needed. Scientific changes require review by all three collaborators before merge.
 
 The encoding reference revealed an additional source discrepancy: on the pinned sklearn 1.3.2 environment, the released positional preprocessing call enables L2 normalization. See D19 before choosing a protocol; this is not claimed as the recovered historical environment.
+
+The [primary protocol](docs/primary_laion_protocol.md) uses pinned non-OOD LAION
+even/odd split-half; official LAION splits are secondary analyses. The maintained
+[replication differences ledger](docs/replication_differences.md) supports the final report.
