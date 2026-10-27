@@ -5,8 +5,9 @@
 `tests/test_end_to_end_fidelity.py` transcribes C1 `get_splithalf_xy` /
 `run_benchmarking` and C6 `get_rdms` / `get_splithalf_rdms` at DeepNSD
 `36f6a34727dccb5eec8fa49364b210a049a388d7`. Expected results do not use the
-package's projection, metric, selection or encoding wrappers. They use sklearn
-SRP/scaling and the unchanged vendored RidgeCVMod / compare_rdms primitives.
+package's projection, metric, selection or encoding wrappers. They call the unchanged vendored `get_feature_map_srps` dictionary path with
+`upsampling=True, eps=0.1, seed=0`, sklearn scaling, and the unchanged vendored
+RidgeCVMod / compare_rdms primitives.
 This is an independent orchestration check, not an independent implementation
 of the original ridge mathematics (the SVD/component fixtures cover that).
 
@@ -17,7 +18,11 @@ predictions score training veRSA, and coefficient-plus-intercept predictions
 score test veRSA. Brain RDMs are formed on the whole response matrix then sliced.
 Compare every layer's training cRSA/veRSA, each metric's selected layer and held-out
 score at absolute tolerance 1e-10 (rtol=0), plus alpha choices and prediction arrays.
-The projection budget 9 is explicitly a tiny fixture, not a primary-run setting.
+Two parametrizations cover projection budget 9 with widths 16/21/25 and budget
+40 with widths 16/21/60. The latter exercises the original conditional upsampling
+branch for both narrow layers and downsampling for the wide layer; every expected
+projected shape is checked. These budgets are tiny fixtures, not primary-run
+settings. This adds released-code regression coverage without changing methods.
 No C7 test-dependent filtering is included. No real scientific experiment is run.
 
 ## G2: original subject/ROI size eligibility

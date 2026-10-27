@@ -8,7 +8,7 @@ projection/metric/selection/encoding wrappers on the expected-result path.
 import numpy as np
 import pytest
 from sklearn.preprocessing import StandardScaler
-from sklearn.random_projection import SparseRandomProjection
+from revision_fmri._vendor.deepnsd.reduction import get_feature_map_srps
 from revision_fmri import FeatureSet, ResponseSet
 from revision_fmri.evaluation import (evaluate_layers, even_odd_split,
                                      DeepNSDEncodingEvaluator, RELEASED_CODE_ALPHAS)
@@ -24,9 +24,14 @@ def original_flow(raw_layers, responses, n_components):
     alphas=np.logspace(-1,5,7).tolist()
     scores={metric:{part:{} for part in ('train','test')} for metric in ('crsa','versa')}
     predictions={}
+    # C3 fits before split. The dictionary path exercises its upsampling branch;
+    # the ndarray path bypasses that conditional in the released implementation.
+    projected_layers=get_feature_map_srps(
+        raw_layers,n_projections=n_components,upsampling=True,eps=0.1,seed=0,
+        save_outputs=False)
     for name,raw in raw_layers.items():
-        # C3 fits before split; explicit tiny projection budget is a test-only fixture.
-        projected=SparseRandomProjection(n_components=n_components,random_state=0).fit_transform(raw)
+        projected=projected_layers[name]
+        assert projected.shape == (raw.shape[0],n_components)
         scaler=StandardScaler()
         xtrain=scaler.fit_transform(projected[::2,:]);xtest=scaler.transform(projected[1::2,:])
         ridge=RidgeCVMod(alphas=alphas,store_cv_values=True,alpha_per_target=True,scoring='pearson_r')
@@ -43,19 +48,24 @@ def original_flow(raw_layers, responses, n_components):
     return scores,selected,predictions
 
 
-def test_original_end_to_end_three_layers_nonzero_voxel_means():
+@pytest.mark.parametrize(
+    'n_components,widths',[(9,(16,21,25)),(40,(16,21,60))],
+    ids=['downsampling','mixed-upsampling'])
+@pytest.mark.filterwarnings('ignore::sklearn.exceptions.DataDimensionalityWarning')
+def test_original_end_to_end_three_layers_nonzero_voxel_means(n_components,widths):
+    # Narrow layers intentionally trigger sklearn's dimensionality warning.
     rng=np.random.default_rng(1201)
     latent=rng.normal(size=(80,8))
     raw={f'layer-{i}':(latent@rng.normal(size=(8,width))+rng.normal(size=(80,width))*noise).astype('float32')
-         for i,(width,noise) in enumerate([(16,.1),(21,.5),(25,2.)])}
+         for i,(width,noise) in enumerate(zip(widths,(.1,.5,2.)))}
     y=latent@rng.normal(size=(8,30))+rng.normal(size=(80,30))*.2+np.arange(30)+10
     assert np.all(y.mean(axis=0)>5) # Centered LOO versus intercept-restored test matters.
     ids=tuple(f'image-{i}' for i in range(80))
     layers=tuple(FeatureSet(ids,'synthetic',name,x,'raw_flattened',{'seed':'1201'}) for name,x in raw.items())
     responses=ResponseSet(ids,tuple(f'v{i}' for i in range(30)),y,'s','roi','space',(3,)*80,{'seed':'1201'})
     split=even_odd_split(ids,protocol_id='synthetic',source_digest='synthetic')
-    expected,selected,predictions=original_flow(raw,y,9)
-    out=evaluate_layers(layers,responses,split,DeepNSDEncodingEvaluator(9,0,True,'float64'),alphas=RELEASED_CODE_ALPHAS)
+    expected,selected,predictions=original_flow(raw,y,n_components)
+    out=evaluate_layers(layers,responses,split,DeepNSDEncodingEvaluator(n_components,0,True,'float64'),alphas=RELEASED_CODE_ALPHAS)
     assert out.selected_layers==selected
     for metric in ('crsa','versa'):
         for name in raw:
