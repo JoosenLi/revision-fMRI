@@ -44,3 +44,22 @@ All historical checkpoint identities remain unresolved; this adapter does not
 change any publication-manifest approval or verification status. Other model
 families and complete dataset extraction remain unimplemented; see
 [the single-batch hook API](feature_hooks.md) for the implemented primitive.
+
+## AlexNet candidate historical checkpoint (F5/F6)
+
+**Verified compatibility-library mapping, unresolved historical identity:** in
+[torchvision v0.21.0 AlexNet source](https://github.com/pytorch/vision/blob/v0.21.0/torchvision/models/alexnet.py),
+`AlexNet_Weights.IMAGENET1K_V1` points to
+`https://download.pytorch.org/models/alexnet-owt-7be5be79.pth`; the filename suffix
+`7be5be79` is the published SHA-256 prefix, not a complete verified file hash.
+Its legacy `pretrained=True` mapping identifies this as a candidate for the
+original loader, **not proof of the paper's historical bytes/library version**.
+No checkpoint is downloaded or approved, and `DEFAULT` is not selected.
+The machine-readable manifest remains unresolved/not locally verified. Full
+local SHA-256, historical provenance and candidate-layer validation remain needed.
+
+The loader now fails before GPU transfer if the instantiated model's parameter
+count differs from published **61,100,840**, and records that count in provenance.
+A meta-device constructor test verifies the architecture count against
+`manifests/models.json` without allocating weights or executing a forward pass.
+This architecture guard does not establish checkpoint identity.

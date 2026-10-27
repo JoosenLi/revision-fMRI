@@ -82,7 +82,7 @@ is explicitly rejected by the real runtime guard.
 
 No AlexNet checkpoint, GPU forward, image dataset extraction or scientific score
 was run for this change. Historical hook parity across other architectures and
-real-device activation parity are unverified. Next steps are original seeded
+real-device activation parity are unverified. Next steps are original unseeded
 probe/dedup diagnostics, a reviewed candidate manifest (including later-half
 selection), and bounded dataset extraction/cache integration. Original historical
 RNG states remain unresolved; deterministic dedup substitution is not introduced.
@@ -91,3 +91,50 @@ Statistics remain contract-only.
 **Requires 3-collaborator review:** feature definition/precision enforcement and
 source-preserving hook semantics. No metrics, original ridge hyperparameters,
 ROI/reliability, repetition handling or evaluation splits are changed.
+
+## Candidate-enumeration acceptance spec (F1)
+
+**Released-code behavior (C2, not yet implemented end to end):** preserve this
+sequence from `main_analysis.py:243-250` and `feature_extraction.py:252-329`
+at the pinned DeepNSD revision above:
+
+1. `get_empty_feature_maps(model, names_only=True, input_shape=(3,224,224))`
+   probes with **`torch.rand(3,3,224,224)`** (unseeded, not stimuli) and **hashkey
+   dedup**, which uses an unseeded `torch.rand` projection vector.
+2. `layer_subset = names[int(len(names)/2):]`: SI.4 later half **of the
+   deduplicated list**, preserving order and Python integer truncation.
+3. `get_all_feature_maps(model, loader, layers_to_retain=layer_subset)` uses
+   default `remove_duplicates=True`: per-batch capture without dedup, then a
+   **second hashkey dedup over full-dataset maps**, then flatten.
+
+Do not halve the raw hook list or deduplicate each stimulus batch. Historical RNG
+states are unresolved (D15). A future reproducible seeded diagnostic must record
+its seed as an adaptation; the source procedure itself was unseeded. This PR
+specifies acceptance, not a candidate-enumeration implementation.
+
+## AlexNet expected golden values (F2/F3)
+
+The `alexnet_classification` row in [published metadata](../manifests/models.json)
+has `model_depth=22`, `total_feature_count=1099216`, and
+`total_parameter_count=61100840`. The following hook/dedup interpretation is a
+**reviewer-derived prediction**, to be confirmed by the first authorized real
+run; it is not evidence that we have run historical weights:
+
+- **22 raw hooked outputs**: 13 features + AdaptiveAvgPool2d + 7 classifier +
+  the top-level AlexNet. Their summed flattened feature sizes are **1,099,216**.
+  Thus these published counts correspond to the list **before dedup**.
+- Expected duplicates: `AdaptiveAvgPool2d-1` equals `MaxPool2d-3` (6x6 to 6x6
+  adaptive pooling); `Dropout-1` and `Dropout-2` are identities in eval;
+  `AlexNet-1` equals `Linear-3`. Expected unique count: **18**, not 19.
+- Later half `names[9:]`: **9 scored layers**, in order:
+  `ReLU-4, Conv2d-5, ReLU-5, MaxPool2d-3, Linear-1, ReLU-6, Linear-2, ReLU-7, Linear-3`.
+
+`test_real_gpu_random_alexnet_hook_golden` is opt-in via
+`REVISION_FMRI_TEST_CUDA_FORWARD=1` and a local config through
+`REVISION_FMRI_CONFIG`. It is **not run by default and has not been run**.
+It uses random-init AlexNet (no checkpoint/download), the real preflight and
+`capture_feature_batch`, checking all 22 names in exact order and the size sum.
+It does not test candidate dedup, historical-weight parity or scientific scores.
+The diagnostic constructor/input seed is 0, explicitly distinct from the original
+unseeded enumeration. GPU selection comes from config; busy/unavailable/insufficient
+resources do not trigger a CPU fallback. Authorize GPU work before opting in.

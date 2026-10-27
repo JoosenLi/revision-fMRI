@@ -73,6 +73,20 @@ random-probe enumeration, hash dedup and later-half candidate selection are stil
 pending, not silently replaced. See [feature hooks](feature_hooks.md). No metrics,
 splits or original ridge hyperparameters change. Requires 3-collaborator review.
 
+### D06 / D15 / D22 — AlexNet fidelity acceptance follow-up (2026-10-27)
+
+F1/F2 now specify the released unseeded probe -> hash dedup -> later-half ->
+full-dataset second-dedup procedure and reviewer-derived AlexNet expectations:
+22 raw outputs / 1,099,216 features / 18 unique / 9 later-half candidates.
+These expectations are not an executed historical-weight result. F3 adds an
+opt-in random-init GPU test (not run); candidate enumeration/dedup remains pending.
+F5 checks the published 61,100,840 parameters before GPU transfer; F6 records
+`alexnet-owt-7be5be79.pth` as a candidate, still not downloaded/byte verified.
+See [hook acceptance spec](feature_hooks.md) and [model manifest](model_manifest.md).
+No normalization, split, repeat, ROI or metric decision is made here. Future
+candidate selection needs 3-collaborator review; this follow-up adds acceptance
+specifications, an architecture guard and tests, not that numerical backend.
+
 ### D09 — Primary protocol decision and implementation (2026-10-26)
 
 The owner's PR #9 F4 update selects `laion_splithalf_even_odd_v1` as primary:

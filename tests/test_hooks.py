@@ -1,4 +1,5 @@
 """Synthetic CPU hook semantics; runtime boundary is mocked only in these tests."""
+import os
 from types import SimpleNamespace
 from contextlib import nullcontext, contextmanager
 import numpy as np
@@ -125,3 +126,45 @@ def test_selected_device_context_is_restored(setup, monkeypatch):
     monkeypatch.setattr(torch.cuda, 'device', context)
     capture(loaded, inputs)
     assert events == [('enter', inputs.device), ('exit', inputs.device)]
+
+
+@pytest.mark.skipif(os.environ.get('REVISION_FMRI_TEST_CUDA_FORWARD') != '1',
+                    reason='Real CUDA forward requires separate explicit authorization/opt-in')
+def test_real_gpu_random_alexnet_hook_golden(monkeypatch):
+    """Not run during development; random-init only, no checkpoint or download."""
+    from revision_fmri.config import load_config
+    from revision_fmri.vision import _gpu_preflight, ALEXNET_PARAMETER_COUNT
+    from torchvision.models import alexnet
+    # Neither CUDA discovery nor construction happens at ordinary collection.
+    if not torch.cuda.is_available():
+        pytest.skip('CUDA unavailable')
+    config=load_config()
+    if not config.compute.allowed_gpu_ids:
+        pytest.skip('No configured GPU allowance')
+    if config.compute.device != 'cuda' or config.compute.precision != 'float32':
+        raise ValueError('Golden forward requires configured CUDA float32')
+    index=config.compute.allowed_gpu_ids[0]
+    device=f'cuda:{index}'
+    versions=_environment()
+    # A conservative minimum, not a promise of peak activation/workspace memory.
+    _gpu_preflight(torch,index,required_bytes=ALEXNET_PARAMETER_COUNT*4 + 256*1024**2)
+    monkeypatch.setattr(torch.backends.cuda.matmul,'allow_tf32',False)
+    monkeypatch.setattr(torch.backends.cudnn,'allow_tf32',False)
+    # Diagnostic RNG only; no claim to reproduce historical unseeded enumeration.
+    with torch.random.fork_rng(devices=[]), torch.device('cpu'):
+        torch.random.default_generator.manual_seed(0)
+        model=alexnet(weights=None).eval().requires_grad_(False)
+        inputs=torch.rand(3,3,224,224)
+    model=model.to(device=device,dtype=torch.float32)
+    inputs=inputs.to(device=device,dtype=torch.float32)
+    loaded=LoadedVisionModel(model,None,{'loader_revision':LOADER_REVISION,
+        'software_versions':versions,'device':device,'initialization':'random diagnostic',
+        'constructor_and_input_seed':0,'checkpoint':'none'})
+    out=hooks.capture_feature_batch(loaded,inputs,image_ids=('probe-0','probe-1','probe-2'),config=config)
+    assert tuple(out.activations) == (
+        'Conv2d-1','ReLU-1','MaxPool2d-1','Conv2d-2','ReLU-2','MaxPool2d-2',
+        'Conv2d-3','ReLU-3','Conv2d-4','ReLU-4','Conv2d-5','ReLU-5','MaxPool2d-3',
+        'AdaptiveAvgPool2d-1','Dropout-1','Linear-1','ReLU-6','Dropout-2',
+        'Linear-2','ReLU-7','Linear-3','AlexNet-1')
+    assert len(out.activations)==22
+    assert sum(values.shape[1] for values in out.activations.values())==1_099_216

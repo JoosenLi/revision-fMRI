@@ -17,6 +17,9 @@ from .config import LocalConfig
 from .deepnsd import verify_sources
 from .models import ModelSpec, verify_checkpoint
 
+# Published alexnet_classification metadata; architecture guard, not weight identity.
+ALEXNET_PARAMETER_COUNT = 61_100_840
+
 LOADER_REVISION = 'deepnsd-alexnet-offline-v1'
 TRANSFORM_ID = 'deepnsd-torchvision-classification-pil-v1'
 VISION_VERSIONS = {'torch': '2.6.0', 'torchvision': '0.21.0', 'Pillow': '12.0.0'}
@@ -149,6 +152,9 @@ class TorchvisionAlexNetLoader:
         with torch.random.fork_rng(devices=[]), torch.device('cpu'):
             torch.random.default_generator.manual_seed(0)
             model = get_torchvision_model('models.alexnet', pretrained=False)
+        parameter_count = sum(p.numel() for p in model.parameters())
+        if parameter_count != ALEXNET_PARAMETER_COUNT:
+            raise ValueError('AlexNet parameter count differs from published 61,100,840')
         expected = model.state_dict()
         if set(state) != set(expected):
             raise ValueError('Checkpoint keys do not exactly match the architecture')
@@ -162,6 +168,7 @@ class TorchvisionAlexNetLoader:
         model.to(device=device, dtype=torch.float32)
         return LoadedVisionModel(model, preprocess, {
             'model_id': spec.model_id,
+            'parameter_count': parameter_count,
             'checkpoint_sha256': spec.checkpoint_sha256,
             'loader_revision': LOADER_REVISION,
             'transform_sha256': preprocess.sha256,
