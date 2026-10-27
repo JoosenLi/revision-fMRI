@@ -128,3 +128,9 @@ Schema v3 records distinct-session preference, within-session fill and source-gr
 counts. Primary requires `legacy_deepnsd_session_v1` and uses the validated,
 primary-only `c6_legacy_session_zscore` exception. Generic independent APIs retain
 their rejection of legacy normalization. See [F10/F11](matched3_responses.md).
+
+## Local stimulus preparation
+
+`StimulusReader` and `StimulusBatch` provide config-bound, hash-verified, ID-ordered
+RGB preparation using the existing classification transform. Outputs stay on CPU;
+no model execution occurs. See [stimulus reader](stimulus_reader.md).

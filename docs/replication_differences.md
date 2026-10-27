@@ -124,3 +124,13 @@ is not independent preprocessing; raw test-trial changes can affect training
 normalization. Train-only is secondary, exclude-test sensitivity is deferred.
 These are owner decisions with two remaining sign-offs pending, not claims of
 reproducing historical averaged-beta exports or a completed scientific run.
+
+## Stimulus decoding boundary — 2026-10-27
+
+C2/C9: the shared reader explicitly applies PIL `.convert("RGB")` to every image
+before the unchanged model-specific classification transform. Engineering/LAION
+adaptation: portable manifest and SHA256 checks, explicit image-ID order, failure
+instead of silently dropping files. No extra crop, EXIF transpose, augmentation
+or scientific normalization is introduced. Synthetic RGB/grayscale/RGBA/palette
+parity and relocation tests validate the boundary; historical decoder parity and
+real dataset extraction remain unverified. See [stimulus reader](stimulus_reader.md).

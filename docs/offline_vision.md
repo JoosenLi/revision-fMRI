@@ -21,7 +21,7 @@ No key stripping, classifier removal, wrapper extraction, downloads or alternati
 checkpoint resolution occur. Freeze all parameters, call eval, then transfer to
 an explicitly allowed CUDA device. CPU staging never performs a forward pass.
 RGB PIL input is required; grayscale/RGBA/palette inputs are rejected at this
-transform boundary. The future shared stimulus reader must explicitly apply
+transform boundary. The shared [stimulus reader](stimulus_reader.md) explicitly applies
 `Image.open(path).convert('RGB')` to **every** stimulus before calling the
 transform, matching released `feature_extraction.py:423` at the pinned commit.
 The guard forbids implicit conversion inside the transform; it is not permission

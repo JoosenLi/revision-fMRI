@@ -88,3 +88,10 @@ F11 owner decision (2026-10-27) resolves N1 in favor of primary C6 all-valid
 session normalization under the explicit primary-only exception. Optional
 `exclude_test_session_v1` is a deferred named sensitivity analysis, not implemented.
 F1–F3 and F5/F6 remain isolated in PR #11; do not stack them into PR #10.
+
+## Stimulus reader stage — 2026-10-27
+
+T3/T8 now provide the explicit RGB image preparation boundary with local manifests,
+source hashes and ordered batch IDs. Model execution is not launched; candidate
+probe/dedup and extraction-to-cache orchestration remain next steps. See
+[stimulus reader](stimulus_reader.md) for API and validation limits.
